@@ -1583,16 +1583,15 @@ function sendResultsEmail() {
     comm_pace:       p.communication.pace,
     comm_focus:      p.communication.focus,
     comm_avoid:      p.communication.avoid,
-    with_d:          p.withOthers['D'] || '',
-    with_i:          p.withOthers['I'] || '',
-    with_s:          p.withOthers['S'] || '',
-    with_c:          p.withOthers['C'] || '',
-    secondary_name:  s.name,
-    secondary_tagline: s.tagline,
-    secondary_overview: s.overviewPlain,
-    secondary_tips:  s.tipsToWork,
-    secondary_strengths: s.strengths.slice(0,5).join(', '),
-    blend_description: `Your secondary style brings an important additional dimension to your personality. As a ${_primary}/${_secondary} blend, you combine the ${p.tagline.toLowerCase()} qualities of ${_primary} with the ${s.tagline.toLowerCase()} qualities of ${_secondary}.`,
+    working_with_html: (() => {
+      const colors  = { D:'#e74c3c', I:'#f39c12', S:'#27ae60', C:'#2980b9' };
+      const bgColors = { D:'#fdf7f7', I:'#fdf9f0', S:'#f4fbf7', C:'#f0f6fb' };
+      const names   = { D:'Dominance', I:'Influence', S:'Steadiness', C:'Conscientiousness' };
+      return Object.entries(p.withOthers).map(([type, tip]) =>
+        `<table width="100%" cellpadding="0" cellspacing="0" style="border-left:3px solid ${colors[type]};background:${bgColors[type]};border-radius:0 6px 6px 0;margin-bottom:10px;"><tr><td style="padding:12px 14px;"><p style="font-size:12px;font-weight:700;color:${colors[type]};margin:0 0 4px;">${type} – ${names[type]}</p><p style="font-size:13px;color:#444444;margin:0;line-height:1.6;">${tip}</p></td></tr></table>`
+      ).join('');
+    })(),
+    secondary_html: `<p style="font-size:14px;color:#444444;line-height:1.7;margin:0 0 12px;">Your secondary style brings an important additional dimension to your personality. As a <strong>${_primary}/${_secondary} blend</strong>, you combine the ${p.tagline.toLowerCase()} qualities of ${_primary} with the ${s.tagline.toLowerCase()} qualities of ${_secondary}.</p><p style="font-size:14px;color:#444444;line-height:1.7;margin:0 0 12px;">${s.tipsToWork}</p><p style="font-size:13px;color:#666666;margin:0;"><strong style="color:#333333;">Key strengths:</strong> ${s.strengths.slice(0,5).join(', ')}</p>`,
   }).then((response) => {
     console.log('✅ EmailJS success:', response);
     toast.innerHTML = `<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg> Results emailed to ${_userEmail}`;
