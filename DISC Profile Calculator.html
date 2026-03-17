@@ -3,11 +3,12 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>DISC Personality Profile Calculator</title>
+  <title>DISC.AI — Personality Profile</title>
 
   <!-- EmailJS — sends emails directly from the browser, no backend needed -->
   <!-- Setup: https://www.emailjs.com  (free tier = 200 emails/month)        -->
   <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
   <style>
     /* ─────────────────────────────────────────────────────────────────── */
@@ -54,7 +55,9 @@
     .logo-row { display: flex; align-items: center; gap: 18px; margin-bottom: 40px; }
     .logo-rjp { height: 42px; width: auto; display: block; }
     .logo-divider { width: 1px; height: 36px; background: var(--border); }
-    .logo-title { font-size: 1.1rem; font-weight: 700; letter-spacing: .5px; }
+    .logo-title { font-size: 1.1rem; font-weight: 700; letter-spacing: .5px; display: flex; align-items: center; gap: 8px; }
+    .disc-dots { display: flex; gap: 4px; }
+    .disc-dot { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
     .logo-subtitle { font-size: .8rem; color: var(--text-muted); }
 
     /* ── INTRO ── */
@@ -69,7 +72,7 @@
 
     .style-cards {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      grid-template-columns: repeat(4, 1fr);
       gap: 14px;
       margin-bottom: 40px;
     }
@@ -77,20 +80,29 @@
       background: var(--surface);
       border: 1px solid var(--border);
       border-radius: var(--radius);
-      padding: 20px 16px;
-      border-top: 3px solid;
+      aspect-ratio: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-top: 4px solid;
     }
     .style-card.d { border-color: var(--d); }
     .style-card.i { border-color: var(--i); }
     .style-card.s { border-color: var(--s); }
     .style-card.c { border-color: var(--c); }
-    .style-card .letter { font-size: 1.8rem; font-weight: 900; margin-bottom: 2px; }
+    .style-card .letter { font-size: clamp(3rem, 8vw, 5rem); font-weight: 900; line-height: 1; }
     .style-card.d .letter { color: var(--d); }
     .style-card.i .letter { color: var(--i); }
     .style-card.s .letter { color: var(--s); }
     .style-card.c .letter { color: var(--c); }
-    .style-card .name { font-weight: 700; font-size: .95rem; margin-bottom: 6px; }
-    .style-card .desc { font-size: .8rem; color: var(--text-muted); line-height: 1.5; }
+
+    @keyframes spin-cw {
+      0%   { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    .style-card:hover {
+      animation: spin-cw 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    }
 
     /* ── BUTTONS ── */
     .btn-primary {
@@ -170,8 +182,9 @@
     }
     .word-btn:hover { background: #7b68ee22; border-color: #7b68ee; }
     .word-btn.selected {
-      background: linear-gradient(135deg, #7b68ee33, #38bdf822);
-      border-color: #7b68ee;
+      background: linear-gradient(135deg, #7b68ee22, #38bdf811);
+      border: 2.5px solid #7b68ee;
+      box-shadow: 0 0 0 3px #7b68ee44;
       color: #fff;
       font-weight: 700;
     }
@@ -323,6 +336,41 @@
     .email-status.success { display: flex; color: #4ade80; }
     .email-status.error   { display: flex; color: #f87171; }
 
+    /* ── RESULTS DISC GRID ── */
+    .results-disc-row {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+    .res-disc-box {
+      width: 80px; height: 80px;
+      border-radius: 14px;
+      border: 3px solid;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 2.2rem; font-weight: 900;
+      transition: opacity .3s;
+      opacity: 0.3;
+      background: var(--surface2);
+    }
+    .res-disc-box.is-primary {
+      width: 110px; height: 110px;
+      font-size: 3.2rem;
+      border-width: 3px;
+      opacity: 1;
+      animation: disc-pulse 2s ease-in-out infinite;
+    }
+    @keyframes disc-pulse {
+      0%, 100% { box-shadow: 0 0 0 0 var(--pulse-color); }
+      50%       { box-shadow: 0 0 0 12px transparent; }
+    }
+
+    @media (max-width: 480px) {
+      .res-disc-box { width: 60px; height: 60px; font-size: 1.7rem; border-radius: 10px; }
+      .res-disc-box.is-primary { width: 84px; height: 84px; font-size: 2.4rem; }
+      .results-disc-row { gap: 10px; }
+    }
+
     /* ── RESULTS ACTIONS ── */
     .results-actions { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 32px; }
 
@@ -336,6 +384,17 @@
       padding-top: 20px;
     }
 
+    /* ── INTRO COPYRIGHT ── */
+    .intro-copyright {
+      margin-top: 48px;
+      font-size: .75rem;
+      color: #ffffff;
+      line-height: 1.6;
+      border-top: 1px solid var(--border);
+      padding-top: 20px;
+      max-width: 600px;
+    }
+
     /* ── DETAILS CAPTURE ── */
     .details-card {
       background: var(--surface);
@@ -344,9 +403,30 @@
       padding: 40px 36px;
       max-width: 600px;
     }
-    .details-icon { font-size: 2.2rem; margin-bottom: 16px; }
+    .details-icon { margin-bottom: 16px; display: flex; align-items: center; }
     .details-heading { font-size: 1.5rem; font-weight: 800; margin-bottom: 10px; }
     .details-sub { color: var(--text-muted); font-size: .95rem; line-height: 1.65; margin-bottom: 28px; }
+
+    /* ── INPUT WOBBLE ── */
+    @keyframes wobble {
+      0%   { transform: translateX(0); }
+      15%  { transform: translateX(-8px); }
+      30%  { transform: translateX(7px); }
+      45%  { transform: translateX(-6px); }
+      60%  { transform: translateX(5px); }
+      75%  { transform: translateX(-3px); }
+      90%  { transform: translateX(2px); }
+      100% { transform: translateX(0); }
+    }
+    .input-wobble { animation: wobble 0.5s ease; border-color: #e74c3c !important; }
+    .details-error-msg {
+      color: #e74c3c;
+      font-size: .85rem;
+      font-weight: 600;
+      margin-top: 10px;
+      display: none;
+    }
+    .details-error-msg.visible { display: block; }
 
     /* ── EMAIL SENT TOAST ── */
     .email-toast {
@@ -365,10 +445,94 @@
     .email-toast.visible { display: flex; }
     .email-toast.error-toast { background: #e74c3c18; border-color: #e74c3c40; color: #f87171; }
 
-    /* Responsive */
-    @media (max-width: 480px) {
-      .word-btn { flex: 1 1 100%; }
+    /* ─────────────────────────────────────────────────────────────────── */
+    /*  MOBILE / RESPONSIVE                                                */
+    /* ─────────────────────────────────────────────────────────────────── */
+
+    /* Tablet — 768px and below */
+    @media (max-width: 768px) {
+      .app { padding: 24px 16px 60px; }
+
+      .logo-row { gap: 12px; margin-bottom: 28px; }
+      .logo-rjp { height: 34px; }
+      .logo-title { font-size: 1rem; }
+      .logo-subtitle { font-size: .75rem; }
+
+      .hero-sub { font-size: .95rem; margin-bottom: 28px; }
+
+      .style-cards { gap: 10px; margin-bottom: 28px; }
+
+      .results-hero { padding: 28px 16px 24px; }
+      .results-badge { width: 72px; height: 72px; font-size: 2rem; }
+      .results-title { font-size: 1.35rem; }
+      .results-subtitle { font-size: .85rem; }
+
+      .score-bars { padding: 18px; }
+      .profile-section { padding: 18px; }
+
+      .comms-grid { grid-template-columns: 1fr; }
+
+      .other-styles { grid-template-columns: 1fr; }
+
       .details-card { padding: 28px 20px; }
+
+      .results-actions { gap: 10px; }
+      .btn-primary { padding: 14px 28px; font-size: 1rem; }
+      .btn-secondary { padding: 12px 22px; font-size: .9rem; }
+    }
+
+    /* Mobile — 480px and below */
+    @media (max-width: 480px) {
+      .app { padding: 16px 12px 48px; }
+
+      .logo-row { gap: 10px; margin-bottom: 22px; }
+      .logo-rjp { height: 28px; }
+      .logo-title { font-size: .88rem; letter-spacing: 0; }
+      .disc-dot { width: 8px; height: 8px; }
+      .logo-subtitle { display: none; }
+
+      .style-cards {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 8px;
+        margin-bottom: 24px;
+      }
+      .style-card .letter { font-size: clamp(2rem, 10vw, 3rem); }
+
+      .hero-sub { font-size: .9rem; }
+
+      /* Full-width buttons on mobile */
+      .btn-primary  { width: 100%; justify-content: center; padding: 16px 20px; }
+      .btn-secondary { width: 100%; justify-content: center; padding: 14px 20px; }
+      .assess-actions { flex-direction: column; align-items: stretch; }
+      .results-actions { flex-direction: column; }
+
+      /* Bigger touch targets for word buttons */
+      .word-btn { flex: 1 1 100%; padding: 14px; font-size: .95rem; min-height: 48px; }
+
+      .question-block { padding: 16px; }
+
+      .details-card { padding: 22px 16px; }
+      .details-heading { font-size: 1.25rem; }
+      .email-fields { grid-template-columns: 1fr; }
+
+      /* Larger inputs for touch */
+      .field-group input { padding: 14px; font-size: 1rem; min-height: 48px; }
+
+      .score-bars { padding: 16px; }
+      .profile-section { padding: 16px; }
+
+      .results-hero { padding: 24px 14px 20px; }
+      .results-badge { width: 64px; height: 64px; font-size: 1.8rem; }
+      .results-title { font-size: 1.2rem; }
+
+      .intro-copyright { font-size: .72rem; margin-top: 36px; }
+
+      .tag { font-size: .75rem; padding: 5px 10px; }
+    }
+
+    /* Prevent hover spin on touch devices */
+    @media (hover: none) {
+      .style-card:hover { animation: none; }
     }
 
     /* ─────────────────────────────────────────────────────────────────── */
@@ -470,37 +634,28 @@
       </svg>
       <div class="logo-divider"></div>
       <div>
-        <div class="logo-title">DISC Profile Calculator</div>
+        <div class="logo-title">DISC.AI <span class="disc-dots"><span class="disc-dot" style="background:#e74c3c"></span><span class="disc-dot" style="background:#f39c12"></span><span class="disc-dot" style="background:#27ae60"></span><span class="disc-dot" style="background:#2980b9"></span></span></div>
         <div class="logo-subtitle">Personality Assessment Tool</div>
       </div>
     </div>
 
     <h1 class="hero-heading">Discover Your <span>Personality Style</span></h1>
     <p class="hero-sub">
-      Answer 24 quick questions — for each row, choose the word that best describes you right now.
-      There are no right or wrong answers. You'll receive a detailed profile of your dominant DISC style.
+      Take this personality assessment to gain a better insight in to yourself and learn more about how your personality profiles work using the DISC methodology.
     </p>
 
     <div class="style-cards">
       <div class="style-card d">
         <div class="letter">D</div>
-        <div class="name">Dominance</div>
-        <div class="desc">Results-focused, direct, decisive, and driven to challenge the status quo.</div>
       </div>
       <div class="style-card i">
         <div class="letter">I</div>
-        <div class="name">Influence</div>
-        <div class="desc">Enthusiastic, optimistic, and motivated by connection and recognition.</div>
       </div>
       <div class="style-card s">
         <div class="letter">S</div>
-        <div class="name">Steadiness</div>
-        <div class="desc">Patient, reliable, and focused on stability, loyalty, and teamwork.</div>
       </div>
       <div class="style-card c">
         <div class="letter">C</div>
-        <div class="name">Conscientiousness</div>
-        <div class="desc">Analytical, accurate, and driven by quality, facts, and precision.</div>
       </div>
     </div>
 
@@ -508,6 +663,8 @@
       Begin Assessment
       <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
     </button>
+
+    <p class="intro-copyright">DISC.AI has been developed by R J Penman Ltd. &copy; R J Penman Ltd. All rights reserved.</p>
   </div>
 
   <!-- ── DETAILS CAPTURE ── -->
@@ -519,19 +676,27 @@
       </svg>
       <div class="logo-divider"></div>
       <div>
-        <div class="logo-title">DISC Profile Calculator</div>
+        <div class="logo-title">DISC.AI <span class="disc-dots"><span class="disc-dot" style="background:#e74c3c"></span><span class="disc-dot" style="background:#f39c12"></span><span class="disc-dot" style="background:#27ae60"></span><span class="disc-dot" style="background:#2980b9"></span></span></div>
         <div class="logo-subtitle">Personality Assessment Tool</div>
       </div>
     </div>
 
     <div class="details-card">
-      <div class="details-icon">👤</div>
-      <h2 class="details-heading">Before we begin</h2>
-      <p class="details-sub">Enter your name and email address. Once you complete the assessment your full DISC profile will be emailed to you automatically.</p>
+      <div class="details-icon">
+        <span style="font-size:2.2rem;line-height:1;">👤</span>
+        <span style="display:flex;gap:5px;align-items:center;margin-left:12px;">
+          <span style="display:inline-block;width:14px;height:14px;border-radius:3px;background:#e74c3c;flex-shrink:0;"></span>
+          <span style="display:inline-block;width:14px;height:14px;border-radius:3px;background:#f39c12;flex-shrink:0;"></span>
+          <span style="display:inline-block;width:14px;height:14px;border-radius:3px;background:#27ae60;flex-shrink:0;"></span>
+          <span style="display:inline-block;width:14px;height:14px;border-radius:3px;background:#2980b9;flex-shrink:0;"></span>
+        </span>
+      </div>
+      <h2 class="details-heading">Before You Begin</h2>
+      <p class="details-sub">Please enter your full name and email address so that upon completing the assessment your full DISC profile and results will be emailed to you automatically.</p>
 
       <div class="email-fields">
         <div class="field-group">
-          <label for="reg-name">Your Name</label>
+          <label for="reg-name">Your Full Name</label>
           <input type="text" id="reg-name" placeholder="e.g. Sarah Johnson" autocomplete="name" />
         </div>
         <div class="field-group">
@@ -541,13 +706,14 @@
         </div>
       </div>
 
+      <p class="details-error-msg" id="details-error">Please enter your full name and email address in order to take the assessment.</p>
+
       <div class="assess-actions">
         <button class="btn-primary" onclick="proceedToAssessment()">
           Start Assessment
           <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
         </button>
         <button class="btn-secondary" onclick="showScreen('screen-intro')">← Back</button>
-        <span class="unanswered-msg" id="details-error"></span>
       </div>
     </div>
   </div>
@@ -561,22 +727,21 @@
       </svg>
       <div class="logo-divider"></div>
       <div>
-        <div class="logo-title">DISC Profile Calculator</div>
+        <div class="logo-title">DISC.AI <span class="disc-dots"><span class="disc-dot" style="background:#e74c3c"></span><span class="disc-dot" style="background:#f39c12"></span><span class="disc-dot" style="background:#27ae60"></span><span class="disc-dot" style="background:#2980b9"></span></span></div>
         <div class="logo-subtitle">Personality Assessment Tool</div>
       </div>
     </div>
 
     <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
-    <div class="progress-label" id="progress-label">0 of 24 answered</div>
 
-    <div class="assess-heading">Understanding Yourself</div>
-    <div class="assess-sub">For each row below, choose the <strong>one word</strong> that best describes you right now. Work quickly — your first instinct is usually most accurate.</div>
+    <div class="assess-heading">Learn More About Yourself</div>
+    <div class="assess-sub">For each question, select the word that you feel relates to you the most out of the 4 options in that row. Do this for each row. Don't overthink it, this assessment is most accurate when you go with your initial instinct. When finished hit the 'Submit' button at the bottom of the page.</div>
 
     <div id="questions-container"></div>
 
     <div class="assess-actions">
       <button class="btn-primary" onclick="submitAssessment()">
-        See My Profile
+        Submit
         <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
       </button>
       <button class="btn-secondary" onclick="showScreen('screen-intro')">← Back</button>
@@ -595,7 +760,7 @@
       </svg>
       <div class="logo-divider"></div>
       <div>
-        <div class="logo-title">DISC Profile Calculator</div>
+        <div class="logo-title">DISC.AI <span class="disc-dots"><span class="disc-dot" style="background:#e74c3c"></span><span class="disc-dot" style="background:#f39c12"></span><span class="disc-dot" style="background:#27ae60"></span><span class="disc-dot" style="background:#2980b9"></span></span></div>
         <div class="logo-subtitle">Your Results</div>
       </div>
     </div>
@@ -627,9 +792,9 @@
     </div>
 
     <p class="disclaimer">
-      Based on the DISC Personality Assessment framework. Results are indicative, not prescriptive —
-      all styles are equally valuable. Use this profile to understand your natural tendencies and improve
-      communication with others.
+      Results are indicative, not prescriptive, and based on the DISC personality framework. Use these insights to understand your natural tendencies and improve your communication skills with others.
+      <br><br>
+      DISC.AI has been developed by R J Penman Ltd. &copy; R J Penman Ltd. All rights reserved.
     </p>
   </div>
 
@@ -638,22 +803,68 @@
 <script>
 // ══════════════════════════════════════════════════════════════════════════════
 //  EMAILJS CONFIGURATION
-//  1. Sign up free at https://www.emailjs.com
-//  2. Add an email service (Gmail, Outlook, etc.) → copy the Service ID
-//  3. Create an email template → copy the Template ID
-//     Template variables available: {{to_name}}, {{to_email}}, {{primary_style}},
-//     {{secondary_style}}, {{score_d}}, {{score_i}}, {{score_s}}, {{score_c}},
-//     {{strengths}}, {{challenges}}, {{motivators}}, {{overview_plain}},
-//     {{comm_style}}, {{comm_pace}}, {{comm_focus}}
-//  4. Go to Account → copy your Public Key
-//  5. Paste your values below
+//
+//  SETUP STEPS:
+//  1. Go to https://www.emailjs.com and sign up (free = 200 emails/month)
+//  2. Click "Email Services" → Add New Service → choose your email provider
+//     - Connect contact@rossjohnpenman.com as the sending address
+//     - Copy the Service ID (e.g. "service_abc123") → paste into EMAILJS_SERVICE_ID below
+//  3. Click "Email Templates" → Create New Template
+//     - Set "From email" to: contact@rossjohnpenman.com
+//     - Set "From name" to: Ross | RJP Ltd
+//     - Set "Reply to": contact@rossjohnpenman.com
+//     - Set "To email": {{to_email}}
+//     - Set "Subject": Your DISC.AI Personality Profile Results
+//     - Paste this into the Body (HTML mode):
+//
+//       Hi {{to_name}},
+//
+//       Thank you for taking my DISC.AI personality assessment.
+//
+//       Please find below a copy of your results.
+//
+//       ──────────────────────────────
+//       YOUR DISC PROFILE RESULTS
+//       ──────────────────────────────
+//
+//       Primary Style:   {{primary_style}}
+//       Secondary Style: {{secondary_style}}
+//
+//       Score Breakdown:
+//       D – Dominance:       {{score_d}}
+//       I – Influence:       {{score_i}}
+//       S – Steadiness:      {{score_s}}
+//       C – Conscientiousness: {{score_c}}
+//
+//       About Your Style:
+//       {{overview_plain}}
+//
+//       Key Strengths:    {{strengths}}
+//       Blind Spots:      {{challenges}}
+//       Motivators:       {{motivators}}
+//
+//       Communication Style: {{comm_style}}
+//       Natural Pace:        {{comm_pace}}
+//       Focus:               {{comm_focus}}
+//
+//       ──────────────────────────────
+//
+//       Kind regards,
+//
+//       Ross
+//       Sales Advisor, Consultant & Trainer
+//       RJP Ltd
+//
+//     - Copy the Template ID → paste into EMAILJS_TEMPLATE_ID below
+//  4. Click "Account" in the top menu → copy your Public Key
+//     → paste into EMAILJS_PUBLIC_KEY below
+//  5. Change EMAIL_CONFIGURED below from false to true
 // ══════════════════════════════════════════════════════════════════════════════
-const EMAILJS_PUBLIC_KEY  = 'YOUR_PUBLIC_KEY';   // ← paste here
-const EMAILJS_SERVICE_ID  = 'YOUR_SERVICE_ID';   // ← paste here
-const EMAILJS_TEMPLATE_ID = 'YOUR_TEMPLATE_ID';  // ← paste here
+const EMAILJS_PUBLIC_KEY  = 'sspmWuGu28rt6kjsd';
+const EMAILJS_SERVICE_ID  = 'service_pszes4m';
+const EMAILJS_TEMPLATE_ID = 'template_f3ray4w';
 
-// Set to true once you've filled in real keys above
-const EMAIL_CONFIGURED = false;
+const EMAIL_CONFIGURED = true;
 
 // ──────────────────────────────────────────────────────────────────────────────
 // DATA: 24 rows, each word tagged with a DISC type
@@ -778,20 +989,25 @@ function showScreen(id) {
 let _userName = '', _userEmail = '';
 
 function proceedToAssessment() {
-  const name  = document.getElementById('reg-name').value.trim();
-  const email = document.getElementById('reg-email').value.trim();
+  const nameInput  = document.getElementById('reg-name');
+  const emailInput = document.getElementById('reg-email');
+  const name  = nameInput.value.trim();
+  const email = emailInput.value.trim();
   const errEl = document.getElementById('details-error');
 
-  if (!name) {
-    errEl.textContent = 'Please enter your name.';
+  const nameInvalid  = !name;
+  const emailInvalid = !email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+
+  if (nameInvalid || emailInvalid) {
     errEl.classList.add('visible');
-    document.getElementById('reg-name').focus();
-    return;
-  }
-  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    errEl.textContent = 'Please enter a valid email address.';
-    errEl.classList.add('visible');
-    document.getElementById('reg-email').focus();
+
+    // Wobble both inputs — remove class first so re-trigger works
+    [nameInput, emailInput].forEach(el => {
+      el.classList.remove('input-wobble');
+      void el.offsetWidth; // force reflow
+      el.classList.add('input-wobble');
+      el.addEventListener('animationend', () => el.classList.remove('input-wobble'), { once: true });
+    });
     return;
   }
 
@@ -812,7 +1028,7 @@ function renderQuestions() {
   const container = document.getElementById('questions-container');
   container.innerHTML = shuffled.map((q, qi) => `
     <div class="question-block" id="qblock-${qi}">
-      <div class="question-num">Question ${qi + 1} of 24</div>
+      <div class="question-num">Question ${qi + 1}</div>
       <div class="word-options">
         ${q.words.map(word => `
           <button class="word-btn" onclick="selectAnswer(${qi}, '${word.t}', this)">
@@ -838,7 +1054,6 @@ function selectAnswer(qi, type, btn) {
 function updateProgress() {
   const done = answers.filter(a => a !== null).length;
   document.getElementById('progress-fill').style.width = (done / 24 * 100) + '%';
-  document.getElementById('progress-label').textContent = `${done} of 24 answered`;
 }
 
 function submitAssessment() {
@@ -876,7 +1091,14 @@ function buildResults() {
 
   document.getElementById('results-content').innerHTML = `
     <div class="results-hero">
-      <div class="results-badge" style="background:${p.color}22;border:3px solid ${p.color};color:${p.color}">${_primary}</div>
+      <div class="results-disc-row">
+        ${['D','I','S','C'].map(type => `
+          <div class="res-disc-box ${type === _primary ? 'is-primary' : ''}"
+               style="border-color:${profiles[type].color};color:${profiles[type].color};background:${profiles[type].color}18;${type === _primary ? `--pulse-color:${profiles[type].color}66;` : ''}">
+            ${type}
+          </div>
+        `).join('')}
+      </div>
       <div class="results-title" style="color:${p.color}">${p.name}</div>
       <div class="results-subtitle">${p.tagline} &nbsp;·&nbsp; Secondary style: <strong style="color:${s.color}">${_secondary} – ${s.name}</strong></div>
     </div>
@@ -982,7 +1204,331 @@ function retakeAssessment() {
 // PDF DOWNLOAD
 // ──────────────────────────────────────────────────────────────────────────────
 function downloadPDF() {
-  window.print();
+  const btn = document.querySelector('.results-actions .btn-primary');
+  const originalText = btn.innerHTML;
+  btn.disabled = true;
+  btn.innerHTML = `<svg class="spin" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg> Generating…`;
+  setTimeout(() => _generatePDF(btn, originalText), 50);
+}
+
+function _generatePDF(btn, originalText) {
+  try {
+    if (!window.jspdf || !window.jspdf.jsPDF) {
+      alert('PDF library not loaded. Please check your internet connection and try again.');
+      btn.disabled = false;
+      btn.innerHTML = originalText;
+      return;
+    }
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+
+    const p   = profiles[_primary];
+    const s   = profiles[_secondary];
+    const W   = 210, M = 14, CW = W - M * 2;
+    let y     = M;
+
+    const dateStr = new Date().toLocaleDateString('en-GB', { day:'numeric', month:'long', year:'numeric' });
+
+    // helpers
+    const hex2rgb = h => [parseInt(h.slice(1,3),16), parseInt(h.slice(3,5),16), parseInt(h.slice(5,7),16)];
+
+    const setColor = (hex, type='text') => {
+      const [r,g,b] = hex2rgb(hex);
+      type === 'fill' ? doc.setFillColor(r,g,b) : doc.setTextColor(r,g,b);
+    };
+
+    const newPage = (need=20) => {
+      if (y + need > 283) { doc.addPage(); y = M; }
+    };
+
+    const sectionBox = (title, drawFn) => {
+      const startY = y;
+      // estimate height then draw — we draw content first then box
+      doc.setDrawColor(221,221,221);
+      doc.setFillColor(248,248,248);
+      // title
+      y += 5;
+      doc.setFont('helvetica','bold');
+      doc.setFontSize(10);
+      setColor('#111111');
+      doc.text(title, M+4, y);
+      y += 2;
+      doc.setDrawColor(221,221,221);
+      doc.line(M+4, y, M+CW-4, y);
+      y += 5;
+      drawFn();
+      y += 4;
+      // draw the box around section
+      doc.setDrawColor(221,221,221);
+      doc.setFillColor(248,248,248);
+      doc.roundedRect(M, startY-1, CW, y-startY+2, 2, 2, 'S');
+      y += 6;
+    };
+
+    const wrapText = (text, maxW, size=9) => {
+      doc.setFontSize(size);
+      return doc.splitTextToSize(text, maxW);
+    };
+
+    // ── HEADER BAR ──────────────────────────────────────────────────────────
+    doc.setFillColor(17,17,17);
+    doc.rect(0, 0, W, 18, 'F');
+    doc.setTextColor(255,255,255);
+    doc.setFont('helvetica','bold');
+    doc.setFontSize(14);
+    doc.text('RJP', M, 11);
+    doc.setFont('helvetica','normal');
+    doc.setFontSize(9);
+    doc.text('DISC.AI Personality Profile', W-M, 8, { align:'right' });
+    doc.text(dateStr, W-M, 14, { align:'right' });
+    y = 26;
+
+    // ── RESULTS FOR ─────────────────────────────────────────────────────────
+    doc.setFontSize(7);
+    doc.setFont('helvetica','normal');
+    setColor('#888888');
+    doc.text('RESULTS FOR', M, y);
+    y += 5;
+    doc.setFontSize(16);
+    doc.setFont('helvetica','bold');
+    setColor('#111111');
+    doc.text(_userName, M, y);
+    y += 10;
+
+    // ── DISC BOXES ──────────────────────────────────────────────────────────
+    const boxTypes = ['D','I','S','C'];
+    const totalBoxArea = CW;
+    const gap = 4;
+    const primarySz = 22, secondarySz = 16;
+    const totalW = primarySz + (secondarySz * 3) + (gap * 3);
+    let bx = M + (CW - totalW) / 2;
+
+    boxTypes.forEach(type => {
+      const isPrimary = type === _primary;
+      const sz = isPrimary ? primarySz : secondarySz;
+      const [r,g,b] = hex2rgb(profiles[type].color);
+      doc.setDrawColor(r,g,b);
+      doc.setLineWidth(isPrimary ? 0.8 : 0.4);
+      doc.setFillColor(r,g,b);
+      // light fill
+      doc.setFillColor(r+(255-r)*0.92, g+(255-g)*0.92, b+(255-b)*0.92);
+      doc.roundedRect(bx, y, sz, sz, 2, 2, 'FD');
+      // letter
+      doc.setTextColor(r,g,b);
+      if (!isPrimary) doc.setGState && doc.setGState(doc.GState({ opacity: 0.4 }));
+      doc.setFont('helvetica','bold');
+      doc.setFontSize(isPrimary ? 14 : 10);
+      doc.text(type, bx + sz/2, y + sz/2 + (isPrimary ? 5 : 3.5), { align:'center' });
+      if (!isPrimary) doc.setGState && doc.setGState(doc.GState({ opacity: 1 }));
+      bx += sz + gap;
+    });
+    y += primarySz + 6;
+
+    // ── PRIMARY STYLE TITLE ──────────────────────────────────────────────────
+    setColor(p.color);
+    doc.setFont('helvetica','bold');
+    doc.setFontSize(15);
+    doc.text(p.name, W/2, y, { align:'center' });
+    y += 6;
+    doc.setFont('helvetica','normal');
+    doc.setFontSize(8);
+    setColor('#555555');
+    doc.text(`${p.tagline}  ·  Secondary style: ${_secondary} – ${s.name}`, W/2, y, { align:'center' });
+    y += 10;
+
+    // ── SCORE BREAKDOWN ──────────────────────────────────────────────────────
+    newPage(50);
+    const scoreStart = y;
+    doc.setFont('helvetica','bold'); doc.setFontSize(10); setColor('#111111');
+    doc.text('Your DISC Score Breakdown', M+4, y+5);
+    y += 8;
+    doc.setDrawColor(221,221,221); doc.line(M+4, y, M+CW-4, y); y += 5;
+
+    Object.entries(_scores).sort((a,b)=>b[1]-a[1]).forEach(([type, score]) => {
+      const pct = Math.round(score/24*100);
+      const [r,g,b] = hex2rgb(profiles[type].color);
+      doc.setFont('helvetica','bold'); doc.setFontSize(8);
+      doc.setTextColor(r,g,b);
+      doc.text(`${type} — ${profiles[type].name}`, M+4, y);
+      doc.setFont('helvetica','normal'); setColor('#666666');
+      doc.text(`${score}/24 (${pct}%)`, M+CW-4, y, { align:'right' });
+      y += 3.5;
+      // bar track
+      doc.setFillColor(224,224,224);
+      doc.roundedRect(M+4, y, CW-8, 3, 1, 1, 'F');
+      // bar fill
+      doc.setFillColor(r,g,b);
+      doc.roundedRect(M+4, y, (CW-8) * pct/100, 3, 1, 1, 'F');
+      y += 7;
+    });
+    y += 2;
+    doc.setDrawColor(221,221,221); doc.setFillColor(248,248,248);
+    doc.roundedRect(M, scoreStart-1, CW, y-scoreStart+2, 2, 2, 'S');
+    y += 6;
+
+    // ── ABOUT YOUR STYLE ────────────────────────────────────────────────────
+    newPage(30);
+    const aboutStart = y;
+    doc.setFont('helvetica','bold'); doc.setFontSize(10); setColor('#111111');
+    doc.text('About Your Style', M+4, y+5); y += 8;
+    doc.setDrawColor(221,221,221); doc.line(M+4, y, M+CW-4, y); y += 5;
+    doc.setFont('helvetica','normal'); doc.setFontSize(8.5); setColor('#333333');
+    const aboutLines = wrapText(p.overviewPlain, CW-8, 8.5);
+    aboutLines.forEach(line => { newPage(6); doc.text(line, M+4, y); y += 5; });
+    y += 2;
+    doc.setDrawColor(221,221,221); doc.roundedRect(M, aboutStart-1, CW, y-aboutStart+2, 2, 2, 'S'); y += 6;
+
+    // ── TAG SECTIONS helper ──────────────────────────────────────────────────
+    const drawTags = (items, bgHex, textHex) => {
+      const [br,bg2,bb] = hex2rgb(bgHex);
+      const [tr,tg,tb]  = hex2rgb(textHex);
+      let tx = M+4;
+      const tagH = 5, tagPad = 3, lineH = 8;
+      items.forEach(item => {
+        doc.setFontSize(7.5);
+        const tw = doc.getTextWidth(item) + tagPad*2;
+        if (tx + tw > M+CW-4) { tx = M+4; y += lineH; newPage(lineH); }
+        doc.setFillColor(br,bg2,bb);
+        doc.roundedRect(tx, y-3.5, tw, tagH, 1.5, 1.5, 'F');
+        doc.setTextColor(tr,tg,tb);
+        doc.text(item, tx+tagPad, y);
+        tx += tw + 2.5;
+      });
+      y += lineH;
+    };
+
+    // ── KEY STRENGTHS ────────────────────────────────────────────────────────
+    newPage(25);
+    const strStart = y;
+    doc.setFont('helvetica','bold'); doc.setFontSize(10); setColor('#111111');
+    doc.text('Key Strengths', M+4, y+5); y += 8;
+    doc.setDrawColor(221,221,221); doc.line(M+4, y, M+CW-4, y); y += 6;
+    drawTags(p.strengths, '#d4f5e2', '#166534');
+    doc.setDrawColor(221,221,221); doc.roundedRect(M, strStart-1, CW, y-strStart+2, 2, 2, 'S'); y += 6;
+
+    // ── BLIND SPOTS ──────────────────────────────────────────────────────────
+    newPage(25);
+    const bsStart = y;
+    doc.setFont('helvetica','bold'); doc.setFontSize(10); setColor('#111111');
+    doc.text('Potential Blind Spots', M+4, y+5); y += 8;
+    doc.setDrawColor(221,221,221); doc.line(M+4, y, M+CW-4, y); y += 6;
+    drawTags(p.challenges, '#fee2e2', '#991b1b');
+    doc.setDrawColor(221,221,221); doc.roundedRect(M, bsStart-1, CW, y-bsStart+2, 2, 2, 'S'); y += 6;
+
+    // ── MOTIVATORS ───────────────────────────────────────────────────────────
+    newPage(25);
+    const motStart = y;
+    doc.setFont('helvetica','bold'); doc.setFontSize(10); setColor('#111111');
+    doc.text('What Motivates You', M+4, y+5); y += 8;
+    doc.setDrawColor(221,221,221); doc.line(M+4, y, M+CW-4, y); y += 6;
+    drawTags(p.motivators, '#fef3c7', '#92400e');
+    doc.setFont('helvetica','normal'); doc.setFontSize(8); setColor('#555555');
+    const fearLines = wrapText('Core fear: ' + p.fears, CW-8, 8);
+    fearLines.forEach(line => { doc.text(line, M+4, y); y += 5; });
+    y += 2;
+    doc.setDrawColor(221,221,221); doc.roundedRect(M, motStart-1, CW, y-motStart+2, 2, 2, 'S'); y += 6;
+
+    // ── COMMUNICATION STYLE ──────────────────────────────────────────────────
+    newPage(40);
+    const commStart = y;
+    doc.setFont('helvetica','bold'); doc.setFontSize(10); setColor('#111111');
+    doc.text('Your Communication Style', M+4, y+5); y += 8;
+    doc.setDrawColor(221,221,221); doc.line(M+4, y, M+CW-4, y); y += 5;
+
+    const commItems = [
+      ['Communication Style', p.communication.style],
+      ['Natural Pace',        p.communication.pace],
+      ['Focus',               p.communication.focus],
+      ['Avoid',               p.communication.avoid],
+    ];
+    const half = (CW-8)/2 - 2;
+    for (let i=0; i<commItems.length; i+=2) {
+      const x1 = M+4, x2 = M+4+half+4;
+      const rowY = y;
+      [commItems[i], commItems[i+1]].forEach((item, idx) => {
+        if (!item) return;
+        const cx = idx === 0 ? x1 : x2;
+        doc.setFillColor(239,239,239);
+        doc.roundedRect(cx, rowY, half, 12, 1.5, 1.5, 'F');
+        doc.setFont('helvetica','normal'); doc.setFontSize(7); setColor('#666666');
+        doc.text(item[0].toUpperCase(), cx+3, rowY+4.5);
+        doc.setFont('helvetica','bold'); doc.setFontSize(8.5); setColor('#111111');
+        const valLines = wrapText(item[1], half-6, 8.5);
+        doc.text(valLines[0], cx+3, rowY+9.5);
+      });
+      y += 15;
+    }
+    doc.setDrawColor(221,221,221); doc.roundedRect(M, commStart-1, CW, y-commStart+2, 2, 2, 'S'); y += 6;
+
+    // ── WORKING WITH OTHER STYLES ────────────────────────────────────────────
+    newPage(30);
+    const othStart = y;
+    doc.setFont('helvetica','bold'); doc.setFontSize(10); setColor('#111111');
+    doc.text('Working With Other Styles', M+4, y+5); y += 8;
+    doc.setDrawColor(221,221,221); doc.line(M+4, y, M+CW-4, y); y += 5;
+
+    Object.entries(p.withOthers).forEach(([type, tip]) => {
+      newPage(20);
+      const [r,g,b] = hex2rgb(profiles[type].color);
+      // style label pill
+      doc.setFillColor(r+(255-r)*0.88, g+(255-g)*0.88, b+(255-b)*0.88);
+      doc.roundedRect(M+4, y-3, 40, 6, 1.5, 1.5, 'F');
+      doc.setTextColor(r,g,b);
+      doc.setFont('helvetica','bold'); doc.setFontSize(8);
+      doc.text(`${type} — ${profiles[type].name}`, M+7, y+1);
+      y += 7;
+      // tip text
+      doc.setFont('helvetica','normal'); doc.setFontSize(8.5); setColor('#444444');
+      const tipLines = wrapText(tip, CW-8, 8.5);
+      tipLines.forEach(line => { newPage(6); doc.text(line, M+4, y); y += 5; });
+      y += 3;
+    });
+
+    y += 1;
+    doc.setDrawColor(221,221,221); doc.roundedRect(M, othStart-1, CW, y-othStart+2, 2, 2, 'S'); y += 6;
+
+    // ── SECONDARY STYLE ──────────────────────────────────────────────────────
+    if (_secondary !== _primary) {
+      newPage(35);
+      const secStart = y;
+      doc.setFont('helvetica','bold'); doc.setFontSize(10); setColor('#111111');
+      doc.text(`Your Secondary Style: ${_secondary} — ${s.name}`, M+4, y+5); y += 8;
+      doc.setDrawColor(221,221,221); doc.line(M+4, y, M+CW-4, y); y += 5;
+
+      doc.setFont('helvetica','normal'); doc.setFontSize(8.5); setColor('#333333');
+      const blendText = `Your secondary style brings an important additional dimension to your personality. As a ${_primary}/${_secondary} blend, you combine the ${p.tagline.toLowerCase()} qualities of ${_primary} with the ${s.tagline.toLowerCase()} qualities of ${_secondary}.`;
+      const blendLines = wrapText(blendText, CW-8, 8.5);
+      blendLines.forEach(line => { newPage(6); doc.text(line, M+4, y); y += 5; });
+      y += 3;
+
+      const tipLines = wrapText(s.tipsToWork, CW-8, 8.5);
+      tipLines.forEach(line => { newPage(6); doc.text(line, M+4, y); y += 5; });
+      y += 4;
+
+      // Secondary strengths as tags
+      drawTags(s.strengths.slice(0,5), '#d4f5e2', '#166534');
+
+      doc.setDrawColor(221,221,221); doc.roundedRect(M, secStart-1, CW, y-secStart+2, 2, 2, 'S'); y += 6;
+    }
+
+    // ── FOOTER ───────────────────────────────────────────────────────────────
+    newPage(12);
+    doc.setDrawColor(221,221,221); doc.line(M, y, M+CW, y); y += 5;
+    doc.setFont('helvetica','normal'); doc.setFontSize(7); setColor('#999999');
+    doc.text('DISC.AI has been developed by R J Penman Ltd.  ©  R J Penman Ltd. All rights reserved.', W/2, y, { align:'center' }); y += 4;
+    doc.text('Based on the DISC Personality Assessment framework. Results are indicative, not prescriptive.', W/2, y, { align:'center' });
+
+    // ── SAVE ─────────────────────────────────────────────────────────────────
+    const filename = `DISC-Profile-${_userName.replace(/\s+/g,'-')}-${dateStr.replace(/\s/g,'-')}.pdf`;
+    doc.save(filename);
+
+  } catch(err) {
+    console.error('PDF generation error:', err);
+    alert('Could not generate PDF. Please try again.');
+  }
+
+  btn.disabled = false;
+  btn.innerHTML = originalText;
 }
 
 // ──────────────────────────────────────────────────────────────────────────────
@@ -999,10 +1545,29 @@ function sendResultsEmail() {
   const p = profiles[_primary];
   const s = profiles[_secondary];
 
+  console.log('📧 EmailJS send attempt:', {
+    publicKey: EMAILJS_PUBLIC_KEY,
+    serviceId: EMAILJS_SERVICE_ID,
+    templateId: EMAILJS_TEMPLATE_ID,
+    toEmail: _userEmail,
+    toName: _userName
+  });
+
+  console.log('📧 _userEmail value at send time:', JSON.stringify(_userEmail));
+  console.log('📧 _userName value at send time:', JSON.stringify(_userName));
+
   emailjs.init(EMAILJS_PUBLIC_KEY);
   emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
     to_name:         _userName,
     to_email:        _userEmail,
+    email:           _userEmail,
+    user_email:      _userEmail,
+    recipient:       _userEmail,
+    from_email:      'contact@rossjohnpenman.com',
+    greeting:        `Hi ${_userName},`,
+    intro:           'Thank you for taking my DISC.AI personality assessment.',
+    body:            'Please find below a copy of your results.',
+    sign_off:        'Kind regards,\n\nRoss\nSales Advisor, Consultant & Trainer\nRJP Ltd',
     primary_style:   `${_primary} – ${p.name} (${p.tagline})`,
     secondary_style: `${_secondary} – ${s.name}`,
     score_d:         `${_scores.D}/24 (${Math.round(_scores.D/24*100)}%)`,
@@ -1016,13 +1581,18 @@ function sendResultsEmail() {
     comm_style:      p.communication.style,
     comm_pace:       p.communication.pace,
     comm_focus:      p.communication.focus,
-  }).then(() => {
+  }).then((response) => {
+    console.log('✅ EmailJS success:', response);
     toast.innerHTML = `<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg> Results emailed to ${_userEmail}`;
     toast.className = 'email-toast visible';
   }).catch(err => {
-    toast.innerHTML = `<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg> Could not send email — please use the Download PDF option.`;
+    console.error('❌ EmailJS error full object:', err);
+    console.error('❌ Status:', err.status);
+    console.error('❌ Text:', err.text);
+
+    const detail = err.text ? ` (${err.status}: ${err.text})` : (err.message ? ` (${err.message})` : ' (unknown error)');
+    toast.innerHTML = `<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg> Email failed${detail} — check the browser console for details.`;
     toast.className = 'email-toast visible error-toast';
-    console.error('EmailJS error:', err);
   });
 }
 
