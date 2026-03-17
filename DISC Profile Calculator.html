@@ -819,7 +819,7 @@
 //
 //       Hi {{to_name}},
 //
-//       Thank you for taking my DISC.AI personality assessment.
+//       Thank you for taking my DISC AI personality assessment.
 //
 //       Please find below a copy of your results.
 //
@@ -1583,13 +1583,16 @@ function sendResultsEmail() {
     comm_pace:       p.communication.pace,
     comm_focus:      p.communication.focus,
     comm_avoid:      p.communication.avoid,
-    with_others:     Object.entries(p.withOthers).map(([type, tip]) => `${type} — ${profiles[type].name}: ${tip}`).join('\n\n'),
+    with_d:          p.withOthers['D'] || '',
+    with_i:          p.withOthers['I'] || '',
+    with_s:          p.withOthers['S'] || '',
+    with_c:          p.withOthers['C'] || '',
     secondary_name:  s.name,
     secondary_tagline: s.tagline,
     secondary_overview: s.overviewPlain,
     secondary_tips:  s.tipsToWork,
     secondary_strengths: s.strengths.slice(0,5).join(', '),
-    is_blend:        _secondary !== _primary ? 'true' : 'false',
+    blend_description: `Your secondary style brings an important additional dimension to your personality. As a ${_primary}/${_secondary} blend, you combine the ${p.tagline.toLowerCase()} qualities of ${_primary} with the ${s.tagline.toLowerCase()} qualities of ${_secondary}.`,
   }).then((response) => {
     console.log('✅ EmailJS success:', response);
     toast.innerHTML = `<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg> Results emailed to ${_userEmail}`;
