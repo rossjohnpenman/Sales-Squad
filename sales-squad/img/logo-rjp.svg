@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 220">
+  <defs>
+    <filter id="shadow" x="-5%" y="-5%" width="115%" height="125%">
+      <feDropShadow dx="7" dy="7" stdDeviation="0.5" flood-color="rgba(0,0,0,0.28)"/>
+    </filter>
+  </defs>
+  <text
+    x="8" y="190"
+    font-family="'Arial Black', 'Helvetica Neue', Arial, sans-serif"
+    font-weight="900"
+    font-size="195"
+    fill="black"
+    filter="url(#shadow)">RJP</text>
+</svg>

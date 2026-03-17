@@ -1,0 +1,1035 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DISC Personality Profile Calculator</title>
+
+  <!-- EmailJS — sends emails directly from the browser, no backend needed -->
+  <!-- Setup: https://www.emailjs.com  (free tier = 200 emails/month)        -->
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+
+  <style>
+    /* ─────────────────────────────────────────────────────────────────── */
+    /*  SCREEN STYLES                                                       */
+    /* ─────────────────────────────────────────────────────────────────── */
+    :root {
+      --d: #e74c3c;
+      --i: #f39c12;
+      --s: #27ae60;
+      --c: #2980b9;
+      --bg: #000000;
+      --surface: #111318;
+      --surface2: #191c28;
+      --border: #252840;
+      --text: #e8eaf6;
+      --text-muted: #8892b0;
+      --radius: 14px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 860px;
+      padding: 32px 20px 60px;
+    }
+
+    /* ── SCREENS ── */
+    .screen { display: none; animation: fadeIn .4s ease; }
+    .screen.active { display: block; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* ── HEADER ── */
+    .logo-row { display: flex; align-items: center; gap: 18px; margin-bottom: 40px; }
+    .logo-rjp { height: 42px; width: auto; display: block; }
+    .logo-divider { width: 1px; height: 36px; background: var(--border); }
+    .logo-title { font-size: 1.1rem; font-weight: 700; letter-spacing: .5px; }
+    .logo-subtitle { font-size: .8rem; color: var(--text-muted); }
+
+    /* ── INTRO ── */
+    .hero-heading {
+      font-size: clamp(1.8rem, 5vw, 2.8rem);
+      font-weight: 800;
+      line-height: 1.15;
+      margin-bottom: 16px;
+    }
+    .hero-heading span { background: linear-gradient(135deg, #7b68ee, #38bdf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .hero-sub { color: var(--text-muted); font-size: 1.05rem; line-height: 1.7; max-width: 600px; margin-bottom: 36px; }
+
+    .style-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 14px;
+      margin-bottom: 40px;
+    }
+    .style-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px 16px;
+      border-top: 3px solid;
+    }
+    .style-card.d { border-color: var(--d); }
+    .style-card.i { border-color: var(--i); }
+    .style-card.s { border-color: var(--s); }
+    .style-card.c { border-color: var(--c); }
+    .style-card .letter { font-size: 1.8rem; font-weight: 900; margin-bottom: 2px; }
+    .style-card.d .letter { color: var(--d); }
+    .style-card.i .letter { color: var(--i); }
+    .style-card.s .letter { color: var(--s); }
+    .style-card.c .letter { color: var(--c); }
+    .style-card .name { font-weight: 700; font-size: .95rem; margin-bottom: 6px; }
+    .style-card .desc { font-size: .8rem; color: var(--text-muted); line-height: 1.5; }
+
+    /* ── BUTTONS ── */
+    .btn-primary {
+      display: inline-flex; align-items: center; gap: 10px;
+      background: linear-gradient(135deg, #7b68ee, #38bdf8);
+      color: #fff;
+      border: none;
+      padding: 16px 36px;
+      border-radius: 50px;
+      font-size: 1.05rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform .15s, box-shadow .15s;
+      box-shadow: 0 4px 20px rgba(123,104,238,.35);
+    }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(123,104,238,.5); }
+    .btn-primary:active { transform: translateY(0); }
+    .btn-primary:disabled { opacity: .6; cursor: not-allowed; transform: none; }
+
+    .btn-secondary {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: var(--surface2);
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 12px 28px;
+      border-radius: 50px;
+      font-size: .95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background .15s;
+    }
+    .btn-secondary:hover { background: var(--border); }
+
+    /* ── ASSESSMENT ── */
+    .progress-bar {
+      background: var(--surface);
+      border-radius: 50px;
+      height: 6px;
+      margin-bottom: 8px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #7b68ee, #38bdf8);
+      border-radius: 50px;
+      transition: width .4s ease;
+    }
+    .progress-label { font-size: .82rem; color: var(--text-muted); margin-bottom: 32px; }
+
+    .assess-heading { font-size: 1.1rem; font-weight: 700; margin-bottom: 6px; }
+    .assess-sub { font-size: .85rem; color: var(--text-muted); margin-bottom: 28px; line-height: 1.5; }
+
+    .question-block {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      margin-bottom: 14px;
+      transition: border-color .2s;
+    }
+    .question-block.answered { border-color: #7b68ee44; background: #7b68ee08; }
+    .question-num { font-size: .75rem; color: var(--text-muted); margin-bottom: 10px; font-weight: 600; letter-spacing: .5px; text-transform: uppercase; }
+    .word-options { display: flex; flex-wrap: wrap; gap: 10px; }
+
+    .word-btn {
+      flex: 1 1 120px;
+      padding: 11px 14px;
+      background: var(--surface2);
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      color: var(--text);
+      font-size: .9rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all .15s;
+      text-align: center;
+    }
+    .word-btn:hover { background: #7b68ee22; border-color: #7b68ee; }
+    .word-btn.selected {
+      background: linear-gradient(135deg, #7b68ee33, #38bdf822);
+      border-color: #7b68ee;
+      color: #fff;
+      font-weight: 700;
+    }
+
+    .assess-actions { display: flex; gap: 12px; align-items: center; margin-top: 32px; flex-wrap: wrap; }
+    .unanswered-msg { color: #e74c3c; font-size: .85rem; display: none; }
+    .unanswered-msg.visible { display: block; }
+
+    /* ── RESULTS ── */
+    .results-hero {
+      text-align: center;
+      padding: 40px 20px 36px;
+      background: var(--surface);
+      border-radius: var(--radius);
+      margin-bottom: 28px;
+      border: 1px solid var(--border);
+    }
+    .results-badge {
+      width: 88px; height: 88px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 2.5rem; font-weight: 900;
+      margin: 0 auto 16px;
+      color: #fff;
+    }
+    .results-title { font-size: 1.6rem; font-weight: 800; margin-bottom: 6px; }
+    .results-subtitle { color: var(--text-muted); font-size: .95rem; }
+
+    /* Score bars */
+    .score-bars {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+      margin-bottom: 24px;
+    }
+    .score-bars h3 { font-size: 1rem; font-weight: 700; margin-bottom: 20px; }
+    .score-row { margin-bottom: 16px; }
+    .score-row:last-child { margin-bottom: 0; }
+    .score-row-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+    .score-label { font-size: .9rem; font-weight: 700; }
+    .score-pct { font-size: .85rem; color: var(--text-muted); font-weight: 600; }
+    .score-track { background: var(--surface2); border-radius: 50px; height: 10px; overflow: hidden; }
+    .score-bar-fill { height: 100%; border-radius: 50px; transition: width 1s cubic-bezier(.2,.8,.2,1); }
+
+    /* Profile sections */
+    .profile-section {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+      margin-bottom: 20px;
+    }
+    .profile-section h3 {
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 16px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; gap: 8px;
+    }
+    .profile-section h3 .icon { font-size: 1.1rem; }
+
+    .tags { display: flex; flex-wrap: wrap; gap: 8px; }
+    .tag {
+      padding: 5px 12px;
+      border-radius: 50px;
+      font-size: .8rem;
+      font-weight: 600;
+    }
+    .tag.strength { background: #27ae6020; color: #4ade80; border: 1px solid #27ae6040; }
+    .tag.challenge { background: #e74c3c20; color: #f87171; border: 1px solid #e74c3c40; }
+    .tag.motivator { background: #f39c1220; color: #fbbf24; border: 1px solid #f39c1240; }
+
+    .profile-text { color: var(--text-muted); line-height: 1.7; font-size: .93rem; }
+    .profile-text p { margin-bottom: 10px; }
+    .profile-text p:last-child { margin-bottom: 0; }
+
+    .comms-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+    @media (max-width: 560px) { .comms-grid { grid-template-columns: 1fr; } }
+    .comms-item { background: var(--surface2); border-radius: 10px; padding: 14px; }
+    .comms-item .ci-label { font-size: .75rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: .5px; margin-bottom: 6px; }
+    .comms-item .ci-val { font-size: .9rem; font-weight: 600; color: var(--text); }
+
+    .other-styles { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    .other-style-card {
+      background: var(--surface2);
+      border-radius: 10px;
+      padding: 16px;
+      border-left: 3px solid;
+    }
+    .other-style-card .os-letter { font-size: 1.2rem; font-weight: 900; margin-bottom: 4px; }
+    .other-style-card .os-tip { font-size: .82rem; color: var(--text-muted); line-height: 1.5; }
+
+    /* ── EMAIL CAPTURE CARD ── */
+    .email-card {
+      background: var(--surface);
+      border: 1px solid #7b68ee55;
+      border-radius: var(--radius);
+      padding: 28px;
+      margin-top: 32px;
+    }
+    .email-card-head {
+      display: flex; align-items: center; gap: 12px;
+      margin-bottom: 6px;
+    }
+    .email-card-head .ec-icon {
+      width: 40px; height: 40px; border-radius: 10px;
+      background: linear-gradient(135deg, #7b68ee33, #38bdf822);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.2rem;
+      flex-shrink: 0;
+    }
+    .email-card-head h3 { font-size: 1rem; font-weight: 700; }
+    .email-card-sub { font-size: .85rem; color: var(--text-muted); margin-bottom: 22px; line-height: 1.5; }
+
+    .email-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+    @media (max-width: 540px) { .email-fields { grid-template-columns: 1fr; } }
+
+    .field-group { display: flex; flex-direction: column; gap: 6px; }
+    .field-group label { font-size: .78rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: .4px; }
+    .field-group input {
+      background: var(--surface2);
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      padding: 11px 14px;
+      color: var(--text);
+      font-size: .95rem;
+      font-family: inherit;
+      transition: border-color .15s;
+      outline: none;
+    }
+    .field-group input:focus { border-color: #7b68ee; }
+    .field-group input::placeholder { color: var(--text-muted); }
+
+    .email-actions { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+
+    .email-status {
+      font-size: .85rem;
+      font-weight: 600;
+      display: none;
+      align-items: center;
+      gap: 6px;
+    }
+    .email-status.success { display: flex; color: #4ade80; }
+    .email-status.error   { display: flex; color: #f87171; }
+
+    /* ── RESULTS ACTIONS ── */
+    .results-actions { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 32px; }
+
+    .disclaimer {
+      font-size: .75rem;
+      color: var(--text-muted);
+      text-align: center;
+      margin-top: 40px;
+      line-height: 1.6;
+      border-top: 1px solid var(--border);
+      padding-top: 20px;
+    }
+
+    /* ── DETAILS CAPTURE ── */
+    .details-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 40px 36px;
+      max-width: 600px;
+    }
+    .details-icon { font-size: 2.2rem; margin-bottom: 16px; }
+    .details-heading { font-size: 1.5rem; font-weight: 800; margin-bottom: 10px; }
+    .details-sub { color: var(--text-muted); font-size: .95rem; line-height: 1.65; margin-bottom: 28px; }
+
+    /* ── EMAIL SENT TOAST ── */
+    .email-toast {
+      display: none;
+      align-items: center;
+      gap: 10px;
+      background: #27ae6018;
+      border: 1px solid #27ae6040;
+      border-radius: 10px;
+      padding: 12px 16px;
+      margin-bottom: 20px;
+      font-size: .88rem;
+      font-weight: 600;
+      color: #4ade80;
+    }
+    .email-toast.visible { display: flex; }
+    .email-toast.error-toast { background: #e74c3c18; border-color: #e74c3c40; color: #f87171; }
+
+    /* Responsive */
+    @media (max-width: 480px) {
+      .word-btn { flex: 1 1 100%; }
+      .details-card { padding: 28px 20px; }
+    }
+
+    /* ─────────────────────────────────────────────────────────────────── */
+    /*  PRINT / PDF STYLES                                                 */
+    /* ─────────────────────────────────────────────────────────────────── */
+    @media print {
+      * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+
+      body {
+        background: #ffffff !important;
+        color: #111111 !important;
+        font-size: 11pt;
+      }
+
+      .screen { display: none !important; }
+      #screen-results { display: block !important; }
+
+      .logo-row, .results-actions, .email-card, .email-toast, .disclaimer { display: none !important; }
+
+      .app { padding: 0; max-width: 100%; }
+
+      /* Print header */
+      #screen-results::before {
+        content: '';
+        display: block;
+        margin-bottom: 24px;
+        padding-bottom: 14px;
+        border-bottom: 2px solid #111;
+      }
+
+      .print-header {
+        display: flex !important;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        padding-bottom: 12px;
+        border-bottom: 2px solid #111;
+      }
+
+      .results-hero {
+        background: #f8f8f8 !important;
+        border: 1px solid #ddd !important;
+        page-break-after: avoid;
+      }
+      .results-hero .results-title { color: #111 !important; }
+      .results-hero .results-badge {
+        background: #f0f0f0 !important;
+        border: 2px solid #111 !important;
+        color: #111 !important;
+      }
+      .results-hero .results-subtitle { color: #444 !important; }
+
+      .score-bars {
+        background: #f8f8f8 !important;
+        border: 1px solid #ddd !important;
+        page-break-inside: avoid;
+      }
+      .score-bars h3 { color: #111 !important; }
+      .score-track { background: #e0e0e0 !important; }
+      .score-label { color: #111 !important; }
+      .score-pct { color: #555 !important; }
+
+      .profile-section {
+        background: #f8f8f8 !important;
+        border: 1px solid #ddd !important;
+        page-break-inside: avoid;
+        margin-bottom: 12px;
+      }
+      .profile-section h3 { color: #111 !important; border-bottom: 1px solid #ddd !important; }
+      .profile-text { color: #333 !important; }
+      .profile-text strong { color: #111 !important; }
+
+      .tag.strength { background: #d4f5e2 !important; color: #166534 !important; border: 1px solid #86efac !important; }
+      .tag.challenge { background: #fee2e2 !important; color: #991b1b !important; border: 1px solid #fca5a5 !important; }
+      .tag.motivator { background: #fef3c7 !important; color: #92400e !important; border: 1px solid #fcd34d !important; }
+
+      .comms-item { background: #efefef !important; }
+      .ci-label { color: #666 !important; }
+      .ci-val { color: #111 !important; }
+
+      .other-style-card { background: #efefef !important; }
+      .os-tip { color: #444 !important; }
+      .os-letter { color: #111 !important; }
+    }
+
+    /* Show print header only during print */
+    .print-header { display: none; }
+  </style>
+</head>
+<body>
+<div class="app">
+
+  <!-- ── INTRO ── -->
+  <div class="screen active" id="screen-intro">
+    <div class="logo-row">
+      <svg class="logo-rjp" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 220">
+        <defs><filter id="sh1" x="-5%" y="-5%" width="115%" height="125%"><feDropShadow dx="4" dy="4" stdDeviation="0.5" flood-color="rgba(255,255,255,0.12)"/></filter></defs>
+        <text x="8" y="190" font-family="'Arial Black','Helvetica Neue',Arial,sans-serif" font-weight="900" font-size="195" fill="white" filter="url(#sh1)">RJP</text>
+      </svg>
+      <div class="logo-divider"></div>
+      <div>
+        <div class="logo-title">DISC Profile Calculator</div>
+        <div class="logo-subtitle">Personality Assessment Tool</div>
+      </div>
+    </div>
+
+    <h1 class="hero-heading">Discover Your <span>Personality Style</span></h1>
+    <p class="hero-sub">
+      Answer 24 quick questions — for each row, choose the word that best describes you right now.
+      There are no right or wrong answers. You'll receive a detailed profile of your dominant DISC style.
+    </p>
+
+    <div class="style-cards">
+      <div class="style-card d">
+        <div class="letter">D</div>
+        <div class="name">Dominance</div>
+        <div class="desc">Results-focused, direct, decisive, and driven to challenge the status quo.</div>
+      </div>
+      <div class="style-card i">
+        <div class="letter">I</div>
+        <div class="name">Influence</div>
+        <div class="desc">Enthusiastic, optimistic, and motivated by connection and recognition.</div>
+      </div>
+      <div class="style-card s">
+        <div class="letter">S</div>
+        <div class="name">Steadiness</div>
+        <div class="desc">Patient, reliable, and focused on stability, loyalty, and teamwork.</div>
+      </div>
+      <div class="style-card c">
+        <div class="letter">C</div>
+        <div class="name">Conscientiousness</div>
+        <div class="desc">Analytical, accurate, and driven by quality, facts, and precision.</div>
+      </div>
+    </div>
+
+    <button class="btn-primary" onclick="showScreen('screen-details')">
+      Begin Assessment
+      <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+    </button>
+  </div>
+
+  <!-- ── DETAILS CAPTURE ── -->
+  <div class="screen" id="screen-details">
+    <div class="logo-row">
+      <svg class="logo-rjp" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 220">
+        <defs><filter id="sh0" x="-5%" y="-5%" width="115%" height="125%"><feDropShadow dx="4" dy="4" stdDeviation="0.5" flood-color="rgba(255,255,255,0.12)"/></filter></defs>
+        <text x="8" y="190" font-family="'Arial Black','Helvetica Neue',Arial,sans-serif" font-weight="900" font-size="195" fill="white" filter="url(#sh0)">RJP</text>
+      </svg>
+      <div class="logo-divider"></div>
+      <div>
+        <div class="logo-title">DISC Profile Calculator</div>
+        <div class="logo-subtitle">Personality Assessment Tool</div>
+      </div>
+    </div>
+
+    <div class="details-card">
+      <div class="details-icon">👤</div>
+      <h2 class="details-heading">Before we begin</h2>
+      <p class="details-sub">Enter your name and email address. Once you complete the assessment your full DISC profile will be emailed to you automatically.</p>
+
+      <div class="email-fields">
+        <div class="field-group">
+          <label for="reg-name">Your Name</label>
+          <input type="text" id="reg-name" placeholder="e.g. Sarah Johnson" autocomplete="name" />
+        </div>
+        <div class="field-group">
+          <label for="reg-email">Email Address</label>
+          <input type="email" id="reg-email" placeholder="e.g. sarah@example.com" autocomplete="email"
+            onkeydown="if(event.key==='Enter') proceedToAssessment()" />
+        </div>
+      </div>
+
+      <div class="assess-actions">
+        <button class="btn-primary" onclick="proceedToAssessment()">
+          Start Assessment
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </button>
+        <button class="btn-secondary" onclick="showScreen('screen-intro')">← Back</button>
+        <span class="unanswered-msg" id="details-error"></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── ASSESSMENT ── -->
+  <div class="screen" id="screen-assess">
+    <div class="logo-row">
+      <svg class="logo-rjp" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 220">
+        <defs><filter id="sh2" x="-5%" y="-5%" width="115%" height="125%"><feDropShadow dx="4" dy="4" stdDeviation="0.5" flood-color="rgba(255,255,255,0.12)"/></filter></defs>
+        <text x="8" y="190" font-family="'Arial Black','Helvetica Neue',Arial,sans-serif" font-weight="900" font-size="195" fill="white" filter="url(#sh2)">RJP</text>
+      </svg>
+      <div class="logo-divider"></div>
+      <div>
+        <div class="logo-title">DISC Profile Calculator</div>
+        <div class="logo-subtitle">Personality Assessment Tool</div>
+      </div>
+    </div>
+
+    <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+    <div class="progress-label" id="progress-label">0 of 24 answered</div>
+
+    <div class="assess-heading">Understanding Yourself</div>
+    <div class="assess-sub">For each row below, choose the <strong>one word</strong> that best describes you right now. Work quickly — your first instinct is usually most accurate.</div>
+
+    <div id="questions-container"></div>
+
+    <div class="assess-actions">
+      <button class="btn-primary" onclick="submitAssessment()">
+        See My Profile
+        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </button>
+      <button class="btn-secondary" onclick="showScreen('screen-intro')">← Back</button>
+      <span class="unanswered-msg" id="unanswered-msg">Please answer all 24 questions before continuing.</span>
+    </div>
+  </div>
+
+  <!-- ── RESULTS ── -->
+  <div class="screen" id="screen-results">
+
+    <!-- Visible on screen only -->
+    <div class="logo-row">
+      <svg class="logo-rjp" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 220">
+        <defs><filter id="sh3" x="-5%" y="-5%" width="115%" height="125%"><feDropShadow dx="4" dy="4" stdDeviation="0.5" flood-color="rgba(255,255,255,0.12)"/></filter></defs>
+        <text x="8" y="190" font-family="'Arial Black','Helvetica Neue',Arial,sans-serif" font-weight="900" font-size="195" fill="white" filter="url(#sh3)">RJP</text>
+      </svg>
+      <div class="logo-divider"></div>
+      <div>
+        <div class="logo-title">DISC Profile Calculator</div>
+        <div class="logo-subtitle">Your Results</div>
+      </div>
+    </div>
+
+    <!-- Visible on print only -->
+    <div class="print-header">
+      <div>
+        <div style="font-size:1.4rem;font-weight:900;letter-spacing:1px;">RJP</div>
+        <div style="font-size:.8rem;color:#666;">rjpenman.com</div>
+      </div>
+      <div style="text-align:right;">
+        <div style="font-size:1rem;font-weight:700;">DISC Personality Profile</div>
+        <div style="font-size:.8rem;color:#666;" id="print-date"></div>
+      </div>
+    </div>
+
+    <!-- Email sent confirmation -->
+    <div class="email-toast" id="email-toast"></div>
+
+    <div id="results-content"></div>
+
+    <!-- ── ACTIONS ── -->
+    <div class="results-actions">
+      <button class="btn-primary" onclick="downloadPDF()">
+        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Download PDF
+      </button>
+      <button class="btn-secondary" onclick="retakeAssessment()">↺ Retake Assessment</button>
+    </div>
+
+    <p class="disclaimer">
+      Based on the DISC Personality Assessment framework. Results are indicative, not prescriptive —
+      all styles are equally valuable. Use this profile to understand your natural tendencies and improve
+      communication with others.
+    </p>
+  </div>
+
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════════════════════════════
+//  EMAILJS CONFIGURATION
+//  1. Sign up free at https://www.emailjs.com
+//  2. Add an email service (Gmail, Outlook, etc.) → copy the Service ID
+//  3. Create an email template → copy the Template ID
+//     Template variables available: {{to_name}}, {{to_email}}, {{primary_style}},
+//     {{secondary_style}}, {{score_d}}, {{score_i}}, {{score_s}}, {{score_c}},
+//     {{strengths}}, {{challenges}}, {{motivators}}, {{overview_plain}},
+//     {{comm_style}}, {{comm_pace}}, {{comm_focus}}
+//  4. Go to Account → copy your Public Key
+//  5. Paste your values below
+// ══════════════════════════════════════════════════════════════════════════════
+const EMAILJS_PUBLIC_KEY  = 'YOUR_PUBLIC_KEY';   // ← paste here
+const EMAILJS_SERVICE_ID  = 'YOUR_SERVICE_ID';   // ← paste here
+const EMAILJS_TEMPLATE_ID = 'YOUR_TEMPLATE_ID';  // ← paste here
+
+// Set to true once you've filled in real keys above
+const EMAIL_CONFIGURED = false;
+
+// ──────────────────────────────────────────────────────────────────────────────
+// DATA: 24 rows, each word tagged with a DISC type
+// ──────────────────────────────────────────────────────────────────────────────
+const questions = [
+  { words: [{ w:'Bold', t:'D' }, { w:'Enthusiastic', t:'I' }, { w:'Calm', t:'S' }, { w:'Careful', t:'C' }] },
+  { words: [{ w:'Pioneering', t:'D' }, { w:'Exciting', t:'I' }, { w:'Satisfied', t:'S' }, { w:'Correct', t:'C' }] },
+  { words: [{ w:'Decisive', t:'D' }, { w:'Sociable', t:'I' }, { w:'Patient', t:'S' }, { w:'Accurate', t:'C' }] },
+  { words: [{ w:'Argumentative', t:'D' }, { w:'Unpredictable', t:'I' }, { w:'Indecisive', t:'S' }, { w:'Doubting', t:'C' }] },
+  { words: [{ w:'Competitive', t:'D' }, { w:'Expressive', t:'I' }, { w:'Supportive', t:'S' }, { w:'Thorough', t:'C' }] },
+  { words: [{ w:'Self-reliant', t:'D' }, { w:'Persuasive', t:'I' }, { w:'Gentle', t:'S' }, { w:'Logical', t:'C' }] },
+  { words: [{ w:'Daring', t:'D' }, { w:'Inspiring', t:'I' }, { w:'Loyal', t:'S' }, { w:'Methodical', t:'C' }] },
+  { words: [{ w:'Assertive', t:'D' }, { w:'Popular', t:'I' }, { w:'Generous', t:'S' }, { w:'Perfectionist', t:'C' }] },
+  { words: [{ w:'Driven', t:'D' }, { w:'Animated', t:'I' }, { w:'Dependable', t:'S' }, { w:'Meticulous', t:'C' }] },
+  { words: [{ w:'Persistent', t:'D' }, { w:'Optimistic', t:'I' }, { w:'Accommodating', t:'S' }, { w:'Systematic', t:'C' }] },
+  { words: [{ w:'Direct', t:'D' }, { w:'Talkative', t:'I' }, { w:'Harmonious', t:'S' }, { w:'Analytical', t:'C' }] },
+  { words: [{ w:'Strong-willed', t:'D' }, { w:'Friendly', t:'I' }, { w:'Joyful', t:'S' }, { w:'Observant', t:'C' }] },
+  { words: [{ w:'Adventurous', t:'D' }, { w:'Outgoing', t:'I' }, { w:'Sincere', t:'S' }, { w:'Structured', t:'C' }] },
+  { words: [{ w:'Aggressive', t:'D' }, { w:'Attractive', t:'I' }, { w:'Steady', t:'S' }, { w:'Restrained', t:'C' }] },
+  { words: [{ w:'Demanding', t:'D' }, { w:'Fun-loving', t:'I' }, { w:'Relaxed', t:'S' }, { w:'Cautious', t:'C' }] },
+  { words: [{ w:'Commanding', t:'D' }, { w:'Impulsive', t:'I' }, { w:'Slow-paced', t:'S' }, { w:'Critical', t:'C' }] },
+  { words: [{ w:'Forceful', t:'D' }, { w:'Spontaneous', t:'I' }, { w:'Cooperative', t:'S' }, { w:'Deliberate', t:'C' }] },
+  { words: [{ w:'Independent', t:'D' }, { w:'Influential', t:'I' }, { w:'Kind', t:'S' }, { w:'Orderly', t:'C' }] },
+  { words: [{ w:'Dominant', t:'D' }, { w:'Energetic', t:'I' }, { w:'Easygoing', t:'S' }, { w:'Reserved', t:'C' }] },
+  { words: [{ w:'Impatient', t:'D' }, { w:'Emotional', t:'I' }, { w:'Procrastinator', t:'S' }, { w:'Serious', t:'C' }] },
+  { words: [{ w:'Risk-taking', t:'D' }, { w:'Playful', t:'I' }, { w:'Passive', t:'S' }, { w:'Detailed', t:'C' }] },
+  { words: [{ w:'Courageous', t:'D' }, { w:'Convincing', t:'I' }, { w:'Self-sacrificing', t:'S' }, { w:'Considerate', t:'C' }] },
+  { words: [{ w:'Determined', t:'D' }, { w:'Charismatic', t:'I' }, { w:'Reliable', t:'S' }, { w:'Precise', t:'C' }] },
+  { words: [{ w:'Directing', t:'D' }, { w:'Stimulating', t:'I' }, { w:'Tolerant', t:'S' }, { w:'Conventional', t:'C' }] }
+];
+
+const shuffled = questions.map(q => ({
+  words: [...q.words].sort(() => Math.random() - 0.5)
+}));
+
+// ──────────────────────────────────────────────────────────────────────────────
+// PROFILE DATA
+// ──────────────────────────────────────────────────────────────────────────────
+const profiles = {
+  D: {
+    name: 'Dominance', color: '#e74c3c', emoji: '🔥',
+    tagline: 'Results-Oriented & Direct',
+    overview: `<p>You have a dominant <strong>D (Dominance)</strong> personality style. You are naturally driven, direct, and results-focused. You thrive in environments where you can take control, tackle challenges head-on, and drive outcomes.</p><p>You prefer facts over feelings, action over discussion, and efficiency over process. You are not afraid to make bold decisions and you move at a fast pace. When you see a problem, your instinct is to solve it immediately.</p><p>Your high standards push you to achieve, but they can also create tension when others don't move at your speed. Learning to appreciate different working styles is your greatest growth opportunity.</p>`,
+    overviewPlain: `You have a dominant D (Dominance) personality style. You are naturally driven, direct, and results-focused. You thrive in environments where you can take control, tackle challenges head-on, and drive outcomes. You prefer facts over feelings, action over discussion, and efficiency over process. Learning to appreciate different working styles is your greatest growth opportunity.`,
+    strengths: ['Results-driven','Decisive','Self-starter','Problem solver','Competitive','Direct communicator','Confident','Risk-taker'],
+    challenges: ['Impatience','Can seem blunt or harsh','May overlook feelings','Difficulty delegating','Can become dictatorial under stress'],
+    motivators: ['Control & authority','Winning & achievement','New challenges','Tangible results','Independence'],
+    fears: 'Being taken advantage of or losing control.',
+    communication: { style:'Direct & Bottom-line', pace:'Fast', focus:'Results & facts', avoid:'Small talk, repetition, too much detail' },
+    tipsToWork: 'Be direct and brief. Lead with the bottom line. Avoid small talk and get to the point. Respect their time and decisions.',
+    withOthers: {
+      I: 'Balance their enthusiasm with your focus on results. Let them contribute socially while you keep things on track.',
+      S: 'Slow down and show appreciation for their reliability. Don\'t rush their decisions — explain the "why" behind urgency.',
+      C: 'Provide the data and detail they need. Respect their need for accuracy even if it feels slow to you.'
+    }
+  },
+  I: {
+    name: 'Influence', color: '#f39c12', emoji: '✨',
+    tagline: 'Enthusiastic & People-Focused',
+    overview: `<p>You have a dominant <strong>I (Influence)</strong> personality style. You are naturally enthusiastic, expressive, and gifted at building relationships. You light up a room and have a talent for inspiring and motivating others.</p><p>You are optimistic, collaborative, and thrive in social environments. You communicate indirectly and persuasively, often using stories and emotion to make your point. You prefer working with people over working alone.</p><p>Your energy and creativity are tremendous strengths, but watch out for becoming disorganised or losing focus. Building in structure and follow-through will help you channel your natural charisma into lasting results.</p>`,
+    overviewPlain: `You have a dominant I (Influence) personality style. You are naturally enthusiastic, expressive, and gifted at building relationships. You light up a room and have a talent for inspiring and motivating others. You are optimistic, collaborative, and thrive in social environments. Building in structure and follow-through will help you channel your natural charisma into lasting results.`,
+    strengths: ['Optimistic','Persuasive','Enthusiastic','Great communicator','Team builder','Creative','Inspirational','Collaborative'],
+    challenges: ['Disorganised','May talk too much','Struggles with follow-through','Avoids conflict','Can become impulsive under stress'],
+    motivators: ['Social recognition','Group activities','Relationships','Fun & variety','Positive feedback'],
+    fears: 'Social rejection or loss of influence.',
+    communication: { style:'Expressive & Enthusiastic', pace:'Fast', focus:'People & ideas', avoid:'Being dismissive, purely factual discussions, isolation' },
+    tipsToWork: 'Be warm and friendly. Allow them to share their ideas. Give positive recognition. Keep discussions interactive and energetic.',
+    withOthers: {
+      D: 'Stay focused and results-oriented when working with them. Keep social chat brief and get to the point.',
+      S: 'Be patient and create a safe space. Don\'t overwhelm them with too many ideas at once.',
+      C: 'Respect their need for facts and detail. Back up your enthusiasm with data and specifics.'
+    }
+  },
+  S: {
+    name: 'Steadiness', color: '#27ae60', emoji: '🌿',
+    tagline: 'Reliable & Team-Oriented',
+    overview: `<p>You have a dominant <strong>S (Steadiness)</strong> personality style. You are patient, reliable, and a genuinely supportive team player. People around you feel safe and valued — your calm, steady presence is a powerful asset in any group.</p><p>You prefer stability and consistency over constant change. You work best in environments where relationships are strong and conflict is minimal. You listen deeply and are genuinely interested in others' wellbeing.</p><p>Your loyalty and dependability are rare qualities. The growth challenge for you is learning to be more assertive, embrace change, and speak up for your own needs — your ideas and opinions matter more than you realise.</p>`,
+    overviewPlain: `You have a dominant S (Steadiness) personality style. You are patient, reliable, and a genuinely supportive team player. People around you feel safe and valued. You prefer stability and consistency over constant change. The growth challenge for you is learning to be more assertive, embrace change, and speak up for your own needs.`,
+    strengths: ['Patient','Reliable','Great listener','Loyal','Calming presence','Empathetic','Consistent','Collaborative'],
+    challenges: ['Resists change','Struggles with assertiveness','Can be overly accommodating','Avoids conflict','Can become possessive under stress'],
+    motivators: ['Stability & security','Sincere appreciation','Teamwork & cooperation','Harmony','Loyal relationships'],
+    fears: 'Loss of stability, security, or sudden change.',
+    communication: { style:'Warm & Personal', pace:'Moderate / Slow', focus:'Relationships & harmony', avoid:'Aggressive tone, sudden changes, confrontation' },
+    tipsToWork: 'Build trust before diving in. Show genuine appreciation. Give advance notice of changes. Create a relaxed, low-pressure environment.',
+    withOthers: {
+      D: 'Understand their urgency and directness isn\'t personal. Try to be more decisive — they respect action.',
+      I: 'Match their energy when needed. Let them take the social lead while you contribute depth and follow-through.',
+      C: 'You share a preference for calm, structured environments. Lean on each other\'s reliability and thoroughness.'
+    }
+  },
+  C: {
+    name: 'Conscientiousness', color: '#2980b9', emoji: '🔬',
+    tagline: 'Analytical & Quality-Focused',
+    overview: `<p>You have a dominant <strong>C (Conscientiousness)</strong> personality style. You are analytical, accurate, and driven by a deep commitment to quality. You don't just want things to be done — you want them done correctly.</p><p>You are a systematic thinker who gathers all available data before making decisions. You prefer working at a measured pace and ask detailed, probing questions. You hold yourself (and others) to a very high standard.</p><p>Your precision and attention to detail are exceptional strengths. The growth opportunity for you is learning to make decisions with imperfect information, and to communicate your expertise in ways that don't feel critical or unapproachable to others.</p>`,
+    overviewPlain: `You have a dominant C (Conscientiousness) personality style. You are analytical, accurate, and driven by a deep commitment to quality. You are a systematic thinker who gathers all available data before making decisions. Your precision and attention to detail are exceptional strengths. The growth opportunity for you is learning to make decisions with imperfect information.`,
+    strengths: ['Accurate','Analytical','Systematic','High standards','Quality-focused','Thorough','Objective','Organised'],
+    challenges: ['Can be overly critical','Analysis paralysis','May seem cold or distant','Struggles with ambiguity','Can become withdrawn under stress'],
+    motivators: ['Quality & accuracy','Expertise & competence','Clear standards','Systematic processes','Being right'],
+    fears: 'Criticism of their work or being seen as wrong.',
+    communication: { style:'Fact-based & Precise', pace:'Slow / Deliberate', focus:'Facts, systems & quality', avoid:'Vague requests, emotional appeals, surprises' },
+    tipsToWork: 'Come prepared with facts and data. Give them time to think. Be specific in your requests. Respect their expertise and need for accuracy.',
+    withOthers: {
+      D: 'Don\'t take their directness personally. Provide clear data to support your position. Be efficient.',
+      I: 'Appreciate their energy and ideas, then help ground them with structure and data.',
+      S: 'Your shared preference for process and care makes you natural allies. Support each other through change.'
+    }
+  }
+};
+
+// ──────────────────────────────────────────────────────────────────────────────
+// SCREEN MANAGEMENT
+// ──────────────────────────────────────────────────────────────────────────────
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ──────────────────────────────────────────────────────────────────────────────
+// DETAILS CAPTURE
+// ──────────────────────────────────────────────────────────────────────────────
+let _userName = '', _userEmail = '';
+
+function proceedToAssessment() {
+  const name  = document.getElementById('reg-name').value.trim();
+  const email = document.getElementById('reg-email').value.trim();
+  const errEl = document.getElementById('details-error');
+
+  if (!name) {
+    errEl.textContent = 'Please enter your name.';
+    errEl.classList.add('visible');
+    document.getElementById('reg-name').focus();
+    return;
+  }
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    errEl.textContent = 'Please enter a valid email address.';
+    errEl.classList.add('visible');
+    document.getElementById('reg-email').focus();
+    return;
+  }
+
+  errEl.classList.remove('visible');
+  _userName  = name;
+  _userEmail = email;
+  answers.fill(null);
+  renderQuestions();
+  showScreen('screen-assess');
+}
+
+// ──────────────────────────────────────────────────────────────────────────────
+// ASSESSMENT
+// ──────────────────────────────────────────────────────────────────────────────
+const answers = new Array(24).fill(null);
+
+function renderQuestions() {
+  const container = document.getElementById('questions-container');
+  container.innerHTML = shuffled.map((q, qi) => `
+    <div class="question-block" id="qblock-${qi}">
+      <div class="question-num">Question ${qi + 1} of 24</div>
+      <div class="word-options">
+        ${q.words.map(word => `
+          <button class="word-btn" onclick="selectAnswer(${qi}, '${word.t}', this)">
+            ${word.w}
+          </button>
+        `).join('')}
+      </div>
+    </div>
+  `).join('');
+  updateProgress();
+}
+
+function selectAnswer(qi, type, btn) {
+  answers[qi] = type;
+  const block = document.getElementById(`qblock-${qi}`);
+  block.querySelectorAll('.word-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  block.classList.add('answered');
+  updateProgress();
+  document.getElementById('unanswered-msg').classList.remove('visible');
+}
+
+function updateProgress() {
+  const done = answers.filter(a => a !== null).length;
+  document.getElementById('progress-fill').style.width = (done / 24 * 100) + '%';
+  document.getElementById('progress-label').textContent = `${done} of 24 answered`;
+}
+
+function submitAssessment() {
+  if (answers.some(a => a === null)) {
+    document.getElementById('unanswered-msg').classList.add('visible');
+    const idx = answers.findIndex(a => a === null);
+    document.getElementById(`qblock-${idx}`).scrollIntoView({ behavior: 'smooth', block: 'center' });
+    return;
+  }
+  buildResults();
+  showScreen('screen-results');
+  setTimeout(animateBars, 200);
+}
+
+// ──────────────────────────────────────────────────────────────────────────────
+// RESULTS
+// ──────────────────────────────────────────────────────────────────────────────
+let _scores = {}, _primary = '', _secondary = '';
+
+function buildResults() {
+  const scores = { D: 0, I: 0, S: 0, C: 0 };
+  answers.forEach(t => { if (t) scores[t]++; });
+  _scores = scores;
+
+  const total = 24;
+  const sorted = Object.entries(scores).sort((a, b) => b[1] - a[1]);
+  _primary   = sorted[0][0];
+  _secondary = sorted[1][0];
+  const p = profiles[_primary];
+  const s = profiles[_secondary];
+
+  // Set print date
+  document.getElementById('print-date').textContent =
+    'Generated: ' + new Date().toLocaleDateString('en-GB', { day:'numeric', month:'long', year:'numeric' });
+
+  document.getElementById('results-content').innerHTML = `
+    <div class="results-hero">
+      <div class="results-badge" style="background:${p.color}22;border:3px solid ${p.color};color:${p.color}">${_primary}</div>
+      <div class="results-title" style="color:${p.color}">${p.name}</div>
+      <div class="results-subtitle">${p.tagline} &nbsp;·&nbsp; Secondary style: <strong style="color:${s.color}">${_secondary} – ${s.name}</strong></div>
+    </div>
+
+    <div class="score-bars">
+      <h3>Your DISC Score Breakdown</h3>
+      ${sorted.map(([type, score]) => `
+        <div class="score-row">
+          <div class="score-row-head">
+            <span class="score-label" style="color:${profiles[type].color}">${type} — ${profiles[type].name}</span>
+            <span class="score-pct">${score} / 24 &nbsp;(${Math.round(score/total*100)}%)</span>
+          </div>
+          <div class="score-track">
+            <div class="score-bar-fill" id="bar-${type}" style="width:0%;background:${profiles[type].color}"></div>
+          </div>
+        </div>
+      `).join('')}
+      <div style="font-size:.78rem;color:var(--text-muted);margin-top:14px;">Scores reflect the number of times you selected words associated with each style (out of 24).</div>
+    </div>
+
+    <div class="profile-section">
+      <h3><span class="icon">${p.emoji}</span> About Your Style</h3>
+      <div class="profile-text">${p.overview}</div>
+    </div>
+
+    <div class="profile-section">
+      <h3><span class="icon">💪</span> Key Strengths</h3>
+      <div class="tags">${p.strengths.map(s => `<span class="tag strength">${s}</span>`).join('')}</div>
+    </div>
+
+    <div class="profile-section">
+      <h3><span class="icon">⚠️</span> Potential Blind Spots</h3>
+      <div class="tags">${p.challenges.map(c => `<span class="tag challenge">${c}</span>`).join('')}</div>
+    </div>
+
+    <div class="profile-section">
+      <h3><span class="icon">🎯</span> What Motivates You</h3>
+      <div class="tags">${p.motivators.map(m => `<span class="tag motivator">${m}</span>`).join('')}</div>
+      <p style="margin-top:14px;font-size:.85rem;color:var(--text-muted);">
+        <strong style="color:var(--text);">Core fear:</strong> ${p.fears}
+      </p>
+    </div>
+
+    <div class="profile-section">
+      <h3><span class="icon">💬</span> Your Communication Style</h3>
+      <div class="comms-grid">
+        <div class="comms-item"><div class="ci-label">Communication Style</div><div class="ci-val">${p.communication.style}</div></div>
+        <div class="comms-item"><div class="ci-label">Natural Pace</div><div class="ci-val">${p.communication.pace}</div></div>
+        <div class="comms-item"><div class="ci-label">Focus When Communicating</div><div class="ci-val">${p.communication.focus}</div></div>
+        <div class="comms-item"><div class="ci-label">Avoid Doing This To Me</div><div class="ci-val">${p.communication.avoid}</div></div>
+      </div>
+    </div>
+
+    <div class="profile-section">
+      <h3><span class="icon">🤝</span> Working With Other Styles</h3>
+      <div class="other-styles">
+        ${Object.entries(p.withOthers).map(([type, tip]) => `
+          <div class="other-style-card" style="border-color:${profiles[type].color}">
+            <div class="os-letter" style="color:${profiles[type].color}">${type} — ${profiles[type].name}</div>
+            <div class="os-tip">${tip}</div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+
+    ${_secondary !== _primary ? `
+    <div class="profile-section">
+      <h3><span class="icon">🔀</span> Your Secondary Style: ${_secondary} — ${s.name}</h3>
+      <div class="profile-text">
+        <p>Your secondary style brings an important additional dimension to your personality. As a <strong style="color:${p.color}">${_primary}/${_secondary} blend</strong>, you combine the ${p.tagline.toLowerCase()} qualities of ${_primary} with the ${s.tagline.toLowerCase()} qualities of ${_secondary}.</p>
+        <p>${s.tipsToWork}</p>
+      </div>
+      <div class="tags" style="margin-top:12px">${s.strengths.slice(0,5).map(st => `<span class="tag strength">${st}</span>`).join('')}</div>
+    </div>
+    ` : ''}
+  `;
+
+  window._discScores = scores;
+
+  // Auto-send email once results are ready
+  setTimeout(sendResultsEmail, 600);
+}
+
+function animateBars() {
+  if (!window._discScores) return;
+  Object.entries(window._discScores).forEach(([type, score]) => {
+    const bar = document.getElementById(`bar-${type}`);
+    if (bar) bar.style.width = (score / 24 * 100) + '%';
+  });
+}
+
+function retakeAssessment() {
+  answers.fill(null);
+  _userName = '';
+  _userEmail = '';
+  document.getElementById('reg-name').value = '';
+  document.getElementById('reg-email').value = '';
+  document.getElementById('email-toast').className = 'email-toast';
+  showScreen('screen-details');
+}
+
+// ──────────────────────────────────────────────────────────────────────────────
+// PDF DOWNLOAD
+// ──────────────────────────────────────────────────────────────────────────────
+function downloadPDF() {
+  window.print();
+}
+
+// ──────────────────────────────────────────────────────────────────────────────
+// AUTO-SEND EMAIL
+// ──────────────────────────────────────────────────────────────────────────────
+function sendResultsEmail() {
+  const toast = document.getElementById('email-toast');
+
+  if (!EMAIL_CONFIGURED) {
+    // Silently skip if keys not set up yet
+    return;
+  }
+
+  const p = profiles[_primary];
+  const s = profiles[_secondary];
+
+  emailjs.init(EMAILJS_PUBLIC_KEY);
+  emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
+    to_name:         _userName,
+    to_email:        _userEmail,
+    primary_style:   `${_primary} – ${p.name} (${p.tagline})`,
+    secondary_style: `${_secondary} – ${s.name}`,
+    score_d:         `${_scores.D}/24 (${Math.round(_scores.D/24*100)}%)`,
+    score_i:         `${_scores.I}/24 (${Math.round(_scores.I/24*100)}%)`,
+    score_s:         `${_scores.S}/24 (${Math.round(_scores.S/24*100)}%)`,
+    score_c:         `${_scores.C}/24 (${Math.round(_scores.C/24*100)}%)`,
+    overview_plain:  p.overviewPlain,
+    strengths:       p.strengths.join(', '),
+    challenges:      p.challenges.join(', '),
+    motivators:      p.motivators.join(', '),
+    comm_style:      p.communication.style,
+    comm_pace:       p.communication.pace,
+    comm_focus:      p.communication.focus,
+  }).then(() => {
+    toast.innerHTML = `<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg> Results emailed to ${_userEmail}`;
+    toast.className = 'email-toast visible';
+  }).catch(err => {
+    toast.innerHTML = `<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg> Could not send email — please use the Download PDF option.`;
+    toast.className = 'email-toast visible error-toast';
+    console.error('EmailJS error:', err);
+  });
+}
+
+// Add spin animation
+const style = document.createElement('style');
+style.textContent = `@keyframes spin{to{transform:rotate(360deg)}} .spin{animation:spin 1s linear infinite}`;
+document.head.appendChild(style);
+</script>
+</body>
+</html>
