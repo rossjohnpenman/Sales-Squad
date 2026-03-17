@@ -1565,7 +1565,7 @@ function sendResultsEmail() {
     recipient:       _userEmail,
     from_email:      'contact@rossjohnpenman.com',
     greeting:        `Hi ${_userName},`,
-    intro:           'Thank you for taking my DISC.AI personality assessment.',
+    intro:           'Thank you for taking my DISC AI personality assessment.',
     body:            'Please find below a copy of your results.',
     sign_off:        'Kind regards,\n\nRoss\nSales Advisor, Consultant & Trainer\nRJP Ltd',
     primary_style:   `${_primary} – ${p.name} (${p.tagline})`,
@@ -1578,9 +1578,18 @@ function sendResultsEmail() {
     strengths:       p.strengths.join(', '),
     challenges:      p.challenges.join(', '),
     motivators:      p.motivators.join(', '),
+    fears:           p.fears,
     comm_style:      p.communication.style,
     comm_pace:       p.communication.pace,
     comm_focus:      p.communication.focus,
+    comm_avoid:      p.communication.avoid,
+    with_others:     Object.entries(p.withOthers).map(([type, tip]) => `${type} — ${profiles[type].name}: ${tip}`).join('\n\n'),
+    secondary_name:  s.name,
+    secondary_tagline: s.tagline,
+    secondary_overview: s.overviewPlain,
+    secondary_tips:  s.tipsToWork,
+    secondary_strengths: s.strengths.slice(0,5).join(', '),
+    is_blend:        _secondary !== _primary ? 'true' : 'false',
   }).then((response) => {
     console.log('✅ EmailJS success:', response);
     toast.innerHTML = `<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg> Results emailed to ${_userEmail}`;
