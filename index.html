@@ -70,7 +70,36 @@
 
     /* ── HERO ── */
     .hero {
+      display: flex;
+      align-items: center;
+      gap: 48px;
       margin-bottom: 56px;
+    }
+
+    .hero-text {
+      flex: 1;
+    }
+
+    .hero-image {
+      flex-shrink: 0;
+      width: 260px;
+      height: 260px;
+      border-radius: 50%;
+      object-fit: cover;
+      object-position: center 12%;
+      transform: scale(1.4);
+      border: 3px solid var(--border);
+    }
+
+    @media (max-width: 700px) {
+      .hero {
+        flex-direction: column-reverse;
+        text-align: center;
+        gap: 32px;
+      }
+      .hero p {
+        margin: 0 auto;
+      }
     }
 
     .hero-eyebrow {
@@ -176,6 +205,31 @@
       margin-top: 4px;
     }
 
+    /* ── DISC BOXES ── */
+    .disc-boxes {
+      display: inline-flex;
+      gap: 4px;
+      margin-left: 8px;
+      vertical-align: middle;
+    }
+
+    .disc-boxes span {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 22px;
+      height: 22px;
+      border-radius: 4px;
+      font-size: .65rem;
+      font-weight: 800;
+      color: #fff;
+    }
+
+    .disc-d { background: #e53e3e; }
+    .disc-i { background: #ecc94b; color: #1a1a1a !important; }
+    .disc-s { background: #38a169; }
+    .disc-c { background: #3182ce; }
+
     /* ── COLOUR VARIANTS ── */
     .card-purple { --accent: #7b68ee; --accent-bg: #7b68ee18; }
     .card-blue   { --accent: #38bdf8; --accent-bg: #38bdf818; }
@@ -195,7 +249,7 @@
     /* ── FOOTER ── */
     footer {
       text-align: center;
-      color: var(--text-muted);
+      color: #ffffff;
       font-size: .78rem;
       padding: 32px 20px;
       border-top: 1px solid var(--border);
@@ -216,9 +270,12 @@
 
   <main>
     <div class="hero">
-      <div class="hero-eyebrow">RJP Ltd &nbsp;·&nbsp; AI-Powered Tools</div>
-      <h1><span>Business Tools</span><br>Powered by AI.</h1>
-      <p>A collection of tools to help you understand people, grow your pipeline, and make smarter decisions — faster.</p>
+      <div class="hero-text">
+        <div class="hero-eyebrow">RJP Ltd &nbsp;·&nbsp; AI-Powered Tools</div>
+        <h1><span>Business Tools,</span><br>Designed by Ross,<br>Powered by AI.</h1>
+        <p>A collection of tools to help you understand people, grow your pipeline, and make smarter decisions — faster.</p>
+      </div>
+      <img src="RJP Image 1.JPG" alt="Ross Penman" class="hero-image">
     </div>
 
     <div class="section-label">Available Tools</div>
@@ -227,8 +284,8 @@
 
       <a class="tool-card card-purple" href="DISC Profile Calculator.html">
         <div class="tool-icon">🧠</div>
-        <h2>DISC Personality Profile</h2>
-        <p>Answer 24 questions to discover your dominant DISC style. Get a detailed breakdown of your strengths, communication style, and how to work with others.</p>
+        <h2>DISC.AI Personality Assessment <span class="disc-boxes"><span class="disc-d">D</span><span class="disc-i">I</span><span class="disc-s">S</span><span class="disc-c">C</span></span></h2>
+        <p>Take this personality assessment to gain a better insight in to yourself and learn more about how your personality profile works using the DISC framework.</p>
         <div class="tool-arrow">
           Open tool
           <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
@@ -249,7 +306,7 @@
   </main>
 
   <footer>
-    &copy; 2026 R J Penman Ltd &nbsp;·&nbsp; All rights reserved
+These AI tools have been developed by R J Penman Ltd. &copy; R J Penman Ltd. All rights reserved.
   </footer>
 
 </body>
