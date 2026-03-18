@@ -1,0 +1,1858 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ikigai Coach — Find Your Purpose</title>
+
+  <style>
+    /* ─────────────────────────────────────────────────────────────────── */
+    /*  ROOT & RESET                                                      */
+    /* ─────────────────────────────────────────────────────────────────── */
+    :root {
+      --bg: #000000;
+      --surface: #111318;
+      --surface2: #191c28;
+      --border: #252840;
+      --text: #e8eaf6;
+      --text-muted: #8892b0;
+      --radius: 14px;
+      --love: #e879a8;
+      --good: #7b68ee;
+      --need: #38bdf8;
+      --paid: #4ade80;
+      --gradient: linear-gradient(135deg, #7b68ee, #38bdf8);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 860px;
+      padding: 32px 20px 60px;
+    }
+
+    /* ── SCREENS ── */
+    .screen { display: none; animation: fadeIn .4s ease; }
+    .screen.active { display: block; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* ── HEADER ── */
+    .logo-row { display: flex; align-items: center; gap: 18px; margin-bottom: 40px; }
+    .logo-rjp { height: 42px; width: auto; display: block; }
+    .logo-divider { width: 1px; height: 36px; background: var(--border); }
+    .logo-title { font-size: 1.1rem; font-weight: 700; letter-spacing: .5px; }
+    .logo-subtitle { font-size: .8rem; color: var(--text-muted); }
+
+    /* ── HERO ── */
+    .hero-heading {
+      font-size: clamp(1.8rem, 5vw, 2.8rem);
+      font-weight: 800;
+      line-height: 1.15;
+      margin-bottom: 16px;
+    }
+    .hero-heading span { background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .hero-sub { color: var(--text-muted); font-size: 1.05rem; line-height: 1.7; max-width: 600px; margin-bottom: 36px; }
+
+    /* ── IKIGAI INTRO CIRCLES ── */
+    .ikigai-intro-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 14px;
+      margin-bottom: 40px;
+    }
+    .ikigai-intro-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+      border-top: 4px solid;
+      text-align: center;
+    }
+    .ikigai-intro-card .emoji { font-size: 2rem; margin-bottom: 10px; }
+    .ikigai-intro-card h3 { font-size: .95rem; font-weight: 700; margin-bottom: 6px; }
+    .ikigai-intro-card p { font-size: .82rem; color: var(--text-muted); line-height: 1.5; }
+    .ikigai-intro-card.love { border-color: var(--love); }
+    .ikigai-intro-card.good { border-color: var(--good); }
+    .ikigai-intro-card.need { border-color: var(--need); }
+    .ikigai-intro-card.paid { border-color: var(--paid); }
+
+    @media (max-width: 480px) {
+      .ikigai-intro-grid { grid-template-columns: 1fr; }
+    }
+
+    /* ── BUTTONS ── */
+    .btn-primary {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: var(--gradient);
+      color: #fff; font-weight: 700; font-size: .95rem;
+      border: none; border-radius: 50px;
+      padding: 14px 36px;
+      cursor: pointer;
+      transition: transform .15s, box-shadow .15s;
+      box-shadow: 0 4px 20px rgba(123,104,238,.35);
+    }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 28px rgba(123,104,238,.5); }
+
+    .btn-secondary {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: var(--surface2);
+      color: var(--text); font-weight: 600; font-size: .95rem;
+      border: 1.5px solid var(--border); border-radius: 50px;
+      padding: 13px 32px;
+      cursor: pointer;
+      transition: border-color .15s;
+    }
+    .btn-secondary:hover { border-color: #7b68ee; }
+
+    .actions { display: flex; gap: 14px; margin-top: 32px; flex-wrap: wrap; }
+
+    /* ── PROGRESS BAR ── */
+    .progress-wrap { margin-bottom: 32px; }
+    .progress-label { font-size: .78rem; font-weight: 600; color: var(--text-muted); margin-bottom: 8px; letter-spacing: 1px; text-transform: uppercase; }
+    .progress-track { height: 6px; background: var(--surface2); border-radius: 3px; overflow: hidden; }
+    .progress-fill { height: 100%; background: var(--gradient); border-radius: 3px; transition: width .4s ease; }
+
+    /* ── STEP INDICATORS ── */
+    .step-dots { display: flex; gap: 8px; margin-bottom: 8px; }
+    .step-dot {
+      width: 32px; height: 32px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: .75rem; font-weight: 700;
+      background: var(--surface2); border: 2px solid var(--border);
+      color: var(--text-muted); transition: all .3s;
+    }
+    .step-dot.active { border-color: #7b68ee; color: #fff; background: #7b68ee; }
+    .step-dot.done { border-color: var(--paid); color: #fff; background: var(--paid); }
+
+    /* ── FORM FIELDS ── */
+    .field-group { margin-bottom: 20px; }
+    .field-group label {
+      display: block; font-size: .82rem; font-weight: 600;
+      color: var(--text-muted); margin-bottom: 6px; letter-spacing: .5px;
+    }
+    .field-group input,
+    .field-group select,
+    .field-group textarea {
+      width: 100%;
+      background: var(--surface2);
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      padding: 14px 16px;
+      color: var(--text);
+      font-size: .95rem;
+      font-family: inherit;
+      outline: none;
+      transition: border-color .2s;
+    }
+    .field-group input:focus,
+    .field-group select:focus,
+    .field-group textarea:focus { border-color: #7b68ee; }
+    .field-group textarea { resize: vertical; min-height: 90px; }
+    .field-group select { cursor: pointer; }
+    .field-group select option { background: var(--surface2); color: var(--text); }
+
+    .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    @media (max-width: 480px) { .field-row { grid-template-columns: 1fr; } }
+
+    .step-title {
+      font-size: 1.4rem; font-weight: 800; margin-bottom: 8px;
+    }
+    .step-subtitle {
+      color: var(--text-muted); font-size: .92rem; line-height: 1.6; margin-bottom: 28px;
+    }
+
+    /* colour accent on step titles */
+    .step-love .step-title { color: var(--love); }
+    .step-good .step-title { color: var(--good); }
+    .step-need .step-title { color: var(--need); }
+    .step-paid .step-title { color: var(--paid); }
+
+    /* ── TAG CHIPS ── */
+    .tag-suggestions { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+    .tag-chip {
+      display: inline-flex; align-items: center;
+      padding: 8px 16px;
+      background: var(--surface2);
+      border: 1.5px solid var(--border);
+      border-radius: 50px;
+      font-size: .82rem; font-weight: 600;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all .2s;
+      user-select: none;
+    }
+    .tag-chip:hover { border-color: #7b68ee; color: var(--text); }
+    .tag-chip.selected { background: #7b68ee22; border-color: #7b68ee; color: #c4b5fd; }
+    .tag-chip.selected.love { background: rgba(232,121,168,.15); border-color: var(--love); color: var(--love); }
+    .tag-chip.selected.good { background: rgba(123,104,238,.15); border-color: var(--good); color: #c4b5fd; }
+    .tag-chip.selected.need { background: rgba(56,189,248,.15); border-color: var(--need); color: var(--need); }
+    .tag-chip.selected.paid { background: rgba(74,222,128,.15); border-color: var(--paid); color: var(--paid); }
+
+    .custom-tag-row { display: flex; gap: 8px; margin-bottom: 12px; }
+    .custom-tag-row input { flex: 1; }
+    .custom-tag-row button {
+      background: var(--surface2); border: 1.5px solid var(--border);
+      border-radius: 10px; padding: 10px 18px; color: var(--text);
+      font-weight: 600; cursor: pointer; white-space: nowrap;
+      transition: border-color .2s;
+    }
+    .custom-tag-row button:hover { border-color: #7b68ee; }
+
+    .selected-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; min-height: 24px; }
+    .selected-tag {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 6px 14px;
+      border-radius: 50px;
+      font-size: .8rem; font-weight: 600;
+    }
+    .selected-tag.love { background: rgba(232,121,168,.15); color: var(--love); }
+    .selected-tag.good { background: rgba(123,104,238,.15); color: #c4b5fd; }
+    .selected-tag.need { background: rgba(56,189,248,.15); color: var(--need); }
+    .selected-tag.paid { background: rgba(74,222,128,.15); color: var(--paid); }
+    .selected-tag .remove {
+      cursor: pointer; font-size: .7rem; opacity: .7;
+      transition: opacity .15s;
+    }
+    .selected-tag .remove:hover { opacity: 1; }
+
+    /* ── GOALS SECTION ── */
+    .goal-period { margin-bottom: 28px; }
+    .goal-period h3 {
+      font-size: 1rem; font-weight: 700; margin-bottom: 14px;
+      padding-bottom: 8px; border-bottom: 1px solid var(--border);
+    }
+    .goal-period h3 .badge {
+      display: inline-block;
+      background: var(--gradient);
+      color: #fff;
+      font-size: .7rem; font-weight: 700;
+      padding: 3px 10px; border-radius: 50px;
+      margin-left: 8px; vertical-align: middle;
+    }
+
+    /* ── RESULTS ── */
+    .results-hero {
+      text-align: center;
+      padding: 48px 24px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      margin-bottom: 32px;
+    }
+    .results-hero h1 {
+      font-size: clamp(1.6rem, 4vw, 2.4rem);
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+    .results-hero h1 span { background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .results-hero p { color: var(--text-muted); font-size: 1rem; }
+
+    .result-section {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+      margin-bottom: 20px;
+    }
+    .result-section h2 {
+      font-size: 1.15rem; font-weight: 700; margin-bottom: 16px;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .result-section h2 .dot {
+      width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0;
+    }
+
+    .intersection-grid {
+      display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px;
+    }
+    @media (max-width: 600px) { .intersection-grid { grid-template-columns: 1fr; } }
+
+    .intersection-card {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      border-left: 4px solid;
+    }
+    .intersection-card h3 { font-size: .95rem; font-weight: 700; margin-bottom: 4px; }
+    .intersection-card .subtitle { font-size: .78rem; color: var(--text-muted); margin-bottom: 10px; }
+    .intersection-card .items { font-size: .85rem; line-height: 1.7; }
+    .intersection-card.passion { border-left-color: #d946a8; }
+    .intersection-card.passion h3 { color: #d946a8; }
+    .intersection-card.mission { border-left-color: #a78bfa; }
+    .intersection-card.mission h3 { color: #a78bfa; }
+    .intersection-card.vocation { border-left-color: #60d5a0; }
+    .intersection-card.vocation h3 { color: #60d5a0; }
+    .intersection-card.profession { border-left-color: #38bdf8; }
+    .intersection-card.profession h3 { color: #38bdf8; }
+
+    .strength-bar-wrap { margin-bottom: 12px; }
+    .strength-bar-label { display: flex; justify-content: space-between; font-size: .82rem; margin-bottom: 4px; }
+    .strength-bar-label span:last-child { color: var(--text-muted); }
+    .strength-bar { height: 8px; background: var(--surface2); border-radius: 4px; overflow: hidden; }
+    .strength-bar-fill { height: 100%; border-radius: 4px; transition: width .6s ease; }
+    .strength-bar-fill.passion { background: #d946a8; }
+    .strength-bar-fill.mission { background: #a78bfa; }
+    .strength-bar-fill.vocation { background: #60d5a0; }
+    .strength-bar-fill.profession { background: #38bdf8; }
+
+    .roadmap-timeline { position: relative; padding-left: 28px; }
+    .roadmap-timeline::before {
+      content: ''; position: absolute; left: 8px; top: 4px; bottom: 4px;
+      width: 2px; background: var(--border);
+    }
+    .roadmap-item { position: relative; margin-bottom: 24px; }
+    .roadmap-item::before {
+      content: ''; position: absolute; left: -24px; top: 6px;
+      width: 12px; height: 12px; border-radius: 50%;
+      background: var(--gradient); border: 2px solid var(--bg);
+    }
+    .roadmap-item h4 { font-size: .92rem; font-weight: 700; margin-bottom: 6px; }
+    .roadmap-item ul { list-style: none; padding: 0; }
+    .roadmap-item li {
+      font-size: .85rem; color: var(--text-muted); line-height: 1.7;
+      padding-left: 16px; position: relative;
+    }
+    .roadmap-item li::before {
+      content: ''; position: absolute; left: 0; top: 10px;
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--border);
+    }
+
+    .coaching-focus {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px;
+    }
+    .focus-card {
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 10px; padding: 16px;
+    }
+    .focus-card h4 { font-size: .88rem; font-weight: 700; margin-bottom: 6px; }
+    .focus-card p { font-size: .8rem; color: var(--text-muted); line-height: 1.6; }
+
+    /* ── IKIGAI SVG DIAGRAM ── */
+    .ikigai-diagram-wrap {
+      display: flex; justify-content: center; margin: 24px 0;
+    }
+    .ikigai-diagram-wrap svg { max-width: 420px; width: 100%; height: auto; }
+
+    /* ── 5F PILLARS ── */
+    .pillar-tabs { display: flex; gap: 6px; margin-bottom: 24px; flex-wrap: wrap; }
+    .pillar-tab {
+      display: flex; align-items: center; gap: 6px;
+      padding: 10px 16px; border-radius: 50px;
+      background: var(--surface2); border: 1.5px solid var(--border);
+      font-size: .82rem; font-weight: 600; color: var(--text-muted);
+      cursor: pointer; transition: all .2s; user-select: none;
+    }
+    .pillar-tab:hover { border-color: #555; }
+    .pillar-tab.active { color: #fff; }
+    .pillar-tab .pillar-icon { font-size: 1rem; }
+    .pillar-tab.active.tab-finances   { background: rgba(74,222,128,.15); border-color: var(--paid); color: var(--paid); }
+    .pillar-tab.active.tab-family     { background: rgba(232,121,168,.15); border-color: var(--love); color: var(--love); }
+    .pillar-tab.active.tab-fitness    { background: rgba(251,191,36,.15); border-color: #fbbf24; color: #fbbf24; }
+    .pillar-tab.active.tab-fortitude  { background: rgba(123,104,238,.15); border-color: var(--good); color: #c4b5fd; }
+    .pillar-tab.active.tab-fulfilment { background: rgba(56,189,248,.15); border-color: var(--need); color: var(--need); }
+
+    .pillar-panel { display: none; animation: fadeIn .3s ease; }
+    .pillar-panel.active { display: block; }
+
+    .pillar-header { margin-bottom: 20px; }
+    .pillar-header h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: 4px; }
+    .pillar-header .pillar-align {
+      font-size: .78rem; color: var(--text-muted); line-height: 1.5;
+      padding: 8px 12px; border-radius: 8px;
+      background: var(--surface2); border-left: 3px solid;
+      margin-top: 8px;
+    }
+    .pillar-header .pillar-align.align-finances   { border-left-color: var(--paid); }
+    .pillar-header .pillar-align.align-family     { border-left-color: var(--love); }
+    .pillar-header .pillar-align.align-fitness    { border-left-color: #fbbf24; }
+    .pillar-header .pillar-align.align-fortitude  { border-left-color: var(--good); }
+    .pillar-header .pillar-align.align-fulfilment { border-left-color: var(--need); }
+
+    .pillar-timeframes { display: flex; flex-direction: column; gap: 16px; }
+
+    /* Pillar results cards */
+    .pillar-results-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 14px; }
+    .pillar-result-card {
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 12px; padding: 20px; border-top: 3px solid;
+    }
+    .pillar-result-card.pr-finances   { border-top-color: var(--paid); }
+    .pillar-result-card.pr-family     { border-top-color: var(--love); }
+    .pillar-result-card.pr-fitness    { border-top-color: #fbbf24; }
+    .pillar-result-card.pr-fortitude  { border-top-color: var(--good); }
+    .pillar-result-card.pr-fulfilment { border-top-color: var(--need); }
+    .pillar-result-card h4 { font-size: .92rem; font-weight: 700; margin-bottom: 4px; display: flex; align-items: center; gap: 8px; }
+    .pillar-result-card .pillar-zone { font-size: .72rem; color: var(--text-muted); margin-bottom: 10px; }
+    .pillar-result-card .pillar-goals { font-size: .82rem; line-height: 1.65; }
+    .pillar-result-card .pillar-goals strong { color: var(--text); }
+    .pillar-result-card .pillar-goals .goal-text { color: var(--text-muted); }
+
+    /* ── QUICK WINS ── */
+    .quick-wins-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    @media (max-width: 600px) { .quick-wins-grid { grid-template-columns: 1fr; } }
+    .quick-win-card {
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 12px; padding: 22px; position: relative;
+      border-top: 3px solid;
+    }
+    .quick-win-card.qw-1 { border-top-color: #fbbf24; }
+    .quick-win-card.qw-2 { border-top-color: #38bdf8; }
+    .quick-win-card.qw-3 { border-top-color: #4ade80; }
+    .quick-win-number {
+      width: 28px; height: 28px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: .75rem; font-weight: 800; color: #fff;
+      margin-bottom: 12px;
+    }
+    .qw-1 .quick-win-number { background: #fbbf24; color: #1a1a1a; }
+    .qw-2 .quick-win-number { background: #38bdf8; }
+    .qw-3 .quick-win-number { background: #4ade80; color: #1a1a1a; }
+    .quick-win-card h4 { font-size: .92rem; font-weight: 700; margin-bottom: 6px; }
+    .quick-win-card .qw-action { font-size: .84rem; color: var(--text-muted); line-height: 1.65; margin-bottom: 10px; }
+    .quick-win-card .qw-outcome {
+      font-size: .78rem; font-weight: 600; padding: 8px 12px;
+      background: rgba(123,104,238,.1); border-radius: 8px;
+      color: #c4b5fd; line-height: 1.5;
+    }
+
+    /* ── DETAILED ROADMAP ── */
+    .phase-header {
+      display: flex; align-items: center; gap: 12px;
+      margin-bottom: 20px; padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+    .phase-badge {
+      display: inline-flex; align-items: center; justify-content: center;
+      padding: 6px 16px; border-radius: 50px;
+      font-size: .75rem; font-weight: 700; letter-spacing: .5px;
+      text-transform: uppercase; color: #fff;
+    }
+    .phase-badge.phase-1 { background: linear-gradient(135deg, #fbbf24, #f59e0b); color: #1a1a1a; }
+    .phase-badge.phase-2 { background: linear-gradient(135deg, #7b68ee, #6d5ce7); }
+    .phase-badge.phase-3 { background: linear-gradient(135deg, #38bdf8, #0ea5e9); }
+    .phase-badge.phase-4 { background: linear-gradient(135deg, #4ade80, #22c55e); color: #1a1a1a; }
+    .phase-header h3 { font-size: 1.1rem; font-weight: 700; }
+    .phase-header .phase-desc { font-size: .82rem; color: var(--text-muted); }
+
+    .task-list { list-style: none; padding: 0; }
+    .task-item {
+      display: flex; gap: 14px; padding: 14px 0;
+      border-bottom: 1px solid rgba(37,40,64,.6);
+    }
+    .task-item:last-child { border-bottom: none; }
+    .task-num {
+      flex-shrink: 0; width: 30px; height: 30px;
+      border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      font-size: .78rem; font-weight: 700;
+      background: var(--surface2); border: 1.5px solid var(--border);
+      color: var(--text-muted); margin-top: 2px;
+    }
+    .task-content { flex: 1; }
+    .task-content h5 { font-size: .9rem; font-weight: 700; margin-bottom: 4px; color: var(--text); }
+    .task-content p { font-size: .82rem; color: var(--text-muted); line-height: 1.6; }
+    .task-tag {
+      display: inline-block; font-size: .68rem; font-weight: 700;
+      padding: 2px 8px; border-radius: 50px; margin-top: 6px;
+      text-transform: uppercase; letter-spacing: .5px;
+    }
+    .task-tag.reflect { background: rgba(232,121,168,.15); color: var(--love); }
+    .task-tag.act { background: rgba(74,222,128,.15); color: var(--paid); }
+    .task-tag.connect { background: rgba(56,189,248,.15); color: var(--need); }
+    .task-tag.build { background: rgba(123,104,238,.15); color: var(--good); }
+    .task-tag.review { background: rgba(251,191,36,.15); color: #fbbf24; }
+
+    .phase-section { margin-bottom: 28px; }
+    .phase-section:last-child { margin-bottom: 0; }
+
+    /* ── PRINT ── */
+    @media print {
+      body { background: #fff; color: #1a1a1a; }
+      .app { max-width: 100%; padding: 0; }
+      .screen { display: none !important; }
+      .screen.active { display: block !important; }
+      .btn-primary, .btn-secondary, .actions, .progress-wrap, .step-dots { display: none !important; }
+      .result-section, .results-hero { break-inside: avoid; border-color: #ddd; background: #fafafa; }
+      .intersection-card { background: #f5f5f5; border-color: #ddd; }
+      .roadmap-timeline::before { background: #ccc; }
+      .strength-bar { background: #eee; }
+    }
+
+    /* ── MOBILE ── */
+    @media (max-width: 480px) {
+      .app { padding: 20px 14px 40px; }
+      .logo-row { gap: 12px; margin-bottom: 28px; }
+      .logo-rjp { height: 32px; }
+      .step-title { font-size: 1.2rem; }
+      .actions { flex-direction: column; }
+      .actions .btn-primary, .actions .btn-secondary { width: 100%; justify-content: center; }
+    }
+
+    /* ── VALIDATION SHAKE ── */
+    @keyframes wobble { 0%,100% { transform: translateX(0); } 20% { transform: translateX(-6px); } 40% { transform: translateX(6px); } 60% { transform: translateX(-4px); } 80% { transform: translateX(4px); } }
+    .wobble { animation: wobble .4s ease; }
+    .field-error { border-color: #e74c3c !important; }
+  </style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- ════════════════════════════════════════════ -->
+  <!--  SCREEN: INTRO                              -->
+  <!-- ════════════════════════════════════════════ -->
+  <div id="screen-intro" class="screen active">
+
+    <div class="logo-row">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 220" class="logo-rjp">
+        <text x="8" y="190" font-family="'Arial Black','Helvetica Neue',Arial,sans-serif" font-weight="900" font-size="195" fill="white">RJP</text>
+      </svg>
+      <div class="logo-divider"></div>
+      <div>
+        <div class="logo-title">Ikigai Coach</div>
+        <div class="logo-subtitle">Find Your Purpose</div>
+      </div>
+    </div>
+
+    <h1 class="hero-heading">Discover Your <span>Ikigai</span><br>& Build Your Roadmap</h1>
+    <p class="hero-sub">
+      Ikigai is the Japanese concept of finding your life's purpose — the sweet spot where what you
+      <strong>love</strong>, what you're <strong>good at</strong>, what the world <strong>needs</strong>,
+      and what you can be <strong>paid for</strong> all come together. Answer a few questions and receive
+      a personalised coaching roadmap.
+    </p>
+
+    <div class="ikigai-intro-grid">
+      <div class="ikigai-intro-card love">
+        <div class="emoji">&#10084;&#65039;</div>
+        <h3>What You Love</h3>
+        <p>Your passions, hobbies, and activities that energise you</p>
+      </div>
+      <div class="ikigai-intro-card good">
+        <div class="emoji">&#11088;</div>
+        <h3>What You're Good At</h3>
+        <p>Your skills, talents, and natural strengths</p>
+      </div>
+      <div class="ikigai-intro-card need">
+        <div class="emoji">&#127758;</div>
+        <h3>What The World Needs</h3>
+        <p>Problems you can solve and causes you care about</p>
+      </div>
+      <div class="ikigai-intro-card paid">
+        <div class="emoji">&#128176;</div>
+        <h3>What You Can Be Paid For</h3>
+        <p>Marketable skills and income opportunities</p>
+      </div>
+    </div>
+
+    <button class="btn-primary" onclick="startAssessment()">
+      Begin Your Journey
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+    </button>
+  </div>
+
+  <!-- ════════════════════════════════════════════ -->
+  <!--  SCREEN: STEP 1 — Personal Info             -->
+  <!-- ════════════════════════════════════════════ -->
+  <div id="screen-step1" class="screen">
+    <div class="logo-row">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 220" class="logo-rjp"><text x="8" y="190" font-family="'Arial Black','Helvetica Neue',Arial,sans-serif" font-weight="900" font-size="195" fill="white">RJP</text></svg>
+      <div class="logo-divider"></div>
+      <div><div class="logo-title">Ikigai Coach</div><div class="logo-subtitle">Step 1 of 6</div></div>
+    </div>
+
+    <div class="progress-wrap">
+      <div class="step-dots">
+        <div class="step-dot active">1</div><div class="step-dot">2</div><div class="step-dot">3</div>
+        <div class="step-dot">4</div><div class="step-dot">5</div><div class="step-dot">6</div>
+      </div>
+      <div class="progress-track"><div class="progress-fill" style="width:16.6%"></div></div>
+    </div>
+
+    <h2 class="step-title">About You</h2>
+    <p class="step-subtitle">Let's start with the basics so your roadmap is personalised to you.</p>
+
+    <div class="field-row">
+      <div class="field-group">
+        <label for="f-name">Full Name</label>
+        <input type="text" id="f-name" placeholder="e.g. Ross Penman" />
+      </div>
+      <div class="field-group">
+        <label for="f-age">Age</label>
+        <input type="number" id="f-age" placeholder="e.g. 35" min="16" max="100" />
+      </div>
+    </div>
+    <div class="field-row">
+      <div class="field-group">
+        <label for="f-relationship">Relationship Status</label>
+        <select id="f-relationship">
+          <option value="">Select...</option>
+          <option>Single</option>
+          <option>In a Relationship</option>
+          <option>Married</option>
+          <option>Divorced</option>
+          <option>Widowed</option>
+          <option>Prefer not to say</option>
+        </select>
+      </div>
+      <div class="field-group">
+        <label for="f-occupation">Current Occupation</label>
+        <input type="text" id="f-occupation" placeholder="e.g. Sales Manager" />
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="btn-secondary" onclick="showScreen('screen-intro')">Back</button>
+      <button class="btn-primary" onclick="validateStep1()">
+        Next
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════ -->
+  <!--  SCREEN: STEP 2 — What You Love             -->
+  <!-- ════════════════════════════════════════════ -->
+  <div id="screen-step2" class="screen step-love">
+    <div class="logo-row">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 220" class="logo-rjp"><text x="8" y="190" font-family="'Arial Black','Helvetica Neue',Arial,sans-serif" font-weight="900" font-size="195" fill="white">RJP</text></svg>
+      <div class="logo-divider"></div>
+      <div><div class="logo-title">Ikigai Coach</div><div class="logo-subtitle">Step 2 of 6</div></div>
+    </div>
+
+    <div class="progress-wrap">
+      <div class="step-dots">
+        <div class="step-dot done">&#10003;</div><div class="step-dot active">2</div><div class="step-dot">3</div>
+        <div class="step-dot">4</div><div class="step-dot">5</div><div class="step-dot">6</div>
+      </div>
+      <div class="progress-track"><div class="progress-fill" style="width:33.2%"></div></div>
+    </div>
+
+    <h2 class="step-title">What You Love</h2>
+    <p class="step-subtitle">Select or add the activities, topics, and passions that truly energise and excite you. Choose as many as you like.</p>
+
+    <div class="tag-suggestions" id="tags-love"></div>
+    <div class="custom-tag-row">
+      <input type="text" id="custom-love" placeholder="Add your own..." />
+      <button onclick="addCustomTag('love')">+ Add</button>
+    </div>
+    <div class="selected-tags" id="selected-love"></div>
+
+    <div class="actions">
+      <button class="btn-secondary" onclick="goToStep(1)">Back</button>
+      <button class="btn-primary" onclick="validateTagStep('love', 3)">
+        Next
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════ -->
+  <!--  SCREEN: STEP 3 — What You're Good At       -->
+  <!-- ════════════════════════════════════════════ -->
+  <div id="screen-step3" class="screen step-good">
+    <div class="logo-row">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 220" class="logo-rjp"><text x="8" y="190" font-family="'Arial Black','Helvetica Neue',Arial,sans-serif" font-weight="900" font-size="195" fill="white">RJP</text></svg>
+      <div class="logo-divider"></div>
+      <div><div class="logo-title">Ikigai Coach</div><div class="logo-subtitle">Step 3 of 6</div></div>
+    </div>
+
+    <div class="progress-wrap">
+      <div class="step-dots">
+        <div class="step-dot done">&#10003;</div><div class="step-dot done">&#10003;</div><div class="step-dot active">3</div>
+        <div class="step-dot">4</div><div class="step-dot">5</div><div class="step-dot">6</div>
+      </div>
+      <div class="progress-track"><div class="progress-fill" style="width:49.8%"></div></div>
+    </div>
+
+    <h2 class="step-title">What You're Good At</h2>
+    <p class="step-subtitle">What skills and talents come naturally to you? What do others often ask you for help with?</p>
+
+    <div class="tag-suggestions" id="tags-good"></div>
+    <div class="custom-tag-row">
+      <input type="text" id="custom-good" placeholder="Add your own..." />
+      <button onclick="addCustomTag('good')">+ Add</button>
+    </div>
+    <div class="selected-tags" id="selected-good"></div>
+
+    <div class="actions">
+      <button class="btn-secondary" onclick="goToStep(2)">Back</button>
+      <button class="btn-primary" onclick="validateTagStep('good', 4)">
+        Next
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════ -->
+  <!--  SCREEN: STEP 4 — What The World Needs      -->
+  <!-- ════════════════════════════════════════════ -->
+  <div id="screen-step4" class="screen step-need">
+    <div class="logo-row">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 220" class="logo-rjp"><text x="8" y="190" font-family="'Arial Black','Helvetica Neue',Arial,sans-serif" font-weight="900" font-size="195" fill="white">RJP</text></svg>
+      <div class="logo-divider"></div>
+      <div><div class="logo-title">Ikigai Coach</div><div class="logo-subtitle">Step 4 of 6</div></div>
+    </div>
+
+    <div class="progress-wrap">
+      <div class="step-dots">
+        <div class="step-dot done">&#10003;</div><div class="step-dot done">&#10003;</div><div class="step-dot done">&#10003;</div>
+        <div class="step-dot active">4</div><div class="step-dot">5</div><div class="step-dot">6</div>
+      </div>
+      <div class="progress-track"><div class="progress-fill" style="width:66.4%"></div></div>
+    </div>
+
+    <h2 class="step-title">What The World Needs</h2>
+    <p class="step-subtitle">What problems do you see in the world that you'd love to help solve? What causes matter to you?</p>
+
+    <div class="tag-suggestions" id="tags-need"></div>
+    <div class="custom-tag-row">
+      <input type="text" id="custom-need" placeholder="Add your own..." />
+      <button onclick="addCustomTag('need')">+ Add</button>
+    </div>
+    <div class="selected-tags" id="selected-need"></div>
+
+    <div class="actions">
+      <button class="btn-secondary" onclick="goToStep(3)">Back</button>
+      <button class="btn-primary" onclick="validateTagStep('need', 5)">
+        Next
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════ -->
+  <!--  SCREEN: STEP 5 — What You Can Be Paid For  -->
+  <!-- ════════════════════════════════════════════ -->
+  <div id="screen-step5" class="screen step-paid">
+    <div class="logo-row">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 220" class="logo-rjp"><text x="8" y="190" font-family="'Arial Black','Helvetica Neue',Arial,sans-serif" font-weight="900" font-size="195" fill="white">RJP</text></svg>
+      <div class="logo-divider"></div>
+      <div><div class="logo-title">Ikigai Coach</div><div class="logo-subtitle">Step 5 of 6</div></div>
+    </div>
+
+    <div class="progress-wrap">
+      <div class="step-dots">
+        <div class="step-dot done">&#10003;</div><div class="step-dot done">&#10003;</div><div class="step-dot done">&#10003;</div>
+        <div class="step-dot done">&#10003;</div><div class="step-dot active">5</div><div class="step-dot">6</div>
+      </div>
+      <div class="progress-track"><div class="progress-fill" style="width:83%"></div></div>
+    </div>
+
+    <h2 class="step-title">What You Can Be Paid For</h2>
+    <p class="step-subtitle">Think about your marketable skills, services, or products. What could people or businesses pay you for?</p>
+
+    <div class="tag-suggestions" id="tags-paid"></div>
+    <div class="custom-tag-row">
+      <input type="text" id="custom-paid" placeholder="Add your own..." />
+      <button onclick="addCustomTag('paid')">+ Add</button>
+    </div>
+    <div class="selected-tags" id="selected-paid"></div>
+
+    <div class="actions">
+      <button class="btn-secondary" onclick="goToStep(4)">Back</button>
+      <button class="btn-primary" onclick="validateTagStep('paid', 6)">
+        Next
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════ -->
+  <!--  SCREEN: STEP 6 — Goals & Timescales        -->
+  <!-- ════════════════════════════════════════════ -->
+  <div id="screen-step6" class="screen">
+    <div class="logo-row">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 220" class="logo-rjp"><text x="8" y="190" font-family="'Arial Black','Helvetica Neue',Arial,sans-serif" font-weight="900" font-size="195" fill="white">RJP</text></svg>
+      <div class="logo-divider"></div>
+      <div><div class="logo-title">Ikigai Coach</div><div class="logo-subtitle">Step 6 of 6</div></div>
+    </div>
+
+    <div class="progress-wrap">
+      <div class="step-dots">
+        <div class="step-dot done">&#10003;</div><div class="step-dot done">&#10003;</div><div class="step-dot done">&#10003;</div>
+        <div class="step-dot done">&#10003;</div><div class="step-dot done">&#10003;</div><div class="step-dot active">6</div>
+      </div>
+      <div class="progress-track"><div class="progress-fill" style="width:100%"></div></div>
+    </div>
+
+    <h2 class="step-title">Your Goals — The 5 Pillars</h2>
+    <p class="step-subtitle">Set goals across the 5 key pillars of a fulfilling life. Each pillar connects directly to your Ikigai framework — tap a pillar to set your 90-day, 6-month, and 12-month targets.</p>
+
+    <div class="pillar-tabs">
+      <div class="pillar-tab tab-finances active" onclick="switchPillar('finances')"><span class="pillar-icon">&#128176;</span> Finances</div>
+      <div class="pillar-tab tab-family" onclick="switchPillar('family')"><span class="pillar-icon">&#128106;</span> Family</div>
+      <div class="pillar-tab tab-fitness" onclick="switchPillar('fitness')"><span class="pillar-icon">&#128170;</span> Fitness</div>
+      <div class="pillar-tab tab-fortitude" onclick="switchPillar('fortitude')"><span class="pillar-icon">&#129504;</span> Fortitude</div>
+      <div class="pillar-tab tab-fulfilment" onclick="switchPillar('fulfilment')"><span class="pillar-icon">&#10024;</span> Fulfilment</div>
+    </div>
+
+    <!-- FINANCES -->
+    <div id="pillar-finances" class="pillar-panel active">
+      <div class="pillar-header">
+        <h3 style="color:var(--paid)">&#128176; Finances</h3>
+        <div class="pillar-align align-finances"><strong>Ikigai Alignment:</strong> Maps to <em>What You Can Be Paid For</em> — your Vocation &amp; Profession zones. Financial goals ground your Ikigai in reality and ensure your purpose is sustainable.</div>
+      </div>
+      <div class="pillar-timeframes">
+        <div class="field-group">
+          <label for="g-fin-3">90-Day Financial Goal</label>
+          <textarea id="g-fin-3" placeholder="e.g. Save £1,000 emergency fund, reduce monthly expenses by 15%, land a side client..."></textarea>
+        </div>
+        <div class="field-group">
+          <label for="g-fin-6">6-Month Financial Goal</label>
+          <textarea id="g-fin-6" placeholder="e.g. Increase income by 20%, pay off a specific debt, build 3 months of savings..."></textarea>
+        </div>
+        <div class="field-group">
+          <label for="g-fin-12">12-Month Financial Vision</label>
+          <textarea id="g-fin-12" placeholder="e.g. Achieve financial independence, launch a revenue-generating side business, double my income..."></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- FAMILY -->
+    <div id="pillar-family" class="pillar-panel">
+      <div class="pillar-header">
+        <h3 style="color:var(--love)">&#128106; Family</h3>
+        <div class="pillar-align align-family"><strong>Ikigai Alignment:</strong> Maps to <em>What You Love</em> — your Passion &amp; Mission zones. Strong relationships fuel your purpose and give meaning to everything else you build.</div>
+      </div>
+      <div class="pillar-timeframes">
+        <div class="field-group">
+          <label for="g-fam-3">90-Day Family / Relationship Goal</label>
+          <textarea id="g-fam-3" placeholder="e.g. Have a weekly date night, call parents every Sunday, plan a family activity each weekend..."></textarea>
+        </div>
+        <div class="field-group">
+          <label for="g-fam-6">6-Month Family / Relationship Goal</label>
+          <textarea id="g-fam-6" placeholder="e.g. Plan a meaningful family holiday, strengthen 3 key friendships, resolve a relationship tension..."></textarea>
+        </div>
+        <div class="field-group">
+          <label for="g-fam-12">12-Month Family / Relationship Vision</label>
+          <textarea id="g-fam-12" placeholder="e.g. Be fully present at home, build a support network of 10+ close relationships, create lasting family traditions..."></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- FITNESS -->
+    <div id="pillar-fitness" class="pillar-panel">
+      <div class="pillar-header">
+        <h3 style="color:#fbbf24">&#128170; Fitness</h3>
+        <div class="pillar-align align-fitness"><strong>Ikigai Alignment:</strong> Supports <em>all four zones</em> — you cannot sustain passion, mission, vocation, or profession without physical and mental energy. Fitness is the foundation your Ikigai is built on.</div>
+      </div>
+      <div class="pillar-timeframes">
+        <div class="field-group">
+          <label for="g-fit-3">90-Day Fitness Goal</label>
+          <textarea id="g-fit-3" placeholder="e.g. Exercise 4x per week, lose 5kg, run a 5K, establish a morning routine..."></textarea>
+        </div>
+        <div class="field-group">
+          <label for="g-fit-6">6-Month Fitness Goal</label>
+          <textarea id="g-fit-6" placeholder="e.g. Complete a 10K, reach target weight, maintain a consistent sleep schedule..."></textarea>
+        </div>
+        <div class="field-group">
+          <label for="g-fit-12">12-Month Fitness Vision</label>
+          <textarea id="g-fit-12" placeholder="e.g. Be in the best shape of my life, run a half marathon, have boundless daily energy..."></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- FORTITUDE -->
+    <div id="pillar-fortitude" class="pillar-panel">
+      <div class="pillar-header">
+        <h3 style="color:#c4b5fd">&#129504; Fortitude (Mindset)</h3>
+        <div class="pillar-align align-fortitude"><strong>Ikigai Alignment:</strong> Maps to <em>What You're Good At</em> — your Passion &amp; Vocation zones. Mental resilience, self-belief, and growth mindset determine how far you can take your natural talents.</div>
+      </div>
+      <div class="pillar-timeframes">
+        <div class="field-group">
+          <label for="g-fort-3">90-Day Mindset Goal</label>
+          <textarea id="g-fort-3" placeholder="e.g. Read 3 personal development books, start daily journaling, work with a coach or mentor..."></textarea>
+        </div>
+        <div class="field-group">
+          <label for="g-fort-6">6-Month Mindset Goal</label>
+          <textarea id="g-fort-6" placeholder="e.g. Overcome a limiting belief, build a daily mindfulness practice, develop emotional intelligence..."></textarea>
+        </div>
+        <div class="field-group">
+          <label for="g-fort-12">12-Month Mindset Vision</label>
+          <textarea id="g-fort-12" placeholder="e.g. Become mentally unshakeable, lead with confidence in all situations, master my inner dialogue..."></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- FULFILMENT -->
+    <div id="pillar-fulfilment" class="pillar-panel">
+      <div class="pillar-header">
+        <h3 style="color:var(--need)">&#10024; Fulfilment</h3>
+        <div class="pillar-align align-fulfilment"><strong>Ikigai Alignment:</strong> Maps to <em>What The World Needs</em> — your Mission &amp; Profession zones. This is your core Ikigai — the sense of purpose and contribution that makes life meaningful.</div>
+      </div>
+      <div class="pillar-timeframes">
+        <div class="field-group">
+          <label for="g-ful-3">90-Day Fulfilment Goal</label>
+          <textarea id="g-ful-3" placeholder="e.g. Volunteer for a cause I care about, start a passion project, help 5 people with my skills..."></textarea>
+        </div>
+        <div class="field-group">
+          <label for="g-ful-6">6-Month Fulfilment Goal</label>
+          <textarea id="g-ful-6" placeholder="e.g. Make a measurable impact in my community, align 50% of my work with my mission..."></textarea>
+        </div>
+        <div class="field-group">
+          <label for="g-ful-12">12-Month Fulfilment Vision</label>
+          <textarea id="g-ful-12" placeholder="e.g. Live a purpose-driven life, be known for making a difference, wake up excited every day..."></textarea>
+        </div>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="btn-secondary" onclick="goToStep(5)">Back</button>
+      <button class="btn-primary" onclick="validateStep6()">
+        Generate My Roadmap
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════ -->
+  <!--  SCREEN: RESULTS                            -->
+  <!-- ════════════════════════════════════════════ -->
+  <div id="screen-results" class="screen">
+    <div class="logo-row">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 220" class="logo-rjp"><text x="8" y="190" font-family="'Arial Black','Helvetica Neue',Arial,sans-serif" font-weight="900" font-size="195" fill="white">RJP</text></svg>
+      <div class="logo-divider"></div>
+      <div><div class="logo-title">Ikigai Coach</div><div class="logo-subtitle">Your Roadmap</div></div>
+    </div>
+
+    <div id="results-content"></div>
+
+    <div class="actions" style="justify-content: center; margin-top: 40px;">
+      <button class="btn-secondary" onclick="window.print()">Print Roadmap</button>
+      <button class="btn-primary" onclick="showScreen('screen-intro'); resetForm();">Start Again</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+/* ═══════════════════════════════════════════════════════════════════════ */
+/*  DATA MODEL                                                            */
+/* ═══════════════════════════════════════════════════════════════════════ */
+
+const userData = {
+  name: '', age: '', relationship: '', occupation: '',
+  love: [], goodAt: [], worldNeeds: [], paidFor: [],
+  pillars: {
+    finances:   { m3: '', m6: '', m12: '' },
+    family:     { m3: '', m6: '', m12: '' },
+    fitness:    { m3: '', m6: '', m12: '' },
+    fortitude:  { m3: '', m6: '', m12: '' },
+    fulfilment: { m3: '', m6: '', m12: '' }
+  }
+};
+
+/* ── Tag Suggestion Lists ── */
+const suggestions = {
+  love: [
+    'Teaching Others', 'Creating Art', 'Solving Problems', 'Writing', 'Helping People',
+    'Building Things', 'Music', 'Sport & Fitness', 'Technology', 'Nature & Outdoors',
+    'Cooking', 'Travel', 'Reading & Learning', 'Public Speaking', 'Photography',
+    'Entrepreneurship', 'Design', 'Mentoring', 'Community Work', 'Strategy & Planning'
+  ],
+  good: [
+    'Communication', 'Leadership', 'Technical Skills', 'Creativity', 'Problem Solving',
+    'Analytical Thinking', 'Sales & Persuasion', 'Design', 'Writing', 'Organisation',
+    'Project Management', 'Empathy & Listening', 'Public Speaking', 'Networking',
+    'Strategic Thinking', 'Coaching', 'Data Analysis', 'Financial Management',
+    'Team Building', 'Negotiation'
+  ],
+  need: [
+    'Better Education', 'Mental Health Support', 'Environmental Protection', 'Healthcare Access',
+    'Community Building', 'Innovation & Technology', 'Social Justice', 'Youth Development',
+    'Financial Literacy', 'Leadership Development', 'Work-Life Balance', 'Small Business Support',
+    'Digital Inclusion', 'Healthy Living', 'Career Guidance', 'Diversity & Inclusion',
+    'Conflict Resolution', 'Poverty Reduction', 'Elder Care', 'Clean Energy'
+  ],
+  paid: [
+    'Consulting', 'Teaching & Training', 'Software Development', 'Content Creation',
+    'Coaching & Mentoring', 'Freelance Services', 'Product Design', 'Management',
+    'Sales & Business Dev', 'Marketing', 'Financial Advice', 'Health & Wellness',
+    'Event Planning', 'Writing & Publishing', 'Real Estate', 'Crafts & Handmade',
+    'Photography & Video', 'Public Speaking', 'Online Courses', 'Advisory Services'
+  ]
+};
+
+/* ── Thematic Category Map ── */
+const themeMap = {
+  'Teaching Others':      ['education','communication','helping'],
+  'Creating Art':         ['creativity','design','expression'],
+  'Solving Problems':     ['analytical','innovation','strategy'],
+  'Writing':              ['creativity','communication','content'],
+  'Helping People':       ['helping','empathy','community'],
+  'Building Things':      ['innovation','technical','creativity'],
+  'Music':                ['creativity','expression','performance'],
+  'Sport & Fitness':      ['health','discipline','performance'],
+  'Technology':           ['technical','innovation','digital'],
+  'Nature & Outdoors':    ['environment','health','wellbeing'],
+  'Cooking':              ['creativity','health','service'],
+  'Travel':               ['exploration','growth','cultural'],
+  'Reading & Learning':   ['education','growth','analytical'],
+  'Public Speaking':      ['communication','leadership','performance'],
+  'Photography':          ['creativity','visual','content'],
+  'Entrepreneurship':     ['business','innovation','leadership'],
+  'Design':               ['creativity','visual','design'],
+  'Mentoring':            ['helping','education','leadership'],
+  'Community Work':       ['community','helping','social'],
+  'Strategy & Planning':  ['strategy','analytical','leadership'],
+  'Communication':        ['communication','leadership','helping'],
+  'Leadership':           ['leadership','management','strategy'],
+  'Technical Skills':     ['technical','innovation','digital'],
+  'Creativity':           ['creativity','design','expression'],
+  'Problem Solving':      ['analytical','innovation','strategy'],
+  'Analytical Thinking':  ['analytical','strategy','data'],
+  'Sales & Persuasion':   ['business','communication','influence'],
+  'Organisation':         ['management','strategy','efficiency'],
+  'Project Management':   ['management','leadership','efficiency'],
+  'Empathy & Listening':  ['empathy','helping','communication'],
+  'Networking':           ['business','communication','community'],
+  'Strategic Thinking':   ['strategy','leadership','analytical'],
+  'Coaching':             ['helping','education','leadership'],
+  'Data Analysis':        ['analytical','data','technical'],
+  'Financial Management': ['finance','strategy','business'],
+  'Team Building':        ['leadership','community','management'],
+  'Negotiation':          ['communication','business','influence'],
+  'Better Education':     ['education','growth','community'],
+  'Mental Health Support':['health','empathy','helping'],
+  'Environmental Protection':['environment','sustainability','community'],
+  'Healthcare Access':    ['health','community','helping'],
+  'Community Building':   ['community','leadership','social'],
+  'Innovation & Technology':['innovation','technical','digital'],
+  'Social Justice':       ['social','community','helping'],
+  'Youth Development':    ['education','helping','community'],
+  'Financial Literacy':   ['finance','education','growth'],
+  'Leadership Development':['leadership','education','growth'],
+  'Work-Life Balance':    ['wellbeing','health','growth'],
+  'Small Business Support':['business','community','innovation'],
+  'Digital Inclusion':    ['digital','community','education'],
+  'Healthy Living':       ['health','wellbeing','helping'],
+  'Career Guidance':      ['education','helping','growth'],
+  'Diversity & Inclusion':['social','community','leadership'],
+  'Conflict Resolution':  ['communication','empathy','helping'],
+  'Poverty Reduction':    ['community','social','helping'],
+  'Elder Care':           ['health','helping','community'],
+  'Clean Energy':         ['environment','innovation','sustainability'],
+  'Consulting':           ['business','strategy','analytical'],
+  'Teaching & Training':  ['education','communication','helping'],
+  'Software Development': ['technical','innovation','digital'],
+  'Content Creation':     ['creativity','content','communication'],
+  'Coaching & Mentoring': ['helping','education','leadership'],
+  'Freelance Services':   ['business','creativity','service'],
+  'Product Design':       ['design','creativity','innovation'],
+  'Management':           ['leadership','management','strategy'],
+  'Sales & Business Dev': ['business','communication','influence'],
+  'Marketing':            ['communication','creativity','business'],
+  'Financial Advice':     ['finance','helping','strategy'],
+  'Health & Wellness':    ['health','helping','wellbeing'],
+  'Event Planning':       ['management','creativity','service'],
+  'Writing & Publishing': ['creativity','content','communication'],
+  'Real Estate':          ['business','finance','service'],
+  'Crafts & Handmade':    ['creativity','design','service'],
+  'Photography & Video':  ['creativity','visual','content'],
+  'Online Courses':       ['education','digital','content'],
+  'Advisory Services':    ['business','strategy','helping']
+};
+
+/* ═══════════════════════════════════════════════════════════════════════ */
+/*  NAVIGATION                                                            */
+/* ═══════════════════════════════════════════════════════════════════════ */
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function goToStep(n) { showScreen('screen-step' + n); }
+
+function startAssessment() { showScreen('screen-step1'); }
+
+/* ═══════════════════════════════════════════════════════════════════════ */
+/*  TAG SYSTEM                                                            */
+/* ═══════════════════════════════════════════════════════════════════════ */
+
+const fieldMap = { love: 'love', good: 'goodAt', need: 'worldNeeds', paid: 'paidFor' };
+
+function initTags() {
+  ['love','good','need','paid'].forEach(key => {
+    const container = document.getElementById('tags-' + key);
+    suggestions[key].forEach(tag => {
+      const chip = document.createElement('div');
+      chip.className = 'tag-chip ' + key;
+      chip.textContent = tag;
+      chip.onclick = () => toggleTag(key, tag, chip);
+      container.appendChild(chip);
+    });
+
+    // Enter key on custom input
+    document.getElementById('custom-' + key).addEventListener('keydown', e => {
+      if (e.key === 'Enter') { e.preventDefault(); addCustomTag(key); }
+    });
+  });
+}
+
+function toggleTag(key, tag, chip) {
+  const field = fieldMap[key];
+  const idx = userData[field].indexOf(tag);
+  if (idx > -1) {
+    userData[field].splice(idx, 1);
+    chip.classList.remove('selected');
+  } else {
+    userData[field].push(tag);
+    chip.classList.add('selected');
+  }
+  renderSelectedTags(key);
+}
+
+function addCustomTag(key) {
+  const input = document.getElementById('custom-' + key);
+  const val = input.value.trim();
+  if (!val) return;
+  const field = fieldMap[key];
+  if (userData[field].includes(val)) { input.value = ''; return; }
+  userData[field].push(val);
+  input.value = '';
+  renderSelectedTags(key);
+}
+
+function removeTag(key, tag) {
+  const field = fieldMap[key];
+  userData[field] = userData[field].filter(t => t !== tag);
+  // Deselect chip if it exists
+  document.querySelectorAll('#tags-' + key + ' .tag-chip').forEach(c => {
+    if (c.textContent === tag) c.classList.remove('selected');
+  });
+  renderSelectedTags(key);
+}
+
+function renderSelectedTags(key) {
+  const field = fieldMap[key];
+  const container = document.getElementById('selected-' + key);
+  container.innerHTML = userData[field].map(tag =>
+    `<span class="selected-tag ${key}">${tag} <span class="remove" onclick="removeTag('${key}','${tag.replace(/'/g, "\\'")}')">&times;</span></span>`
+  ).join('');
+}
+
+/* ═══════════════════════════════════════════════════════════════════════ */
+/*  VALIDATION                                                            */
+/* ═══════════════════════════════════════════════════════════════════════ */
+
+function shake(el) {
+  el.classList.add('field-error','wobble');
+  setTimeout(() => el.classList.remove('field-error','wobble'), 600);
+}
+
+function validateStep1() {
+  const name = document.getElementById('f-name');
+  const age = document.getElementById('f-age');
+  const rel = document.getElementById('f-relationship');
+  const occ = document.getElementById('f-occupation');
+  let ok = true;
+  [name, age, rel, occ].forEach(el => { if (!el.value.trim()) { shake(el); ok = false; } });
+  if (!ok) return;
+  userData.name = name.value.trim();
+  userData.age = age.value.trim();
+  userData.relationship = rel.value;
+  userData.occupation = occ.value.trim();
+  goToStep(2);
+}
+
+function validateTagStep(key, nextStep) {
+  const field = fieldMap[key];
+  if (userData[field].length < 2) {
+    const container = document.getElementById('tags-' + key);
+    container.classList.add('wobble');
+    setTimeout(() => container.classList.remove('wobble'), 600);
+    return;
+  }
+  goToStep(nextStep);
+}
+
+function switchPillar(key) {
+  document.querySelectorAll('.pillar-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.pillar-panel').forEach(p => p.classList.remove('active'));
+  document.querySelector('.tab-' + key).classList.add('active');
+  document.getElementById('pillar-' + key).classList.add('active');
+}
+
+const pillarFieldMap = {
+  finances:   { m3: 'g-fin-3',  m6: 'g-fin-6',  m12: 'g-fin-12' },
+  family:     { m3: 'g-fam-3',  m6: 'g-fam-6',  m12: 'g-fam-12' },
+  fitness:    { m3: 'g-fit-3',  m6: 'g-fit-6',  m12: 'g-fit-12' },
+  fortitude:  { m3: 'g-fort-3', m6: 'g-fort-6', m12: 'g-fort-12' },
+  fulfilment: { m3: 'g-ful-3',  m6: 'g-ful-6',  m12: 'g-ful-12' }
+};
+
+function validateStep6() {
+  let ok = true;
+  let firstBadPillar = null;
+  const pillarKeys = ['finances','family','fitness','fortitude','fulfilment'];
+
+  pillarKeys.forEach(pKey => {
+    const fields = pillarFieldMap[pKey];
+    Object.values(fields).forEach(id => {
+      const el = document.getElementById(id);
+      if (!el.value.trim()) {
+        shake(el);
+        ok = false;
+        if (!firstBadPillar) firstBadPillar = pKey;
+      }
+    });
+  });
+
+  if (!ok) {
+    // Switch to the first pillar with missing fields
+    if (firstBadPillar) switchPillar(firstBadPillar);
+    return;
+  }
+
+  // Save all pillar data
+  pillarKeys.forEach(pKey => {
+    const fields = pillarFieldMap[pKey];
+    userData.pillars[pKey].m3  = document.getElementById(fields.m3).value.trim();
+    userData.pillars[pKey].m6  = document.getElementById(fields.m6).value.trim();
+    userData.pillars[pKey].m12 = document.getElementById(fields.m12).value.trim();
+  });
+
+  generateResults();
+}
+
+/* ═══════════════════════════════════════════════════════════════════════ */
+/*  IKIGAI ANALYSIS ENGINE                                                */
+/* ═══════════════════════════════════════════════════════════════════════ */
+
+function getThemes(item) {
+  return themeMap[item] || [item.toLowerCase()];
+}
+
+function findIntersections(listA, listB) {
+  const matches = [];
+  const pairsUsed = new Set();
+  listA.forEach(a => {
+    const themesA = getThemes(a);
+    listB.forEach(b => {
+      if (a === b) {
+        const k = a + '|' + b;
+        if (!pairsUsed.has(k)) { matches.push({ from: a, to: b, shared: [a.toLowerCase()] }); pairsUsed.add(k); }
+        return;
+      }
+      const themesB = getThemes(b);
+      const shared = themesA.filter(t => themesB.includes(t));
+      if (shared.length > 0) {
+        const k = [a,b].sort().join('|');
+        if (!pairsUsed.has(k)) { matches.push({ from: a, to: b, shared }); pairsUsed.add(k); }
+      }
+    });
+  });
+  return matches;
+}
+
+function analyzeIkigai() {
+  const passion   = findIntersections(userData.love, userData.goodAt);
+  const mission   = findIntersections(userData.love, userData.worldNeeds);
+  const vocation  = findIntersections(userData.goodAt, userData.paidFor);
+  const profession = findIntersections(userData.worldNeeds, userData.paidFor);
+
+  const maxPossible = (a, b) => Math.max(a.length * b.length, 1);
+  const score = (matches, a, b) => Math.min(100, Math.round((matches.length / Math.max(Math.min(a.length, b.length), 1)) * 100));
+
+  return {
+    passion:    { matches: passion,    score: score(passion, userData.love, userData.goodAt) },
+    mission:    { matches: mission,    score: score(mission, userData.love, userData.worldNeeds) },
+    vocation:   { matches: vocation,   score: score(vocation, userData.goodAt, userData.paidFor) },
+    profession: { matches: profession, score: score(profession, userData.worldNeeds, userData.paidFor) }
+  };
+}
+
+/* ═══════════════════════════════════════════════════════════════════════ */
+/*  ROADMAP GENERATION                                                    */
+/* ═══════════════════════════════════════════════════════════════════════ */
+
+function generateRoadmapActions(analysis) {
+  // Sort zones by score — strongest first
+  const zones = [
+    { name: 'Passion', key: 'passion', ...analysis.passion },
+    { name: 'Mission', key: 'mission', ...analysis.mission },
+    { name: 'Vocation', key: 'vocation', ...analysis.vocation },
+    { name: 'Profession', key: 'profession', ...analysis.profession }
+  ].sort((a, b) => b.score - a.score);
+
+  const strongest = zones[0];
+  const second = zones[1];
+  const third = zones[2];
+  const weakest = zones[zones.length - 1];
+
+  const strongPair = strongest.matches.length > 0 ? strongest.matches[0] : null;
+  const secondPair = second.matches.length > 0 ? second.matches[0] : null;
+  const thirdPair = third.matches.length > 0 ? third.matches[0] : null;
+
+  const p = userData.pillars;
+
+  const phases = {};
+
+  /* ─── PHASE 1: Foundation (Weeks 1-4) ─── */
+  phases.foundation = {
+    title: 'Foundation',
+    badge: 'phase-1',
+    timeframe: 'Weeks 1–4',
+    desc: 'Lay the groundwork — gain clarity across all 5 pillars, establish baseline habits, and build self-awareness.',
+    tasks: [
+      {
+        title: 'Complete Your Ikigai Self-Audit',
+        desc: 'Review your four Ikigai inputs in detail. For each item you selected, write down why it matters to you and rate your current engagement with it from 1–10. This creates your baseline across all pillars.',
+        tag: 'reflect', pillar: null
+      },
+      {
+        title: 'Define Your "North Star" Statement',
+        desc: `Using your strongest zone — <strong>${strongest.name}</strong> (${strongest.score}%) — write a one-sentence purpose statement that captures who you want to become. This anchors your Fulfilment pillar.`,
+        tag: 'reflect', pillar: 'fulfilment'
+      },
+      {
+        title: 'Map Your Current Time Allocation',
+        desc: 'Track how you spend your time for one full week. Categorise each activity against the 5 pillars (Finances, Family, Fitness, Fortitude, Fulfilment). Identify where your time is aligned with your purpose and where it\'s being drained.',
+        tag: 'act', pillar: null
+      },
+      {
+        title: '&#128176; Finances: Set Your 90-Day Financial Target',
+        desc: `<strong>Your goal:</strong> ${p.finances.m3}. Break this into 4 weekly milestones. Identify the single most impactful financial action you can take this week and do it. This maps to your <em>Vocation &amp; Profession</em> zones — making your Ikigai financially sustainable.`,
+        tag: 'act', pillar: 'finances'
+      },
+      {
+        title: '&#128106; Family: Establish Your Connection Rituals',
+        desc: `<strong>Your goal:</strong> ${p.family.m3}. Design 2–3 non-negotiable weekly rituals that strengthen your closest relationships. Put them in your calendar now. Strong relationships are the fuel for your <em>Passion &amp; Mission</em> zones.`,
+        tag: 'act', pillar: 'family'
+      },
+      {
+        title: '&#128170; Fitness: Build Your Energy Foundation',
+        desc: `<strong>Your goal:</strong> ${p.fitness.m3}. Choose one sustainable fitness habit you can maintain every day this week — a morning walk, a bodyweight session, a stretching routine. Start small and build. Fitness underpins every other pillar.`,
+        tag: 'act', pillar: 'fitness'
+      },
+      {
+        title: '&#129504; Fortitude: Start Your Mindset Practice',
+        desc: `<strong>Your goal:</strong> ${p.fortitude.m3}. Begin a daily 10-minute practice — journaling, meditation, or reading. The aim is to build mental clarity and self-awareness. This strengthens your <em>Passion &amp; Vocation</em> zones by developing your inner toolkit.`,
+        tag: 'reflect', pillar: 'fortitude'
+      },
+      {
+        title: '&#10024; Fulfilment: Identify Your Purpose Anchors',
+        desc: `<strong>Your goal:</strong> ${p.fulfilment.m3}. List 3 activities that make you feel most alive and purposeful. Schedule at least one this week. Fulfilment connects your <em>Mission &amp; Profession</em> zones — it's the core of your Ikigai.`,
+        tag: 'reflect', pillar: 'fulfilment'
+      }
+    ]
+  };
+
+  /* ─── PHASE 2: Activation (Weeks 5-12) ─── */
+  phases.activation = {
+    title: 'Activation',
+    badge: 'phase-2',
+    timeframe: 'Weeks 5–12',
+    desc: 'Build momentum — activate your strongest Ikigai zones while deepening each pillar with consistent action.',
+    tasks: [
+      {
+        title: `Activate Your ${strongest.name} Zone Daily`,
+        desc: strongPair
+          ? `Your strongest connection is "${strongPair.from}" and "${strongPair.to}". Dedicate 30 minutes daily to an activity at this intersection. Block it in your calendar as non-negotiable.`
+          : `Your ${strongest.name} zone scored ${strongest.score}%. Design a daily 30-minute practice that strengthens this area. Consistency beats intensity.`,
+        tag: 'act', pillar: null
+      },
+      {
+        title: '&#128176; Finances: Execute Your Income Strategy',
+        desc: `Review your 90-day financial goal progress. If you selected "${userData.paidFor[0] || 'a marketable skill'}" as something you can be paid for, identify one concrete way to increase your income from it this month — a new client, a proposal, a price increase, or a side project. Track your financial metrics weekly.`,
+        tag: 'act', pillar: 'finances'
+      },
+      {
+        title: '&#128106; Family: Deepen Your Key Relationships',
+        desc: `Are your weekly connection rituals from Phase 1 holding? If yes, level up — have one meaningful conversation this week where you share your Ikigai journey with someone close to you. If they've slipped, recommit. Ask yourself: "Are the people closest to me seeing the best version of me?"`,
+        tag: 'connect', pillar: 'family'
+      },
+      {
+        title: '&#128170; Fitness: Progressive Overload',
+        desc: `Your initial fitness habit should be automatic by now. Time to progress — increase intensity, duration, or frequency by 10-20%. If your goal was "${p.fitness.m3}", track measurable metrics (weight, reps, distance, energy levels 1-10). Physical energy directly fuels your capacity across all Ikigai zones.`,
+        tag: 'act', pillar: 'fitness'
+      },
+      {
+        title: '&#129504; Fortitude: Challenge a Limiting Belief',
+        desc: `Identify one belief that's holding you back from fully living your Ikigai (e.g. "I'm not good enough to..." or "I can't make money from..."). Write it down, examine the evidence for and against it, then write a new empowering belief to replace it. Practice the new belief daily. This directly strengthens your ability to leverage ${userData.goodAt[0] || 'your skills'}.`,
+        tag: 'reflect', pillar: 'fortitude'
+      },
+      {
+        title: '&#10024; Fulfilment: Take One Mission-Aligned Action',
+        desc: `You care about "${userData.worldNeeds[0] || 'making a difference'}". This week, take one action that directly contributes to this cause — volunteer, create content, mentor someone, or start a conversation. Even small actions build purpose momentum and strengthen your <em>Mission</em> zone.`,
+        tag: 'act', pillar: 'fulfilment'
+      },
+      {
+        title: 'Build Your Accountability Network',
+        desc: `Identify 3–5 people who operate in your ${strongest.name} or ${second.name} zones. Share what you're working on across all 5 pillars and schedule monthly check-ins. Accountability accelerates progress.`,
+        tag: 'connect', pillar: null
+      },
+      {
+        title: 'Eliminate One Energy Drain',
+        desc: 'From your time audit, identify the single biggest activity that drains your energy and doesn\'t serve any pillar. Create a plan to eliminate, delegate, or halve it. Reclaim that time for pillar-aligned activities.',
+        tag: 'act', pillar: null
+      },
+      {
+        title: '90-Day Pillar Review',
+        desc: `Score each pillar 1–10: Finances (${p.finances.m3 ? 'target: ' + p.finances.m3.substring(0, 40) + '...' : '—'}), Family, Fitness, Fortitude, Fulfilment. Celebrate wins, identify which pillar needs the most attention in the next phase, and recalibrate.`,
+        tag: 'review', pillar: null
+      }
+    ]
+  };
+
+  /* ─── PHASE 3: Expansion (Months 4-6) ─── */
+  phases.expansion = {
+    title: 'Expansion',
+    badge: 'phase-3',
+    timeframe: 'Months 4–6',
+    desc: 'Scale what\'s working — hit your 6-month targets, bridge Ikigai gaps, and create tangible outputs across all pillars.',
+    tasks: [
+      {
+        title: 'Create a Signature Project',
+        desc: 'Design and launch a project that combines at least 2 Ikigai zones and touches multiple pillars. A workshop (Fulfilment + Finances), a community initiative (Family + Fulfilment), or a content series (Fortitude + Finances). Make your Ikigai visible to the world.',
+        tag: 'build', pillar: null
+      },
+      {
+        title: '&#128176; Finances: 6-Month Financial Check-In',
+        desc: `<strong>Your 6-month goal:</strong> ${p.finances.m6}. Measure tangible progress — income changes, savings growth, debt reduction. If you're behind, identify the #1 bottleneck. If you're ahead, set a stretch target. Your ${zones.filter(z => z.key === 'vocation' || z.key === 'profession').map(z => z.name).join(' & ')} zones should be generating financial momentum by now.`,
+        tag: 'review', pillar: 'finances'
+      },
+      {
+        title: '&#128106; Family: 6-Month Relationship Audit',
+        desc: `<strong>Your 6-month goal:</strong> ${p.family.m6}. Have your key relationships deepened? Are you present, not just physically but emotionally? Ask the 3 people closest to you: "How am I showing up for you?" Use their honest feedback to adjust. Strong <em>Passion &amp; Mission</em> zones require strong human connections.`,
+        tag: 'review', pillar: 'family'
+      },
+      {
+        title: '&#128170; Fitness: 6-Month Body & Energy Review',
+        desc: `<strong>Your 6-month goal:</strong> ${p.fitness.m6}. Compare your current physical metrics to your Phase 1 baseline. Energy levels, fitness performance, sleep quality, body composition — what's improved? Where are you plateauing? Adjust your programme. Remember: physical energy is the engine for all 4 Ikigai zones.`,
+        tag: 'review', pillar: 'fitness'
+      },
+      {
+        title: '&#129504; Fortitude: 6-Month Mindset Evolution',
+        desc: `<strong>Your 6-month goal:</strong> ${p.fortitude.m6}. Reflect on the limiting beliefs you challenged in Phase 2. Have your new beliefs taken root? Identify the next mental barrier between you and your Ikigai. Invest in growth — a book, a course, a coach, a mastermind. Your mindset ceiling is your life's ceiling.`,
+        tag: 'reflect', pillar: 'fortitude'
+      },
+      {
+        title: '&#10024; Fulfilment: 6-Month Purpose Progress',
+        desc: `<strong>Your 6-month goal:</strong> ${p.fulfilment.m6}. Are you spending more time on work that aligns with "${userData.worldNeeds[0] || 'what the world needs'}"? Rate your sense of daily purpose 1–10 vs 6 months ago. If it hasn't improved, something in your environment or priorities needs to change.`,
+        tag: 'review', pillar: 'fulfilment'
+      },
+      {
+        title: 'Develop Your Weakest Ikigai Zone',
+        desc: weakest.score < 50
+          ? `Your <strong>${weakest.name}</strong> zone scored just ${weakest.score}%. This is your biggest growth opportunity. Invest in it through a course, mentorship, or hands-on experience. Don't avoid it — lean into the discomfort.`
+          : `Your lowest zone is <strong>${weakest.name}</strong> at ${weakest.score}%. Strengthening it will create a more balanced Ikigai. Find one way to actively engage with this zone each week.`,
+        tag: 'build', pillar: null
+      },
+      {
+        title: 'Seek External Feedback',
+        desc: 'Ask 5 people who know you well: "What do you think I do best?" and "Where do you see me creating the most impact?" Compare their answers to both your Ikigai map and your 5 pillars. External perspective reveals blind spots.',
+        tag: 'connect', pillar: null
+      },
+      {
+        title: 'Monetise or Formalise One Intersection',
+        desc: `Look at your ${zones[0].name} and ${zones[1].name} zones. Can you turn one intersection into a paid service, offering, or role? Even a small step — a paid consultation, a freelance gig, a proposal — validates your Ikigai in the real world and directly serves your Finances pillar.`,
+        tag: 'build', pillar: 'finances'
+      }
+    ]
+  };
+
+  /* ─── PHASE 4: Integration (Months 7-12) ─── */
+  phases.integration = {
+    title: 'Integration',
+    badge: 'phase-4',
+    timeframe: 'Months 7–12',
+    desc: 'Bring it all together — align your entire life around your Ikigai, hit your 12-month visions, and build a sustainable future.',
+    tasks: [
+      {
+        title: 'Full Life Audit: Ikigai + 5 Pillars',
+        desc: 'Repeat the time allocation exercise from Phase 1, but now score it against both your 4 Ikigai zones AND your 5 pillars. You should see a meaningful shift. Target: 60%+ of your time aligned with purpose, with no pillar scoring below 5/10.',
+        tag: 'review', pillar: null
+      },
+      {
+        title: 'Deepen Your Signature Project',
+        desc: 'The project from Phase 3 should have traction. Double down — expand its reach, improve its quality, or explore how it becomes a core part of your professional identity. This is where Finances + Fulfilment converge.',
+        tag: 'build', pillar: null
+      },
+      {
+        title: '&#128176; Finances: 12-Month Financial Vision Review',
+        desc: `<strong>Your 12-month vision:</strong> ${p.finances.m12}. Are you on track? What's the gap between where you are and where you wanted to be? Create a specific action plan for the final quarter. If your ${zones.find(z => z.key === 'vocation') ? 'Vocation' : 'Profession'} zone is strong, your finances should be reflecting that — if not, examine what's blocking the flow.`,
+        tag: 'review', pillar: 'finances'
+      },
+      {
+        title: '&#128106; Family: 12-Month Relationship Vision Review',
+        desc: `<strong>Your 12-month vision:</strong> ${p.family.m12}. The people around you should be feeling the positive ripple effects of your growth. Ask yourself: "Have I built deeper, more authentic relationships this year? Am I the partner/parent/friend/colleague I set out to be?" Relationships are the ultimate expression of your <em>Passion</em> zone.`,
+        tag: 'review', pillar: 'family'
+      },
+      {
+        title: '&#128170; Fitness: 12-Month Body & Energy Vision Review',
+        desc: `<strong>Your 12-month vision:</strong> ${p.fitness.m12}. Compare to your day-one baseline. How has your physical transformation supported your Ikigai journey? Higher energy, better focus, more confidence? If fitness has slipped, recommit — it's the one pillar that makes all others possible.`,
+        tag: 'review', pillar: 'fitness'
+      },
+      {
+        title: '&#129504; Fortitude: 12-Month Mindset Vision Review',
+        desc: `<strong>Your 12-month vision:</strong> ${p.fortitude.m12}. Reflect on your mental growth. Which beliefs have you shed? What new capabilities have you built? How do you handle setbacks differently now vs 12 months ago? Fortitude is what separates people who find their Ikigai from people who live it.`,
+        tag: 'review', pillar: 'fortitude'
+      },
+      {
+        title: '&#10024; Fulfilment: 12-Month Purpose Vision Review',
+        desc: `<strong>Your 12-month vision:</strong> ${p.fulfilment.m12}. This is the big one. Rate your overall life satisfaction 1–10. Are you waking up with purpose? Are you contributing to "${userData.worldNeeds[0] || 'what matters to you'}"? If your score is 7+, you're living your Ikigai. If it's lower, identify what's missing and make it the focus of your next chapter.`,
+        tag: 'review', pillar: 'fulfilment'
+      },
+      {
+        title: 'Position Your Personal Brand Around Your Ikigai',
+        desc: `Communicate your Ikigai publicly — in conversations, on LinkedIn, in your work. Become known as someone who operates at the intersection of ${userData.love[0] || 'passion'}, ${userData.goodAt[0] || 'skill'}, and ${userData.paidFor[0] || 'value'}. Authenticity attracts opportunity across all pillars.`,
+        tag: 'connect', pillar: null
+      },
+      {
+        title: 'Design Your Next 12 Months',
+        desc: 'Your Ikigai evolves as you grow. Re-take this assessment, compare it to your original results, set new 5-pillar goals, and build your next roadmap. The journey continues — each year gets you closer to alignment.',
+        tag: 'reflect', pillar: null
+      }
+    ]
+  };
+
+  return phases;
+}
+
+function generateQuickWins(analysis) {
+  const zones = [
+    { name: 'Passion', key: 'passion', ...analysis.passion },
+    { name: 'Mission', key: 'mission', ...analysis.mission },
+    { name: 'Vocation', key: 'vocation', ...analysis.vocation },
+    { name: 'Profession', key: 'profession', ...analysis.profession }
+  ].sort((a, b) => b.score - a.score);
+
+  const strongest = zones[0];
+  const weakest = zones[zones.length - 1];
+  const p = userData.pillars;
+  const wins = [];
+
+  // Quick Win 1: The 5-Pillar Clarity Map — immediate self-awareness
+  wins.push({
+    title: 'The 5-Pillar Clarity Map',
+    timeframe: 'Week 1',
+    action: `Get ${userData.name} to score each of the 5 pillars from 1–10 right now: Finances, Family, Fitness, Fortitude, Fulfilment. Then show them how each pillar maps to their Ikigai zones — their strongest zone is <strong>${strongest.name}</strong> at ${strongest.score}%. The "aha moment" comes when they see why certain areas of life feel stuck (low-scoring pillars) and which ones are already fuelling their purpose. Lead with what's <em>already working</em> to build confidence.`,
+    outcome: `Client gains instant clarity on exactly where they are across all 5 life pillars. They leave the first session with a clear picture of what's strong, what needs work, and — crucially — that you understand their full picture, not just one dimension.`
+  });
+
+  // Quick Win 2: The 7-Day Strength Sprint — tangible proof it works
+  const topSkill = userData.goodAt[0] || 'their primary skill';
+  const topLove = userData.love[0] || 'their top passion';
+  // Pick their weakest pillar goal for extra relevance
+  const pillarScores = [
+    { name: 'Fitness', goal: p.fitness.m3, icon: '&#128170;' },
+    { name: 'Fortitude', goal: p.fortitude.m3, icon: '&#129504;' },
+    { name: 'Fulfilment', goal: p.fulfilment.m3, icon: '&#10024;' }
+  ];
+  wins.push({
+    title: 'The 7-Day Strength Sprint',
+    timeframe: 'Weeks 1–2',
+    action: `Challenge ${userData.name} to spend 15 minutes a day for 7 days doing something that combines "${topLove}" with "${topSkill}". Each evening, score their energy 1–10. Simultaneously, tie it to their Fitness pillar — pair the daily activity with one physical action from their goal ("${p.fitness.m3.substring(0, 60)}..."). By day 7, they'll have hard data showing what living their Ikigai <em>feels</em> like — and they'll be fitter doing it.`,
+    outcome: `Client sees measurable energy and motivation shifts in just one week, across two pillars simultaneously (Fortitude + Fitness). The data proves coaching works — not theory, evidence.`
+  });
+
+  // Quick Win 3: The Value Conversation — external validation
+  const topNeed = userData.worldNeeds[0] || 'their chosen cause';
+  const topPaid = userData.paidFor[0] || 'their income skill';
+  wins.push({
+    title: 'The Value Conversation',
+    timeframe: 'Weeks 2–3',
+    action: `Ask ${userData.name} to have one genuine conversation with someone who would benefit from their combination of "${topPaid}" and "${topNeed}". Not a pitch — a dialogue. The goal is to hear "I'd pay for that" or "the world needs more of that." This hits 3 pillars at once: <strong>Finances</strong> (validates market value), <strong>Fulfilment</strong> (confirms purpose), and <strong>Family/Relationships</strong> (deepens a meaningful connection). ${weakest.score < 50 ? `It also subtly strengthens their weakest zone (<strong>${weakest.name}</strong> at ${weakest.score}%).` : ''}`,
+    outcome: `Client receives real-world confirmation that their Ikigai has tangible value — from someone outside the coaching relationship. Nothing builds buy-in faster than external validation that aligns with what they've discovered in your sessions.`
+  });
+
+  return wins;
+}
+
+function identifyCoachingFocus(analysis) {
+  const focuses = [];
+  const zones = [
+    { key: 'passion', label: 'Passion', desc: 'Love + Skills', ...analysis.passion },
+    { key: 'mission', label: 'Mission', desc: 'Love + World Needs', ...analysis.mission },
+    { key: 'vocation', label: 'Vocation', desc: 'Skills + Income', ...analysis.vocation },
+    { key: 'profession', label: 'Profession', desc: 'World Needs + Income', ...analysis.profession }
+  ];
+
+  zones.forEach(z => {
+    if (z.score < 40) {
+      focuses.push({
+        title: `Strengthen ${z.label}`,
+        desc: `Your ${z.label} zone (${z.desc}) scored ${z.score}%. Coaching focus: explore what's missing and identify concrete steps to build alignment between these two areas of your life.`
+      });
+    } else if (z.score >= 70) {
+      focuses.push({
+        title: `Leverage ${z.label}`,
+        desc: `Your ${z.label} zone is strong at ${z.score}%. Coaching focus: amplify this strength — turn it into a defining part of your identity and career.`
+      });
+    }
+  });
+
+  if (focuses.length === 0) {
+    focuses.push({
+      title: 'Balanced Growth',
+      desc: 'Your Ikigai zones are fairly balanced. Coaching focus: deepen each area incrementally and look for opportunities to create tighter integration between all four.'
+    });
+  }
+
+  return focuses;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════ */
+/*  BUILD RESULTS                                                         */
+/* ═══════════════════════════════════════════════════════════════════════ */
+
+function generateResults() {
+  const analysis = analyzeIkigai();
+  const phases = generateRoadmapActions(analysis);
+  const quickWins = generateQuickWins(analysis);
+  const coaching = identifyCoachingFocus(analysis);
+
+  const overallScore = Math.round((analysis.passion.score + analysis.mission.score + analysis.vocation.score + analysis.profession.score) / 4);
+
+  let html = '';
+
+  // Hero
+  html += `
+    <div class="results-hero">
+      <h1><span>${userData.name}'s</span> Ikigai Roadmap</h1>
+      <p>${userData.age} · ${userData.relationship} · ${userData.occupation}</p>
+      <p style="margin-top:12px; font-size:1.8rem; font-weight:800; background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">${overallScore}% Ikigai Alignment</p>
+    </div>`;
+
+  // Ikigai Diagram
+  html += `
+    <div class="result-section">
+      <h2>Your Ikigai Map</h2>
+      <div class="ikigai-diagram-wrap">
+        <svg viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="160" cy="160" r="120" fill="${'var(--love)'}" fill-opacity="0.15" stroke="var(--love)" stroke-width="2"/>
+          <circle cx="240" cy="160" r="120" fill="${'var(--need)'}" fill-opacity="0.15" stroke="var(--need)" stroke-width="2"/>
+          <circle cx="160" cy="240" r="120" fill="${'var(--good)'}" fill-opacity="0.15" stroke="var(--good)" stroke-width="2"/>
+          <circle cx="240" cy="240" r="120" fill="${'var(--paid)'}" fill-opacity="0.15" stroke="var(--paid)" stroke-width="2"/>
+
+          <text x="110" y="105" fill="var(--love)" font-size="11" font-weight="700" text-anchor="middle">WHAT YOU</text>
+          <text x="110" y="118" fill="var(--love)" font-size="11" font-weight="700" text-anchor="middle">LOVE</text>
+
+          <text x="290" y="105" fill="var(--need)" font-size="11" font-weight="700" text-anchor="middle">WHAT THE</text>
+          <text x="290" y="118" fill="var(--need)" font-size="11" font-weight="700" text-anchor="middle">WORLD NEEDS</text>
+
+          <text x="110" y="295" fill="var(--good)" font-size="11" font-weight="700" text-anchor="middle">WHAT YOU'RE</text>
+          <text x="110" y="308" fill="var(--good)" font-size="11" font-weight="700" text-anchor="middle">GOOD AT</text>
+
+          <text x="290" y="295" fill="var(--paid)" font-size="11" font-weight="700" text-anchor="middle">WHAT YOU CAN</text>
+          <text x="290" y="308" fill="var(--paid)" font-size="11" font-weight="700" text-anchor="middle">BE PAID FOR</text>
+
+          <text x="200" y="140" fill="#a78bfa" font-size="10" font-weight="600" text-anchor="middle">Mission</text>
+          <text x="140" y="200" fill="#d946a8" font-size="10" font-weight="600" text-anchor="middle">Passion</text>
+          <text x="260" y="200" fill="#38bdf8" font-size="10" font-weight="600" text-anchor="middle">Profession</text>
+          <text x="200" y="268" fill="#60d5a0" font-size="10" font-weight="600" text-anchor="middle">Vocation</text>
+
+          <text x="200" y="196" fill="#fff" font-size="14" font-weight="800" text-anchor="middle">IKIGAI</text>
+          <text x="200" y="212" fill="var(--text-muted)" font-size="9" text-anchor="middle">${overallScore}% aligned</text>
+        </svg>
+      </div>
+    </div>`;
+
+  // Intersection Cards
+  html += `
+    <div class="result-section">
+      <h2>Your Four Intersections</h2>
+      <div class="intersection-grid">
+        ${buildIntersectionCard('Passion', 'What You Love + What You\'re Good At', 'passion', analysis.passion)}
+        ${buildIntersectionCard('Mission', 'What You Love + What The World Needs', 'mission', analysis.mission)}
+        ${buildIntersectionCard('Vocation', 'What You\'re Good At + What You Can Be Paid For', 'vocation', analysis.vocation)}
+        ${buildIntersectionCard('Profession', 'What The World Needs + What You Can Be Paid For', 'profession', analysis.profession)}
+      </div>
+    </div>`;
+
+  // Strength Bars
+  html += `
+    <div class="result-section">
+      <h2>Alignment Scores</h2>
+      ${buildStrengthBar('Passion', 'passion', analysis.passion.score)}
+      ${buildStrengthBar('Mission', 'mission', analysis.mission.score)}
+      ${buildStrengthBar('Vocation', 'vocation', analysis.vocation.score)}
+      ${buildStrengthBar('Profession', 'profession', analysis.profession.score)}
+    </div>`;
+
+  // 5 Pillars Summary
+  const pil = userData.pillars;
+  const pillarData = [
+    { key: 'finances',   icon: '&#128176;', label: 'Finances',            zone: 'Vocation & Profession — What You Can Be Paid For', cls: 'pr-finances',   goals: pil.finances },
+    { key: 'family',     icon: '&#128106;', label: 'Family',              zone: 'Passion & Mission — What You Love',                cls: 'pr-family',     goals: pil.family },
+    { key: 'fitness',    icon: '&#128170;', label: 'Fitness',             zone: 'Foundation — Supports All 4 Ikigai Zones',         cls: 'pr-fitness',    goals: pil.fitness },
+    { key: 'fortitude',  icon: '&#129504;', label: 'Fortitude (Mindset)', zone: 'Passion & Vocation — What You\'re Good At',        cls: 'pr-fortitude',  goals: pil.fortitude },
+    { key: 'fulfilment', icon: '&#10024;',  label: 'Fulfilment',          zone: 'Mission & Profession — What The World Needs',      cls: 'pr-fulfilment', goals: pil.fulfilment }
+  ];
+
+  html += `
+    <div class="result-section">
+      <h2>Your 5 Pillars &amp; Ikigai Alignment</h2>
+      <p style="color:var(--text-muted); font-size:.88rem; margin-bottom:20px; line-height:1.6;">Your goals across the 5 key life pillars, each mapped to the Ikigai zone that drives it.</p>
+      <div class="pillar-results-grid">
+        ${pillarData.map(pd => `
+          <div class="pillar-result-card ${pd.cls}">
+            <h4>${pd.icon} ${pd.label}</h4>
+            <div class="pillar-zone">${pd.zone}</div>
+            <div class="pillar-goals">
+              <strong>90 Days:</strong> <span class="goal-text">${pd.goals.m3}</span><br>
+              <strong>6 Months:</strong> <span class="goal-text">${pd.goals.m6}</span><br>
+              <strong>12 Months:</strong> <span class="goal-text">${pd.goals.m12}</span>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    </div>`;
+
+  // Quick Wins — for coach buy-in
+  html += `
+    <div class="result-section">
+      <h2>Quick Wins</h2>
+      <p style="color:var(--text-muted); font-size:.88rem; margin-bottom:20px; line-height:1.6;">Three high-impact actions designed to create early momentum and demonstrate the value of coaching within the first few weeks.</p>
+      <div class="quick-wins-grid">
+        ${quickWins.map((w, i) => `
+          <div class="quick-win-card qw-${i + 1}">
+            <div class="quick-win-number">${i + 1}</div>
+            <h4>${w.title}</h4>
+            <div style="font-size:.72rem; font-weight:600; color:var(--text-muted); margin-bottom:10px; text-transform:uppercase; letter-spacing:.5px;">${w.timeframe}</div>
+            <div class="qw-action">${w.action}</div>
+            <div class="qw-outcome"><strong>Expected outcome:</strong> ${w.outcome}</div>
+          </div>
+        `).join('')}
+      </div>
+    </div>`;
+
+  // Detailed Roadmap with Phases
+  html += `
+    <div class="result-section">
+      <h2>Your 12-Month Coaching Roadmap</h2>
+      <p style="color:var(--text-muted); font-size:.88rem; margin-bottom:28px; line-height:1.6;">A step-by-step plan broken into 4 phases. Each task builds on the previous one — follow the order for best results.</p>`;
+
+  const phaseKeys = ['foundation', 'activation', 'expansion', 'integration'];
+  let taskCounter = 1;
+
+  phaseKeys.forEach(key => {
+    const phase = phases[key];
+    html += `
+      <div class="phase-section">
+        <div class="phase-header">
+          <span class="phase-badge ${phase.badge}">${phase.timeframe}</span>
+          <div>
+            <h3>Phase: ${phase.title}</h3>
+            <div class="phase-desc">${phase.desc}</div>
+          </div>
+        </div>
+        <ol class="task-list">
+          ${phase.tasks.map(task => {
+            const num = taskCounter++;
+            const pillarLabels = { finances: '&#128176; Finances', family: '&#128106; Family', fitness: '&#128170; Fitness', fortitude: '&#129504; Fortitude', fulfilment: '&#10024; Fulfilment' };
+            const pillarTag = task.pillar ? `<span class="task-tag build" style="margin-left:4px">${pillarLabels[task.pillar]}</span>` : '';
+            return `
+              <li class="task-item">
+                <div class="task-num">${num}</div>
+                <div class="task-content">
+                  <h5>${task.title}</h5>
+                  <p>${task.desc}</p>
+                  <span class="task-tag ${task.tag}">${task.tag}</span>${pillarTag}
+                </div>
+              </li>`;
+          }).join('')}
+        </ol>
+      </div>`;
+  });
+
+  html += `</div>`;
+
+  // Coaching Focus
+  html += `
+    <div class="result-section">
+      <h2>Coaching Focus Areas</h2>
+      <div class="coaching-focus">
+        ${coaching.map(f => `<div class="focus-card"><h4>${f.title}</h4><p>${f.desc}</p></div>`).join('')}
+      </div>
+    </div>`;
+
+  // What you entered summary
+  html += `
+    <div class="result-section">
+      <h2>Your Ikigai Inputs</h2>
+      <div style="display:grid; grid-template-columns: repeat(2, 1fr); gap: 14px;">
+        <div><strong style="color:var(--love)">What You Love:</strong><br><span style="color:var(--text-muted); font-size:.88rem">${userData.love.join(', ')}</span></div>
+        <div><strong style="color:var(--good)">What You're Good At:</strong><br><span style="color:var(--text-muted); font-size:.88rem">${userData.goodAt.join(', ')}</span></div>
+        <div><strong style="color:var(--need)">What The World Needs:</strong><br><span style="color:var(--text-muted); font-size:.88rem">${userData.worldNeeds.join(', ')}</span></div>
+        <div><strong style="color:var(--paid)">What You Can Be Paid For:</strong><br><span style="color:var(--text-muted); font-size:.88rem">${userData.paidFor.join(', ')}</span></div>
+      </div>
+    </div>`;
+
+  document.getElementById('results-content').innerHTML = html;
+  showScreen('screen-results');
+}
+
+function buildIntersectionCard(title, subtitle, cls, data) {
+  const items = data.matches.length > 0
+    ? data.matches.slice(0, 4).map(m => `<strong>${m.from}</strong> &harr; <strong>${m.to}</strong>`).join('<br>')
+    : '<em style="color:var(--text-muted)">No strong connections found — this is a growth area</em>';
+  return `
+    <div class="intersection-card ${cls}">
+      <h3>${title}</h3>
+      <div class="subtitle">${subtitle}</div>
+      <div class="items">${items}</div>
+    </div>`;
+}
+
+function buildStrengthBar(label, cls, score) {
+  return `
+    <div class="strength-bar-wrap">
+      <div class="strength-bar-label"><span>${label}</span><span>${score}%</span></div>
+      <div class="strength-bar"><div class="strength-bar-fill ${cls}" style="width:${score}%"></div></div>
+    </div>`;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════ */
+/*  RESET                                                                 */
+/* ═══════════════════════════════════════════════════════════════════════ */
+
+function resetForm() {
+  userData.name = ''; userData.age = ''; userData.relationship = ''; userData.occupation = '';
+  userData.love = []; userData.goodAt = []; userData.worldNeeds = []; userData.paidFor = [];
+  userData.pillars = {
+    finances: { m3: '', m6: '', m12: '' }, family: { m3: '', m6: '', m12: '' },
+    fitness: { m3: '', m6: '', m12: '' }, fortitude: { m3: '', m6: '', m12: '' },
+    fulfilment: { m3: '', m6: '', m12: '' }
+  };
+
+  // Clear form fields
+  ['f-name','f-age','f-occupation'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('f-relationship').selectedIndex = 0;
+  Object.values(pillarFieldMap).forEach(fields => {
+    Object.values(fields).forEach(id => document.getElementById(id).value = '');
+  });
+  switchPillar('finances');
+
+  // Clear tag selections
+  document.querySelectorAll('.tag-chip.selected').forEach(c => c.classList.remove('selected'));
+  ['love','good','need','paid'].forEach(key => {
+    document.getElementById('selected-' + key).innerHTML = '';
+  });
+}
+
+/* ═══════════════════════════════════════════════════════════════════════ */
+/*  INIT                                                                  */
+/* ═══════════════════════════════════════════════════════════════════════ */
+
+initTags();
+
+</script>
+</body>
+</html>
