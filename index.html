@@ -54,7 +54,9 @@
     }
 
     @media (max-width: 480px) {
-      header { padding: 16px 20px; }
+      header { padding: 14px 16px; gap: 10px; }
+      .logo-img { height: 28px; }
+      .logo-label { font-size: .72rem; letter-spacing: 1px; }
     }
 
     /* ── MAIN ── */
@@ -65,7 +67,7 @@
     }
 
     @media (max-width: 600px) {
-      main { padding: 40px 20px 60px; }
+      main { padding: 32px 16px 48px; }
     }
 
     /* ── HERO ── */
@@ -95,10 +97,18 @@
       .hero {
         flex-direction: column-reverse;
         text-align: center;
-        gap: 32px;
+        gap: 24px;
       }
       .hero p {
         margin: 0 auto;
+      }
+      .hero-image {
+        width: 180px;
+        height: 180px;
+        transform: scale(1);
+      }
+      .hero h1 {
+        font-size: 1.6rem;
       }
     }
 
@@ -136,6 +146,16 @@
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
       gap: 20px;
+    }
+
+    @media (max-width: 480px) {
+      .tools-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+      }
+      .tool-card {
+        padding: 20px;
+      }
     }
 
     .tool-card {
