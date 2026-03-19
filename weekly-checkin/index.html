@@ -432,7 +432,7 @@
         <div class="form-group">
           <span class="question-number">1</span>
           <span class="emoji-icon">🏆</span>
-          <label for="q-wins">What has been your biggest WIN this week?</label>
+          <label for="q-wins">What are your Wins this week?</label>
           <span class="hint">Think about both professional and personal achievements — no win is too small.</span>
           <textarea id="q-wins" placeholder="e.g. Closed a new client deal, hit a personal fitness goal..." required></textarea>
         </div>
@@ -557,7 +557,7 @@
         formData.append('Client Name', submittedData.name);
         formData.append('Week', submittedData.weekLabel);
         formData.append('Date Submitted', submittedData.date);
-        formData.append('Biggest Win This Week', submittedData.wins);
+        formData.append('Wins This Week', submittedData.wins);
         formData.append('Struggles This Week', submittedData.struggles);
         formData.append('Intentions For Next Week', submittedData.intentions);
         if (submittedData.extra) {
@@ -573,7 +573,7 @@
 
         // Build summary cards
         const cards = [
-          { title: 'Biggest Win This Week', text: submittedData.wins },
+          { title: 'Wins This Week', text: submittedData.wins },
           { title: 'Struggles This Week', text: submittedData.struggles },
           { title: 'Intentions for Next Week', text: submittedData.intentions }
         ];
@@ -613,7 +613,7 @@
       text += `${d.name} — ${d.date}\n`;
       text += `${d.weekLabel}\n`;
       text += `${'─'.repeat(40)}\n\n`;
-      text += `🏆 BIGGEST WIN THIS WEEK\n${d.wins}\n\n`;
+      text += `🏆 WINS THIS WEEK\n${d.wins}\n\n`;
       text += `🧗 STRUGGLES THIS WEEK\n${d.struggles}\n\n`;
       text += `🎯 INTENTIONS FOR NEXT WEEK\n${d.intentions}\n`;
       if (d.extra) {
@@ -685,7 +685,7 @@
 
         // ── Sections ──
         var sections = [
-          { title: 'Biggest Win This Week', text: d.wins, color: [123, 104, 238] },
+          { title: 'Wins This Week', text: d.wins, color: [123, 104, 238] },
           { title: 'Struggles This Week', text: d.struggles, color: [40, 140, 220] },
           { title: 'Intentions For Next Week', text: d.intentions, color: [34, 170, 90] }
         ];
