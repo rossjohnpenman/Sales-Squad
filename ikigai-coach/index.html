@@ -831,7 +831,7 @@
         </div>
       </div>
       <div class="field-group">
-        <label for="g-fin-target">What do you aspire to earn per year?</label>
+        <label for="g-fin-target">What do you <strong style="color:var(--text);">aspire</strong> to earn per year?</label>
         <div style="position:relative;">
           <span style="position:absolute; left:14px; top:50%; transform:translateY(-50%); color:var(--text-muted); font-weight:600; font-size:.95rem;">&pound;</span>
           <input type="number" id="g-fin-target" placeholder="e.g. 80000" min="0" step="1000" style="padding-left:30px;">
@@ -1896,6 +1896,17 @@ function buildStepDots() {
 buildStepDots();
 initTags();
 
+/* ── Dynamic finance question label ── */
+document.getElementById('g-fin-target').addEventListener('input', function() {
+  const val = this.value;
+  const label = document.getElementById('g-fin-goal-label');
+  if (val && parseInt(val) > 0) {
+    label.innerHTML = 'What would earning <strong style="color:var(--text);">£' + parseInt(val).toLocaleString('en-GB') + '</strong> allow you to do that your current earning power doesn\'t?';
+  } else {
+    label.innerHTML = 'What would earning that allow you to do that your current earning power doesn\'t?';
+  }
+});
+
 /* ═══════════════════════════════════════════════════════════════════════ */
 /*  DEV: Pre-fill with test data (remove before production)               */
 /* ═══════════════════════════════════════════════════════════════════════ */
@@ -1944,9 +1955,10 @@ function loadDevData() {
   document.getElementById('g-mind-success').value = 'Confident, Resilient, Decisive, Focused, Fearless';
 
   // Step 7 — Finances
-  document.getElementById('g-fin-goal').value = 'I want to earn enough to have real freedom — no money stress, ability to provide for my family, and build long-term wealth through my own consulting and training business.';
   document.getElementById('g-fin-current').value = '45000';
   document.getElementById('g-fin-target').value = '80000';
+  document.getElementById('g-fin-target').dispatchEvent(new Event('input'));
+  document.getElementById('g-fin-goal').value = 'I\'d have the freedom to work on my own terms as a consultant and trainer, provide for my family without stress, and build long-term wealth instead of living month to month.';
 
   // Step 8 — Fitness
   document.getElementById('g-fit-goal').value = 'I want to be strong, lean, and full of energy — someone who looks after themselves and leads by example. Be in the best shape of my life.';
