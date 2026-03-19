@@ -779,10 +779,6 @@
       <textarea id="g-mind-blocker" placeholder="e.g. I keep telling myself I'm not experienced enough to go out on my own, that I'll fail..."></textarea>
     </div>
     <div class="field-group">
-      <label for="g-mind-daily">What would a confident, mentally strong version of you do differently each day?</label>
-      <textarea id="g-mind-daily" placeholder="e.g. They'd wake up with purpose, make decisions quickly, not care what others think, and take bold action..."></textarea>
-    </div>
-    <div class="field-group">
       <label for="g-mind-success">In 12 months, what does success look like for your mindset?</label>
       <textarea id="g-mind-success" placeholder="e.g. I handle rejection and setbacks with ease, I lead with calm confidence, people come to me for guidance..."></textarea>
     </div>
@@ -820,17 +816,21 @@
       <label for="g-fin-goal">What's your big financial goal?</label>
       <textarea id="g-fin-goal" placeholder="e.g. I want to earn enough to have real freedom — no money stress, ability to provide for my family, and build long-term wealth..."></textarea>
     </div>
-    <div class="field-group">
-      <label for="g-fin-current">Honestly, where are you financially right now? What's the biggest pressure or frustration?</label>
-      <textarea id="g-fin-current" placeholder="e.g. I earn well but I'm living month to month, no real savings, and I feel trapped in my current role because I need the salary..."></textarea>
-    </div>
-    <div class="field-group">
-      <label for="g-fin-quick">What's the quickest financial win you could achieve if you focused on it?</label>
-      <textarea id="g-fin-quick" placeholder="e.g. Land a couple of freelance consulting clients on the side, cut unnecessary subscriptions, negotiate a pay rise..."></textarea>
-    </div>
-    <div class="field-group">
-      <label for="g-fin-dream">If money was no longer a worry, what would your life look like?</label>
-      <textarea id="g-fin-dream" placeholder="e.g. I'd work on my own terms, choose projects I'm passionate about, take 6 weeks holiday a year, and never worry about bills..."></textarea>
+    <div class="field-row">
+      <div class="field-group">
+        <label for="g-fin-current">What do you currently earn per year?</label>
+        <div style="position:relative;">
+          <span style="position:absolute; left:14px; top:50%; transform:translateY(-50%); color:var(--text-muted); font-weight:600; font-size:.95rem;">&pound;</span>
+          <input type="number" id="g-fin-current" placeholder="e.g. 45000" min="0" step="1000" style="padding-left:30px;">
+        </div>
+      </div>
+      <div class="field-group">
+        <label for="g-fin-target">What do you want to earn per year?</label>
+        <div style="position:relative;">
+          <span style="position:absolute; left:14px; top:50%; transform:translateY(-50%); color:var(--text-muted); font-weight:600; font-size:.95rem;">&pound;</span>
+          <input type="number" id="g-fin-target" placeholder="e.g. 80000" min="0" step="1000" style="padding-left:30px;">
+        </div>
+      </div>
     </div>
 
     <div class="actions">
@@ -865,10 +865,6 @@
     <div class="field-group">
       <label for="g-fit-goal">What does peak fitness look like for you?</label>
       <textarea id="g-fit-goal" placeholder="e.g. I want to be strong, lean, and full of energy — someone who looks after themselves and leads by example..."></textarea>
-    </div>
-    <div class="field-group">
-      <label for="g-fit-current">Where are you right now with fitness? How often do you train and how do you feel physically?</label>
-      <textarea id="g-fit-current" placeholder="e.g. I train maybe once a week, feel sluggish most afternoons, and I've put on weight since starting this desk job..."></textarea>
     </div>
     <div class="field-group">
       <label for="g-fit-obstacle">What's the biggest thing stopping you from being consistent with fitness?</label>
@@ -917,10 +913,6 @@
       <textarea id="g-fam-change" placeholder="e.g. I'm always distracted — even when I'm home, my mind is on work. I want to actually be there, not just physically present..."></textarea>
     </div>
     <div class="field-group">
-      <label for="g-fam-present">On a scale of 1-10, how present are you currently for the people who matter most? Why that score?</label>
-      <textarea id="g-fam-present" placeholder="e.g. Honestly, a 5. I work long hours, I check my phone during family time, and I've missed too many things I shouldn't have..."></textarea>
-    </div>
-    <div class="field-group">
       <label for="g-fam-strengthen">Which specific relationship do you most want to strengthen, and what would that look like?</label>
       <textarea id="g-fam-strengthen" placeholder="e.g. My relationship with my partner — I want us to have proper quality time together, regular date nights, and feel like a team again..."></textarea>
     </div>
@@ -963,10 +955,10 @@ const userData = {
   name: '', age: '', relationship: '', occupation: '',
   love: [], goodAt: [], worldNeeds: [], paidFor: [],
   pillars: {
-    mindset:    { goal: '', blocker: '', dailyWin: '', successLook: '' },
-    finances:   { goal: '', currentSituation: '', quickestWin: '', dreamScenario: '' },
-    fitness:    { goal: '', currentLevel: '', obstacle: '', milestone: '' },
-    family:     { goal: '', biggestChange: '', present: '', strengthen: '' }
+    mindset:    { goal: '', blocker: '', successLook: '' },
+    finances:   { goal: '', currentEarnings: '', targetEarnings: '' },
+    fitness:    { goal: '', obstacle: '', milestone: '' },
+    family:     { goal: '', biggestChange: '', strengthen: '' }
   }
 };
 
@@ -1197,10 +1189,10 @@ function validateTagStep(key, nextStep) {
 }
 
 const pillarFieldMap = {
-  mindset:    { goal: 'g-mind-goal', blocker: 'g-mind-blocker', dailyWin: 'g-mind-daily', successLook: 'g-mind-success' },
-  finances:   { goal: 'g-fin-goal',  currentSituation: 'g-fin-current', quickestWin: 'g-fin-quick', dreamScenario: 'g-fin-dream' },
-  fitness:    { goal: 'g-fit-goal',  currentLevel: 'g-fit-current', obstacle: 'g-fit-obstacle', milestone: 'g-fit-milestone' },
-  family:     { goal: 'g-fam-goal',  biggestChange: 'g-fam-change', present: 'g-fam-present', strengthen: 'g-fam-strengthen' }
+  mindset:    { goal: 'g-mind-goal', blocker: 'g-mind-blocker', successLook: 'g-mind-success' },
+  finances:   { goal: 'g-fin-goal',  currentEarnings: 'g-fin-current', targetEarnings: 'g-fin-target' },
+  fitness:    { goal: 'g-fit-goal',  obstacle: 'g-fit-obstacle', milestone: 'g-fit-milestone' },
+  family:     { goal: 'g-fam-goal',  biggestChange: 'g-fam-change', strengthen: 'g-fam-strengthen' }
 };
 
 function savePillarData(pillarKey) {
