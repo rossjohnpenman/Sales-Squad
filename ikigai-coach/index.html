@@ -505,18 +505,32 @@
     .wobble { animation: wobble .4s ease; }
     .field-error { border-color: #e74c3c !important; }
 
-    /* ── IKIGAI INTRO DIAGRAM ── */
+    /* ── INTRO SPLIT LAYOUT ── */
+    .intro-split {
+      display: flex;
+      align-items: center;
+      gap: 32px;
+      margin-bottom: 36px;
+    }
+    .intro-split .hero-sub {
+      flex: 1;
+      margin-bottom: 0;
+    }
     .ikigai-diagram-intro {
-      max-width: 380px;
-      margin: 0 auto 36px;
+      flex-shrink: 0;
+      width: 320px;
     }
     .ikigai-diagram-intro svg {
       width: 100%;
       height: auto;
       display: block;
     }
-    @media (max-width: 480px) {
-      .ikigai-diagram-intro { max-width: 300px; }
+    @media (max-width: 700px) {
+      .intro-split {
+        flex-direction: column-reverse;
+        text-align: center;
+      }
+      .ikigai-diagram-intro { width: 280px; }
     }
 
     /* ── ROAD BACKGROUND ── */
@@ -641,6 +655,7 @@
         <text x="220" y="218" fill="#fff" font-size="18" font-weight="800" text-anchor="middle">IKIGAI</text>
         <text x="220" y="236" fill="var(--text-muted)" font-size="10" text-anchor="middle">Your life's purpose</text>
       </svg>
+      </div>
     </div>
 
     <button class="btn-primary" onclick="startAssessment()">
