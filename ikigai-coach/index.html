@@ -505,19 +505,29 @@
     .wobble { animation: wobble .4s ease; }
     .field-error { border-color: #e74c3c !important; }
 
-    /* ── ROAD GRAPHIC ── */
-    .road-graphic {
-      margin-bottom: 24px;
-      max-width: 420px;
-      opacity: 0.85;
+    /* ── ROAD BACKGROUND ── */
+    .hero-block {
+      position: relative;
+      padding: 32px 0 16px;
     }
-    .road-graphic svg {
+    .road-bg {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 110%;
+      opacity: 0.45;
+      pointer-events: none;
+      z-index: 0;
+    }
+    .road-bg svg {
       width: 100%;
       height: auto;
       display: block;
     }
-    @media (max-width: 480px) {
-      .road-graphic { max-width: 300px; }
+    .hero-block .hero-heading {
+      position: relative;
+      z-index: 1;
     }
 
     /* ── APP FOOTER ── */
@@ -818,9 +828,6 @@
 
     <h2 class="step-title" style="color:#c4b5fd">&#129504; Frame of Mind</h2>
     <p class="step-subtitle">Your mindset is the key to your belief system. We start here because how you think determines how act. Without the right frame of mind, you'll struggle to unleash your potential and be fulfilled as a result.</p>
-    <div class="pillar-header">
-      <div class="pillar-align align-fortitude"><strong>Ikigai Alignment:</strong> Maps to <em>What You're Good At</em> — your Passion &amp; Vocation zones. Mental resilience, self-belief, and a growth mindset determine how far you can take your natural talents.</div>
-    </div>
 
     <div class="field-group">
       <label for="g-mind-blocker">What do you feel is the biggest mental barrier or belief holding you back right now?</label>
@@ -860,9 +867,6 @@
 
     <h2 class="step-title" style="color:var(--paid)">&#128176; Finances</h2>
     <p class="step-subtitle">With the right mindset in place, let's look at your financial reality. Money isn't the goal — it's the fuel that gives you freedom to pursue your purpose. Financial clarity removes anxiety and creates space for everything else.</p>
-    <div class="pillar-header">
-      <div class="pillar-align align-finances"><strong>Ikigai Alignment:</strong> Maps to <em>What You Can Be Paid For</em> — your Vocation &amp; Profession zones. Financial goals ground your Ikigai in reality and ensure your purpose is sustainable.</div>
-    </div>
 
     <div class="field-row">
       <div class="field-group">
@@ -910,9 +914,6 @@
 
     <h2 class="step-title" style="color:#fbbf24">&#128170; Fitness</h2>
     <p class="step-subtitle">Your body is the vehicle for everything you want to achieve. Physical health directly impacts your energy, focus, confidence, and resilience. When your body is strong, every other pillar benefits.</p>
-    <div class="pillar-header">
-      <div class="pillar-align align-fitness"><strong>Ikigai Alignment:</strong> Supports <em>all four Ikigai zones</em> — you cannot sustain passion, mission, vocation, or profession without physical and mental energy. Fitness is the foundation your Ikigai is built on.</div>
-    </div>
 
     <div class="field-group">
       <label for="g-fit-goal">What does peak fitness look like for you?</label>
@@ -952,9 +953,6 @@
 
     <h2 class="step-title" style="color:var(--love)">&#128106; Family</h2>
     <p class="step-subtitle">The people around you shape who you become. With a strong mind, financial clarity, and physical energy, you're now in a position to truly show up for the people who matter most. Relationships are where purpose becomes meaningful.</p>
-    <div class="pillar-header">
-      <div class="pillar-align align-family"><strong>Ikigai Alignment:</strong> Maps to <em>What You Love</em> — your Passion &amp; Mission zones. Strong relationships fuel your purpose and give meaning to everything else you build.</div>
-    </div>
 
     <div class="field-group">
       <label for="g-fam-goal">What would your ideal family and relationship life look like?</label>
