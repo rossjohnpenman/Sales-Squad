@@ -932,6 +932,11 @@ a { color: inherit; }
     white-space: nowrap;
     flex-shrink: 0;
   }
+  .nav-home {
+    margin-left: 4px !important;
+    padding-left: 14px !important;
+    border-left: none !important;
+  }
 
   /* Main content */
   .app-main { padding: 16px 12px; }
