@@ -504,6 +504,16 @@
     @keyframes wobble { 0%,100% { transform: translateX(0); } 20% { transform: translateX(-6px); } 40% { transform: translateX(6px); } 60% { transform: translateX(-4px); } 80% { transform: translateX(4px); } }
     .wobble { animation: wobble .4s ease; }
     .field-error { border-color: #e74c3c !important; }
+
+    /* ── APP FOOTER ── */
+    .app-footer {
+      text-align: center;
+      color: var(--text-muted);
+      font-size: .75rem;
+      padding: 32px 20px;
+      border-top: 1px solid var(--border);
+      margin-top: 48px;
+    }
   </style>
 </head>
 <body>
@@ -944,6 +954,10 @@
     </div>
   </div>
 
+  <footer class="app-footer">
+    MyRoadmap.AI has been developed by R J Penman Ltd. &copy; R J Penman Ltd. All rights reserved.
+  </footer>
+
 </div>
 
 <script>
@@ -1229,26 +1243,37 @@ function validateFinalStep() {
 }
 
 /* ─── Auto-generate staged 3/6/12 month actions from drill-down answers ─── */
+function formatCurrency(val) {
+  const num = parseInt(val);
+  if (isNaN(num)) return val;
+  return '£' + num.toLocaleString('en-GB');
+}
+
 function generateStagedActions() {
   const p = userData.pillars;
+  const current = formatCurrency(p.finances.currentEarnings);
+  const target = formatCurrency(p.finances.targetEarnings);
+  const gap = parseInt(p.finances.targetEarnings) - parseInt(p.finances.currentEarnings);
+  const gapStr = gap > 0 ? formatCurrency(gap) : target;
+
   return {
     mindset: {
-      m3: `Start a daily mindset practice to address: "${p.mindset.blocker}". Build the habit of ${p.mindset.dailyWin.toLowerCase().startsWith('they') ? p.mindset.dailyWin.replace(/^they'?d?\s*/i, '').replace(/^would\s*/i, '') : p.mindset.dailyWin}. Read 2 personal development books and journal daily for 10 minutes.`,
+      m3: `Start a daily mindset practice to address: "${p.mindset.blocker}". Read 2 personal development books, journal daily for 10 minutes, and build self-awareness around your limiting beliefs.`,
       m6: `Break through your core limiting belief ("${p.mindset.blocker.substring(0, 80)}"). Invest in a course, coach, or mastermind to accelerate your growth. Build unshakeable self-belief in your ability to ${p.mindset.goal.toLowerCase().replace(/^i want to\s*/i, '').replace(/\.*$/, '')}.`,
       m12: `${p.mindset.successLook}. Your mindset is now your greatest asset — you handle setbacks with calm confidence and lead with clarity.`
     },
     finances: {
-      m3: `${p.finances.quickestWin}. Audit all expenses and cut unnecessary spending by 20%. Build a clear financial dashboard tracking income, expenses, and savings weekly.`,
-      m6: `Address the core pressure: "${p.finances.currentSituation.substring(0, 80)}". Build a 3-month emergency fund and create a consistent secondary income stream aligned with your Ikigai.`,
-      m12: `${p.finances.dreamScenario}. Your finances now support your purpose — you have freedom, security, and a clear path to long-term wealth.`
+      m3: `You currently earn ${current}/year and want to reach ${target}/year — a gap of ${gapStr}. In the first 90 days, audit all expenses, cut unnecessary spending by 20%, and identify the fastest route to closing that gap. Build a financial dashboard tracking income, expenses, and savings weekly.`,
+      m6: `Close at least half the ${gapStr} earnings gap. Build a 3-month emergency fund and create a consistent secondary income stream aligned with your Ikigai. Your financial trajectory should show clear upward momentum.`,
+      m12: `Reach or exceed your ${target}/year target. Your finances now support your purpose — you have freedom, security, and a clear path to long-term wealth.`
     },
     fitness: {
-      m3: `Overcome "${p.fitness.obstacle.substring(0, 60)}" by building a sustainable routine. Train 3–4x per week minimum. From your current level ("${p.fitness.currentLevel.substring(0, 60)}"), focus on consistency over intensity.`,
+      m3: `Overcome "${p.fitness.obstacle.substring(0, 60)}" by building a sustainable routine. Train 3–4x per week minimum. Focus on consistency over intensity — the goal is to make fitness automatic.`,
       m6: `Achieve your proud milestone: ${p.fitness.milestone}. Your routine is now automatic and survives busy weeks. Energy levels are consistently high.`,
       m12: `${p.fitness.goal}. Fitness is non-negotiable and fuels every other pillar — you look, feel, and perform at your best.`
     },
     family: {
-      m3: `Address the biggest gap: "${p.family.biggestChange.substring(0, 80)}". Establish 2–3 weekly rituals that strengthen your key relationship${p.family.strengthen ? ' (especially: ' + p.family.strengthen.substring(0, 50) + ')' : ''}. Move your presence score from ${p.family.present.match(/\d+/) ? p.family.present.match(/\d+/)[0] : 'current'} towards 8+.`,
+      m3: `Address the biggest gap: "${p.family.biggestChange.substring(0, 80)}". Establish 2–3 weekly rituals that strengthen your key relationship${p.family.strengthen ? ' (especially: ' + p.family.strengthen.substring(0, 50) + ')' : ''}.`,
       m6: `Deepen the relationship you most want to strengthen: ${p.family.strengthen.substring(0, 80)}. Your weekly rituals are automatic. The people closest to you can feel the difference.`,
       m12: `${p.family.goal}. Your relationships are thriving because you show up fully present — your career supports your family life, not the other way around.`
     }
@@ -1395,12 +1420,12 @@ function generateRoadmapActions(analysis) {
       },
       {
         title: '&#128176; Finances: Execute Your Income Strategy',
-        desc: `Review your 90-day financial progress. Your quickest win was "${p.finances.quickestWin.substring(0, 80)}". If you selected "${userData.paidFor[0] || 'a marketable skill'}" as something you can be paid for, identify one concrete way to increase your income from it this month. Track your financial metrics weekly.`,
+        desc: `Review your 90-day financial progress. You're bridging the gap from ${formatCurrency(p.finances.currentEarnings)} to ${formatCurrency(p.finances.targetEarnings)}. If you selected "${userData.paidFor[0] || 'a marketable skill'}" as something you can be paid for, identify one concrete way to increase your income from it this month. Track your financial metrics weekly.`,
         tag: 'act', pillar: 'finances'
       },
       {
         title: '&#128170; Fitness: Progressive Overload',
-        desc: `Your initial fitness habit should be automatic by now. Time to progress — increase intensity, duration, or frequency by 10–20%. You started at "${p.fitness.currentLevel.substring(0, 60)}" — track measurable metrics (weight, reps, distance, energy levels 1–10). Physical energy directly fuels your capacity across all Ikigai zones.`,
+        desc: `Your initial fitness habit should be automatic by now. Time to progress — increase intensity, duration, or frequency by 10–20%. Track measurable metrics (weight, reps, distance, energy levels 1–10). Your obstacle was "${p.fitness.obstacle.substring(0, 60)}" — by now you should have a system to beat it. Physical energy directly fuels your capacity across all Ikigai zones.`,
         tag: 'act', pillar: 'fitness'
       },
       {
@@ -1830,10 +1855,10 @@ function resetForm() {
   userData.name = ''; userData.age = ''; userData.relationship = ''; userData.occupation = '';
   userData.love = []; userData.goodAt = []; userData.worldNeeds = []; userData.paidFor = [];
   userData.pillars = {
-    mindset:    { goal: '', blocker: '', dailyWin: '', successLook: '' },
-    finances:   { goal: '', currentSituation: '', quickestWin: '', dreamScenario: '' },
-    fitness:    { goal: '', currentLevel: '', obstacle: '', milestone: '' },
-    family:     { goal: '', biggestChange: '', present: '', strengthen: '' }
+    mindset:    { goal: '', blocker: '', successLook: '' },
+    finances:   { goal: '', currentEarnings: '', targetEarnings: '' },
+    fitness:    { goal: '', obstacle: '', milestone: '' },
+    family:     { goal: '', biggestChange: '', strengthen: '' }
   };
 
   // Clear form fields
@@ -1916,25 +1941,21 @@ function loadDevData() {
   // Step 6 — Frame of Mind
   document.getElementById('g-mind-goal').value = 'I want to believe in myself enough to back myself fully and stop second-guessing every decision. I want to have the confidence to go out on my own as a consultant and trainer.';
   document.getElementById('g-mind-blocker').value = 'I keep telling myself I\'m not experienced enough to go out on my own, that I\'ll fail and end up worse off than I am now. Imposter syndrome holds me back from taking the leap.';
-  document.getElementById('g-mind-daily').value = 'They\'d wake up with purpose, make decisions quickly, not care what others think, and take bold action. They\'d back themselves 100% and not need external validation.';
   document.getElementById('g-mind-success').value = 'I handle rejection and setbacks with ease, I lead with calm confidence, people come to me for guidance. I\'ve built a bulletproof mindset that fuels everything else.';
 
   // Step 7 — Finances
   document.getElementById('g-fin-goal').value = 'I want to earn enough to have real freedom — no money stress, ability to provide for my family, and build long-term wealth through my own consulting and training business.';
-  document.getElementById('g-fin-current').value = 'I earn well but I\'m living month to month, no real savings, and I feel trapped in my current role because I need the salary. No safety net if I wanted to make a change.';
-  document.getElementById('g-fin-quick').value = 'Land a couple of freelance consulting clients on the side — I could realistically generate an extra £2,000/month from my network without leaving my current job.';
-  document.getElementById('g-fin-dream').value = 'I\'d work on my own terms, choose projects I\'m passionate about, earn £10K+ a month, take 6 weeks holiday a year, and never worry about bills. Full financial freedom.';
+  document.getElementById('g-fin-current').value = '45000';
+  document.getElementById('g-fin-target').value = '80000';
 
   // Step 8 — Fitness
   document.getElementById('g-fit-goal').value = 'I want to be strong, lean, and full of energy — someone who looks after themselves and leads by example. Be in the best shape of my life.';
-  document.getElementById('g-fit-current').value = 'I train maybe once a week if I\'m lucky, feel sluggish most afternoons, and I\'ve put on about 8kg since getting comfortable in my desk job. Energy is inconsistent.';
   document.getElementById('g-fit-obstacle').value = 'Time — between work and family I can\'t find the hours. Also motivation — I start strong then lose momentum after a few weeks when things get busy.';
   document.getElementById('g-fit-milestone').value = 'Running a 10K and training 4x a week consistently for 3 months straight. That would prove to myself that I can commit and follow through.';
 
   // Step 9 — Family
   document.getElementById('g-fam-goal').value = 'I want to be fully present with my family, have deep meaningful relationships, and never feel like work is stealing time from the people I love.';
   document.getElementById('g-fam-change').value = 'I\'m always distracted — even when I\'m home, my mind is on work. I want to actually be there, not just physically present. My wife deserves better than half my attention.';
-  document.getElementById('g-fam-present').value = 'Honestly, a 5. I work long hours, I check my phone during family time, and I\'ve missed too many things I shouldn\'t have. I\'m there but not really there.';
   document.getElementById('g-fam-strengthen').value = 'My relationship with my wife — I want us to have proper quality time together, regular date nights, and feel like a real team again instead of two people running a household.';
 
 }
