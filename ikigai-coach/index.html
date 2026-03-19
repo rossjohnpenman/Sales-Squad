@@ -48,11 +48,20 @@
     @keyframes fadeIn { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
 
     /* ── HEADER ── */
-    .logo-row { display: flex; align-items: center; gap: 18px; margin-bottom: 40px; }
+    .logo-row { display: flex; align-items: center; gap: 18px; margin-bottom: 40px; position: relative; }
     .logo-rjp { height: 42px; width: auto; display: block; }
     .logo-divider { width: 1px; height: 36px; background: var(--border); }
     .logo-title { font-size: 1.1rem; font-weight: 700; letter-spacing: .5px; }
     .logo-subtitle { font-size: .8rem; color: var(--text-muted); }
+    .home-link {
+      position: absolute; right: 0; top: 50%; transform: translateY(-50%);
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: .82rem; font-weight: 700; color: var(--text-muted);
+      text-decoration: none; padding: 8px 16px;
+      border: 1.5px solid var(--border); border-radius: 50px;
+      transition: border-color .2s, color .2s;
+    }
+    .home-link:hover { border-color: #7b68ee; color: var(--text); }
 
     /* ── HERO ── */
     .hero-heading {
@@ -2007,6 +2016,17 @@ function buildStepDots() {
 }
 buildStepDots();
 initTags();
+
+/* ── Add AI Tools home link to every logo-row ── */
+document.querySelectorAll('.logo-row').forEach(row => {
+  if (!row.querySelector('.home-link')) {
+    const link = document.createElement('a');
+    link.href = '../index.html';
+    link.className = 'home-link';
+    link.innerHTML = '<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 12l9-9 9 9M5 10v10a1 1 0 001 1h3m10-11v10a1 1 0 01-1 1h-3m-6 0a1 1 0 01-1-1v-4a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1"/></svg> AI Tools';
+    row.appendChild(link);
+  }
+});
 
 /* ── Auto-fill today's date ── */
 (function setTodayDate() {
