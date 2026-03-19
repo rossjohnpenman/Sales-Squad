@@ -491,9 +491,9 @@
       <div id="summary-cards"></div>
 
       <div class="btn-row">
-        <button class="btn-primary" onclick="copySummary()">
-          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
-          Copy Summary
+        <button class="btn-primary" onclick="downloadPDF()">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Download Answers
         </button>
         <button class="btn-secondary" onclick="emailSummary()">
           <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M22 4l-10 8L2 4"/></svg>
@@ -508,8 +508,9 @@
   </div>
 
   <!-- Toast -->
-  <div class="copy-toast" id="copy-toast">Copied to clipboard!</div>
+  <div class="copy-toast" id="copy-toast">PDF downloaded!</div>
 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.2/jspdf.umd.min.js"></script>
   <script>
     // ── Week label ──
     (function setWeekLabel() {
@@ -621,12 +622,247 @@
       return text;
     }
 
-    function copySummary() {
-      navigator.clipboard.writeText(getPlainTextSummary()).then(() => {
-        const toast = document.getElementById('copy-toast');
-        toast.classList.add('show');
-        setTimeout(() => toast.classList.remove('show'), 2200);
+    function downloadPDF() {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF({ unit: 'mm', format: 'a4' });
+      const d = submittedData;
+      const pageW = doc.internal.pageSize.getWidth();
+      const margin = 20;
+      const contentW = pageW - margin * 2;
+      let y = 20;
+
+      // ── Header bar ──
+      doc.setFillColor(17, 19, 24);
+      doc.rect(0, 0, pageW, 38, 'F');
+
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(22);
+      doc.setTextColor(232, 234, 246);
+      doc.text('RJP', margin, 16);
+
+      doc.setFontSize(9);
+      doc.setTextColor(136, 146, 176);
+      doc.text('CLIENT CHECK-IN', margin + 28, 14);
+      doc.setFontSize(8);
+      doc.text('Client Progress Tracker', margin + 28, 20);
+
+      // ── Client info ──
+      y = 48;
+      doc.setFontSize(18);
+      doc.setTextColor(232, 234, 246);
+      doc.setFont('helvetica', 'bold');
+      doc.text(d.name, margin, y);
+
+      y += 8;
+      doc.setFontSize(10);
+      doc.setTextColor(136, 146, 176);
+      doc.setFont('helvetica', 'normal');
+      doc.text(`${d.date}  |  ${d.weekLabel}`, margin, y);
+
+      // ── Divider ──
+      y += 8;
+      doc.setDrawColor(37, 40, 64);
+      doc.setLineWidth(0.5);
+      doc.line(margin, y, pageW - margin, y);
+      y += 10;
+
+      // ── Sections ──
+      const sections = [
+        { icon: 'BIGGEST WIN THIS WEEK', text: d.wins, color: [123, 104, 238] },
+        { icon: 'STRUGGLES THIS WEEK', text: d.struggles, color: [56, 189, 248] },
+        { icon: 'INTENTIONS FOR NEXT WEEK', text: d.intentions, color: [74, 222, 128] }
+      ];
+      if (d.extra) {
+        sections.push({ icon: 'ADDITIONAL NOTES', text: d.extra, color: [136, 146, 176] });
+      }
+
+      sections.forEach(function(section) {
+        // Check if we need a new page
+        if (y > 260) {
+          doc.addPage();
+          y = 20;
+        }
+
+        // Section accent bar
+        doc.setFillColor(section.color[0], section.color[1], section.color[2]);
+        doc.roundedRect(margin, y, contentW, 3, 1.5, 1.5, 'F');
+        y += 8;
+
+        // Section title
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(10);
+        doc.setTextColor(section.color[0], section.color[1], section.color[2]);
+        doc.text(section.icon, margin, y);
+        y += 7;
+
+        // Section body — wrap text
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(10);
+        doc.setTextColor(232, 234, 246);
+        const lines = doc.splitTextToSize(section.text, contentW);
+        lines.forEach(function(line) {
+          if (y > 275) {
+            doc.addPage();
+            y = 20;
+          }
+          doc.text(line, margin, y);
+          y += 5.5;
+        });
+
+        y += 10;
       });
+
+      // ── Footer ──
+      const pageCount = doc.internal.getNumberOfPages();
+      for (let i = 1; i <= pageCount; i++) {
+        doc.setPage(i);
+        doc.setFontSize(7);
+        doc.setTextColor(136, 146, 176);
+        doc.text('R J Penman Ltd  |  tools.rossjohnpenman.com', margin, 290);
+        doc.text('Page ' + i + ' of ' + pageCount, pageW - margin, 290, { align: 'right' });
+      }
+
+      // ── Set PDF background to dark on all pages ──
+      for (let i = 1; i <= pageCount; i++) {
+        doc.setPage(i);
+        doc.setFillColor(0, 0, 0);
+        doc.rect(0, 0, pageW, doc.internal.pageSize.getHeight(), 'F');
+      }
+
+      // Re-render content on top of background by regenerating
+      // jsPDF draws in order, so we need to build the PDF with background first
+      // Let's rebuild properly:
+      generateStyledPDF(d);
+    }
+
+    function generateStyledPDF(d) {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF({ unit: 'mm', format: 'a4' });
+      const pageW = doc.internal.pageSize.getWidth();
+      const pageH = doc.internal.pageSize.getHeight();
+      const margin = 20;
+      const contentW = pageW - margin * 2;
+
+      function drawBackground() {
+        doc.setFillColor(0, 0, 0);
+        doc.rect(0, 0, pageW, pageH, 'F');
+      }
+
+      drawBackground();
+      let y = 0;
+
+      // ── Header bar ──
+      doc.setFillColor(17, 19, 24);
+      doc.rect(0, 0, pageW, 38, 'F');
+
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(22);
+      doc.setTextColor(255, 255, 255);
+      doc.text('RJP', margin, 18);
+
+      // Divider line in header
+      doc.setDrawColor(37, 40, 64);
+      doc.setLineWidth(0.3);
+      doc.line(margin + 24, 8, margin + 24, 26);
+
+      doc.setFontSize(10);
+      doc.setTextColor(232, 234, 246);
+      doc.text('Client Check-In', margin + 28, 15);
+      doc.setFontSize(8);
+      doc.setTextColor(136, 146, 176);
+      doc.text('Client Progress Tracker', margin + 28, 21);
+
+      // ── Client info ──
+      y = 50;
+      doc.setFontSize(18);
+      doc.setTextColor(255, 255, 255);
+      doc.setFont('helvetica', 'bold');
+      doc.text(d.name, margin, y);
+
+      y += 8;
+      doc.setFontSize(10);
+      doc.setTextColor(136, 146, 176);
+      doc.setFont('helvetica', 'normal');
+      doc.text(d.date + '   |   ' + d.weekLabel, margin, y);
+
+      // ── Divider ──
+      y += 10;
+      doc.setDrawColor(37, 40, 64);
+      doc.setLineWidth(0.4);
+      doc.line(margin, y, pageW - margin, y);
+      y += 12;
+
+      // ── Sections ──
+      const sections = [
+        { title: 'Biggest Win This Week', text: d.wins, color: [123, 104, 238] },
+        { title: 'Struggles This Week', text: d.struggles, color: [56, 189, 248] },
+        { title: 'Intentions For Next Week', text: d.intentions, color: [74, 222, 128] }
+      ];
+      if (d.extra) {
+        sections.push({ title: 'Additional Notes', text: d.extra, color: [251, 191, 36] });
+      }
+
+      sections.forEach(function(section) {
+        if (y > 255) {
+          doc.addPage();
+          drawBackground();
+          y = 20;
+        }
+
+        // Card background
+        const lines = doc.splitTextToSize(section.text, contentW - 16);
+        const cardH = 18 + (lines.length * 5.5) + 8;
+
+        if (y + cardH > 275) {
+          doc.addPage();
+          drawBackground();
+          y = 20;
+        }
+
+        doc.setFillColor(17, 19, 24);
+        doc.roundedRect(margin, y, contentW, cardH, 3, 3, 'F');
+
+        // Accent top bar
+        doc.setFillColor(section.color[0], section.color[1], section.color[2]);
+        doc.roundedRect(margin, y, contentW, 3, 1.5, 1.5, 'F');
+
+        // Title
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(10);
+        doc.setTextColor(section.color[0], section.color[1], section.color[2]);
+        doc.text(section.title, margin + 8, y + 14);
+
+        // Body text
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(10);
+        doc.setTextColor(232, 234, 246);
+        let textY = y + 22;
+        lines.forEach(function(line) {
+          doc.text(line, margin + 8, textY);
+          textY += 5.5;
+        });
+
+        y += cardH + 8;
+      });
+
+      // ── Footer on all pages ──
+      const pageCount = doc.internal.getNumberOfPages();
+      for (let i = 1; i <= pageCount; i++) {
+        doc.setPage(i);
+        doc.setFontSize(7);
+        doc.setTextColor(136, 146, 176);
+        doc.text('R J Penman Ltd  |  tools.rossjohnpenman.com', margin, pageH - 10);
+        doc.text('Page ' + i + ' of ' + pageCount, pageW - margin, pageH - 10, { align: 'right' });
+      }
+
+      // ── Download ──
+      const filename = 'Client Check-In - ' + d.name.replace(/[^a-zA-Z0-9 ]/g, '') + '.pdf';
+      doc.save(filename);
+
+      // Show toast
+      const toast = document.getElementById('copy-toast');
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 2200);
     }
 
     function emailSummary() {
