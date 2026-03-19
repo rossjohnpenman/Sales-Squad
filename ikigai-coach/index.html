@@ -775,7 +775,7 @@
     </div>
 
     <h2 class="step-title" style="color:#c4b5fd">&#129504; Frame of Mind</h2>
-    <p class="step-subtitle">Your mindset is the lens through which everything else is filtered. We start here because how you think determines how far you go. Without the right frame of mind, no amount of money, fitness, or opportunity will feel like enough.</p>
+    <p class="step-subtitle">Your mindset is the key to your belief system. We start here because how you think determines how act. Without the right frame of mind, you'll struggle to unleash your potential and be fulfilled as a result.</p>
     <div class="pillar-header">
       <div class="pillar-align align-fortitude"><strong>Ikigai Alignment:</strong> Maps to <em>What You're Good At</em> — your Passion &amp; Vocation zones. Mental resilience, self-belief, and a growth mindset determine how far you can take your natural talents.</div>
     </div>
@@ -822,10 +822,6 @@
       <div class="pillar-align align-finances"><strong>Ikigai Alignment:</strong> Maps to <em>What You Can Be Paid For</em> — your Vocation &amp; Profession zones. Financial goals ground your Ikigai in reality and ensure your purpose is sustainable.</div>
     </div>
 
-    <div class="field-group">
-      <label for="g-fin-goal">What's your big financial goal?</label>
-      <textarea id="g-fin-goal" placeholder="e.g. I want to earn enough to have real freedom — no money stress, ability to provide for my family, and build long-term wealth..."></textarea>
-    </div>
     <div class="field-row">
       <div class="field-group">
         <label for="g-fin-current">What do you currently earn per year?</label>
@@ -835,12 +831,16 @@
         </div>
       </div>
       <div class="field-group">
-        <label for="g-fin-target">What do you want to earn per year?</label>
+        <label for="g-fin-target">What do you aspire to earn per year?</label>
         <div style="position:relative;">
           <span style="position:absolute; left:14px; top:50%; transform:translateY(-50%); color:var(--text-muted); font-weight:600; font-size:.95rem;">&pound;</span>
           <input type="number" id="g-fin-target" placeholder="e.g. 80000" min="0" step="1000" style="padding-left:30px;">
         </div>
       </div>
+    </div>
+    <div class="field-group">
+      <label for="g-fin-goal" id="g-fin-goal-label">What would earning that allow you to do that your current earning power doesn't?</label>
+      <textarea id="g-fin-goal" placeholder="e.g. I'd have the freedom to work on my own terms, provide for my family without stress, and build long-term wealth..."></textarea>
     </div>
 
     <div class="actions">
@@ -1941,7 +1941,7 @@ function loadDevData() {
   // Step 6 — Frame of Mind
   document.getElementById('g-mind-blocker').value = 'I keep telling myself I\'m not experienced enough to go out on my own, that I\'ll fail and end up worse off than I am now. Imposter syndrome holds me back from taking the leap.';
   document.getElementById('g-mind-impact').value = 'I\'d back myself fully, take bold action without second-guessing, and finally make the move into consulting and training on my own terms. I\'d stop waiting for permission and just go for it.';
-  document.getElementById('g-mind-success').value = 'I handle rejection and setbacks with ease, I lead with calm confidence, people come to me for guidance. I\'ve built a bulletproof mindset that fuels everything else.';
+  document.getElementById('g-mind-success').value = 'Confident, Resilient, Decisive, Focused, Fearless';
 
   // Step 7 — Finances
   document.getElementById('g-fin-goal').value = 'I want to earn enough to have real freedom — no money stress, ability to provide for my family, and build long-term wealth through my own consulting and training business.';
