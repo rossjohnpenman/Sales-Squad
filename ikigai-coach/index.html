@@ -1333,6 +1333,7 @@ function generateRoadmapActions(analysis) {
   const thirdPair = third.matches.length > 0 ? third.matches[0] : null;
 
   const p = userData.pillars;
+  const staged = generateStagedActions();
 
   const phases = {};
 
@@ -1360,22 +1361,22 @@ function generateRoadmapActions(analysis) {
       },
       {
         title: '&#129504; Frame of Mind: Start Your Mindset Practice',
-        desc: `<strong>Your goal:</strong> ${p.mindset.m3}. Begin a daily 10-minute practice — journaling, meditation, or reading. The aim is to build mental clarity and self-awareness. Everything starts here — your frame of mind determines the quality of every action that follows across all other pillars.`,
+        desc: `<strong>Your 90-day action:</strong> ${staged.mindset.m3}. Everything starts here — your frame of mind determines the quality of every action that follows across all other pillars.`,
         tag: 'reflect', pillar: 'mindset'
       },
       {
         title: '&#128176; Finances: Set Your 90-Day Financial Target',
-        desc: `<strong>Your goal:</strong> ${p.finances.m3}. Break this into 4 weekly milestones. Identify the single most impactful financial action you can take this week and do it. This maps to your <em>Vocation &amp; Profession</em> zones — making your Ikigai financially sustainable.`,
+        desc: `<strong>Your 90-day action:</strong> ${staged.finances.m3}. Break this into 4 weekly milestones. This maps to your <em>Vocation &amp; Profession</em> zones — making your Ikigai financially sustainable.`,
         tag: 'act', pillar: 'finances'
       },
       {
         title: '&#128170; Fitness: Build Your Energy Foundation',
-        desc: `<strong>Your goal:</strong> ${p.fitness.m3}. Choose one sustainable fitness habit you can maintain every day this week — a morning walk, a bodyweight session, a stretching routine. Start small and build. Fitness underpins every other pillar.`,
+        desc: `<strong>Your 90-day action:</strong> ${staged.fitness.m3}. Start small and build. Fitness underpins every other pillar.`,
         tag: 'act', pillar: 'fitness'
       },
       {
         title: '&#128106; Family: Establish Your Connection Rituals',
-        desc: `<strong>Your goal:</strong> ${p.family.m3}. Design 2–3 non-negotiable weekly rituals that strengthen your closest relationships. Put them in your calendar now. Strong relationships are the fuel for your <em>Passion &amp; Mission</em> zones.`,
+        desc: `<strong>Your 90-day action:</strong> ${staged.family.m3}. Put these rituals in your calendar now. Strong relationships are the fuel for your <em>Passion &amp; Mission</em> zones.`,
         tag: 'act', pillar: 'family'
       },
     ]
@@ -1396,23 +1397,23 @@ function generateRoadmapActions(analysis) {
         tag: 'act', pillar: null
       },
       {
-        title: '&#129504; Frame of Mind: Challenge a Limiting Belief',
-        desc: `Identify one belief that's holding you back from fully living your Ikigai (e.g. "I'm not good enough to..." or "I can't make money from..."). Write it down, examine the evidence for and against it, then write a new empowering belief to replace it. Practice the new belief daily. This directly strengthens your ability to leverage ${userData.goodAt[0] || 'your skills'}.`,
+        title: '&#129504; Frame of Mind: Challenge Your Limiting Beliefs',
+        desc: `Your biggest blocker: "${p.mindset.blocker}". Write it down, examine the evidence for and against it, then write a new empowering belief to replace it. Practice the new belief daily. This directly strengthens your ability to leverage ${userData.goodAt[0] || 'your skills'}.`,
         tag: 'reflect', pillar: 'mindset'
       },
       {
         title: '&#128176; Finances: Execute Your Income Strategy',
-        desc: `Review your 90-day financial goal progress. If you selected "${userData.paidFor[0] || 'a marketable skill'}" as something you can be paid for, identify one concrete way to increase your income from it this month — a new client, a proposal, a price increase, or a side project. Track your financial metrics weekly.`,
+        desc: `Review your 90-day financial progress. Your quickest win was "${p.finances.quickestWin.substring(0, 80)}". If you selected "${userData.paidFor[0] || 'a marketable skill'}" as something you can be paid for, identify one concrete way to increase your income from it this month. Track your financial metrics weekly.`,
         tag: 'act', pillar: 'finances'
       },
       {
         title: '&#128170; Fitness: Progressive Overload',
-        desc: `Your initial fitness habit should be automatic by now. Time to progress — increase intensity, duration, or frequency by 10-20%. If your goal was "${p.fitness.m3}", track measurable metrics (weight, reps, distance, energy levels 1-10). Physical energy directly fuels your capacity across all Ikigai zones.`,
+        desc: `Your initial fitness habit should be automatic by now. Time to progress — increase intensity, duration, or frequency by 10–20%. You started at "${p.fitness.currentLevel.substring(0, 60)}" — track measurable metrics (weight, reps, distance, energy levels 1–10). Physical energy directly fuels your capacity across all Ikigai zones.`,
         tag: 'act', pillar: 'fitness'
       },
       {
         title: '&#128106; Family: Deepen Your Key Relationships',
-        desc: `Are your weekly connection rituals from Phase 1 holding? If yes, level up — have one meaningful conversation this week where you share your Ikigai journey with someone close to you. If they've slipped, recommit. Ask yourself: "Are the people closest to me seeing the best version of me?"`,
+        desc: `Are your weekly connection rituals from Phase 1 holding? If yes, level up — have one meaningful conversation this week where you share your Ikigai journey with ${p.family.strengthen ? p.family.strengthen.substring(0, 50) : 'someone close to you'}. Ask yourself: "Are the people closest to me seeing the best version of me?"`,
         tag: 'connect', pillar: 'family'
       },
       {
@@ -1427,7 +1428,7 @@ function generateRoadmapActions(analysis) {
       },
       {
         title: '90-Day Pillar Review',
-        desc: `Score each pillar 1–10: Frame of Mind, Finances (${p.finances.m3 ? 'target: ' + p.finances.m3.substring(0, 40) + '...' : '—'}), Fitness, Family. Celebrate wins, identify which pillar needs the most attention in the next phase, and recalibrate.`,
+        desc: `Score each pillar 1–10: Frame of Mind (goal: "${p.mindset.goal.substring(0, 40)}..."), Finances, Fitness, Family. Celebrate wins, identify which pillar needs the most attention in the next phase, and recalibrate.`,
         tag: 'review', pillar: null
       }
     ]
@@ -1447,22 +1448,22 @@ function generateRoadmapActions(analysis) {
       },
       {
         title: '&#129504; Frame of Mind: 6-Month Mindset Evolution',
-        desc: `<strong>Your 6-month goal:</strong> ${p.mindset.m6}. Reflect on the limiting beliefs you challenged in Phase 2. Have your new beliefs taken root? Identify the next mental barrier between you and your Ikigai. Invest in growth — a book, a course, a coach, a mastermind. Your mindset ceiling is your life's ceiling.`,
+        desc: `<strong>Your 6-month action:</strong> ${staged.mindset.m6}. Reflect on the limiting beliefs you challenged in Phase 2. Have your new beliefs taken root? Your mindset ceiling is your life's ceiling.`,
         tag: 'reflect', pillar: 'mindset'
       },
       {
         title: '&#128176; Finances: 6-Month Financial Check-In',
-        desc: `<strong>Your 6-month goal:</strong> ${p.finances.m6}. Measure tangible progress — income changes, savings growth, debt reduction. If you're behind, identify the #1 bottleneck. If you're ahead, set a stretch target. Your ${zones.filter(z => z.key === 'vocation' || z.key === 'profession').map(z => z.name).join(' & ')} zones should be generating financial momentum by now.`,
+        desc: `<strong>Your 6-month action:</strong> ${staged.finances.m6}. Measure tangible progress — income changes, savings growth, debt reduction. Your ${zones.filter(z => z.key === 'vocation' || z.key === 'profession').map(z => z.name).join(' & ')} zones should be generating financial momentum by now.`,
         tag: 'review', pillar: 'finances'
       },
       {
         title: '&#128170; Fitness: 6-Month Body & Energy Review',
-        desc: `<strong>Your 6-month goal:</strong> ${p.fitness.m6}. Compare your current physical metrics to your Phase 1 baseline. Energy levels, fitness performance, sleep quality, body composition — what's improved? Where are you plateauing? Adjust your programme. Remember: physical energy is the engine for all 4 Ikigai zones.`,
+        desc: `<strong>Your 6-month action:</strong> ${staged.fitness.m6}. Compare your current physical metrics to your Phase 1 baseline. Energy levels, fitness performance, sleep quality — what's improved? Where are you plateauing?`,
         tag: 'review', pillar: 'fitness'
       },
       {
         title: '&#128106; Family: 6-Month Relationship Audit',
-        desc: `<strong>Your 6-month goal:</strong> ${p.family.m6}. Have your key relationships deepened? Are you present, not just physically but emotionally? Ask the 3 people closest to you: "How am I showing up for you?" Use their honest feedback to adjust. Strong <em>Passion &amp; Mission</em> zones require strong human connections.`,
+        desc: `<strong>Your 6-month action:</strong> ${staged.family.m6}. Have your key relationships deepened? Are you present, not just physically but emotionally? Ask the 3 people closest to you: "How am I showing up for you?" Strong <em>Passion &amp; Mission</em> zones require strong human connections.`,
         tag: 'review', pillar: 'family'
       },
       {
@@ -1504,22 +1505,22 @@ function generateRoadmapActions(analysis) {
       },
       {
         title: '&#129504; Frame of Mind: 12-Month Mindset Vision Review',
-        desc: `<strong>Your 12-month vision:</strong> ${p.mindset.m12}. Reflect on your mental growth. Which beliefs have you shed? What new capabilities have you built? How do you handle setbacks differently now vs 12 months ago? Your frame of mind is what separates people who find their Ikigai from people who live it.`,
+        desc: `<strong>Your 12-month vision:</strong> ${staged.mindset.m12}. Reflect on your mental growth. Which beliefs have you shed? What new capabilities have you built? How do you handle setbacks differently now vs 12 months ago?`,
         tag: 'review', pillar: 'mindset'
       },
       {
         title: '&#128176; Finances: 12-Month Financial Vision Review',
-        desc: `<strong>Your 12-month vision:</strong> ${p.finances.m12}. Are you on track? What's the gap between where you are and where you wanted to be? Create a specific action plan for the final quarter. If your ${zones.find(z => z.key === 'vocation') ? 'Vocation' : 'Profession'} zone is strong, your finances should be reflecting that — if not, examine what's blocking the flow.`,
+        desc: `<strong>Your 12-month vision:</strong> ${staged.finances.m12}. Are you on track? What's the gap between where you are and where you wanted to be? Create a specific action plan for the final quarter.`,
         tag: 'review', pillar: 'finances'
       },
       {
         title: '&#128170; Fitness: 12-Month Body & Energy Vision Review',
-        desc: `<strong>Your 12-month vision:</strong> ${p.fitness.m12}. Compare to your day-one baseline. How has your physical transformation supported your Ikigai journey? Higher energy, better focus, more confidence? If fitness has slipped, recommit — it's the one pillar that makes all others possible.`,
+        desc: `<strong>Your 12-month vision:</strong> ${staged.fitness.m12}. Compare to your day-one baseline. How has your physical transformation supported your Ikigai journey? Higher energy, better focus, more confidence?`,
         tag: 'review', pillar: 'fitness'
       },
       {
         title: '&#128106; Family: 12-Month Relationship Vision Review',
-        desc: `<strong>Your 12-month vision:</strong> ${p.family.m12}. The people around you should be feeling the positive ripple effects of your growth. Ask yourself: "Have I built deeper, more authentic relationships this year? Am I the partner/parent/friend/colleague I set out to be?" Relationships are the ultimate expression of your <em>Passion</em> zone.`,
+        desc: `<strong>Your 12-month vision:</strong> ${staged.family.m12}. The people around you should be feeling the positive ripple effects of your growth. Ask yourself: "Have I built deeper, more authentic relationships this year?"`,
         tag: 'review', pillar: 'family'
       },
       {
@@ -1562,15 +1563,10 @@ function generateQuickWins(analysis) {
   // Quick Win 2: The 7-Day Strength Sprint — tangible proof it works
   const topSkill = userData.goodAt[0] || 'their primary skill';
   const topLove = userData.love[0] || 'their top passion';
-  // Pick their weakest pillar goal for extra relevance
-  const pillarScores = [
-    { name: 'Fitness', goal: p.fitness.m3, icon: '&#128170;' },
-    { name: 'Frame of Mind', goal: p.mindset.m3, icon: '&#129504;' }
-  ];
   wins.push({
     title: 'The 7-Day Strength Sprint',
     timeframe: 'Weeks 1–2',
-    action: `Challenge ${userData.name} to spend 15 minutes a day for 7 days doing something that combines "${topLove}" with "${topSkill}". Each evening, score their energy 1–10. Simultaneously, tie it to their Fitness pillar — pair the daily activity with one physical action from their goal ("${p.fitness.m3.substring(0, 60)}..."). By day 7, they'll have hard data showing what living their Ikigai <em>feels</em> like — and they'll be fitter doing it.`,
+    action: `Challenge ${userData.name} to spend 15 minutes a day for 7 days doing something that combines "${topLove}" with "${topSkill}". Each evening, score their energy 1–10. Simultaneously, tie it to their Fitness pillar — pair the daily activity with one physical action towards their fitness goal ("${p.fitness.goal.substring(0, 60)}..."). By day 7, they'll have hard data showing what living their Ikigai <em>feels</em> like — and they'll be fitter doing it.`,
     outcome: `Client sees measurable energy and motivation shifts in just one week, across two pillars simultaneously (Frame of Mind + Fitness). The data proves coaching works — not theory, evidence.`
   });
 
@@ -1698,28 +1694,32 @@ function generateResults() {
       ${buildStrengthBar('Profession', 'profession', analysis.profession.score)}
     </div>`;
 
-  // 5 Pillars Summary
+  // 4 Pillars Summary
   const pil = userData.pillars;
+  const staged = generateStagedActions();
   const pillarData = [
-    { key: 'mindset',    icon: '&#129504;', label: 'Frame of Mind',        zone: 'Passion & Vocation — What You\'re Good At',        cls: 'pr-fortitude',  goals: pil.mindset },
-    { key: 'finances',   icon: '&#128176;', label: 'Finances',            zone: 'Vocation & Profession — What You Can Be Paid For', cls: 'pr-finances',   goals: pil.finances },
-    { key: 'fitness',    icon: '&#128170;', label: 'Fitness',             zone: 'Foundation — Supports All 4 Ikigai Zones',         cls: 'pr-fitness',    goals: pil.fitness },
-    { key: 'family',     icon: '&#128106;', label: 'Family',              zone: 'Passion & Mission — What You Love',                cls: 'pr-family',     goals: pil.family }
+    { key: 'mindset',    icon: '&#129504;', label: 'Frame of Mind',        zone: 'Passion & Vocation — What You\'re Good At',        cls: 'pr-fortitude',  raw: pil.mindset,  staged: staged.mindset },
+    { key: 'finances',   icon: '&#128176;', label: 'Finances',            zone: 'Vocation & Profession — What You Can Be Paid For', cls: 'pr-finances',   raw: pil.finances, staged: staged.finances },
+    { key: 'fitness',    icon: '&#128170;', label: 'Fitness',             zone: 'Foundation — Supports All 4 Ikigai Zones',         cls: 'pr-fitness',    raw: pil.fitness,  staged: staged.fitness },
+    { key: 'family',     icon: '&#128106;', label: 'Family',              zone: 'Passion & Mission — What You Love',                cls: 'pr-family',     raw: pil.family,   staged: staged.family }
   ];
 
   html += `
     <div class="result-section">
       <h2>Your 4 Pillars &amp; Ikigai Alignment</h2>
-      <p style="color:var(--text-muted); font-size:.88rem; margin-bottom:20px; line-height:1.6;">Your goals across the 4 key life pillars, each mapped to the Ikigai zone that drives it.</p>
+      <p style="color:var(--text-muted); font-size:.88rem; margin-bottom:20px; line-height:1.6;">Your overarching goal for each pillar, with staged actions auto-generated from your drill-down answers.</p>
       <div class="pillar-results-grid">
         ${pillarData.map(pd => `
           <div class="pillar-result-card ${pd.cls}">
             <h4>${pd.icon} ${pd.label}</h4>
             <div class="pillar-zone">${pd.zone}</div>
             <div class="pillar-goals">
-              <strong>90 Days:</strong> <span class="goal-text">${pd.goals.m3}</span><br>
-              <strong>6 Months:</strong> <span class="goal-text">${pd.goals.m6}</span><br>
-              <strong>12 Months:</strong> <span class="goal-text">${pd.goals.m12}</span>
+              <strong style="font-size:.9rem;">Your Goal:</strong> <span class="goal-text">${pd.raw.goal}</span>
+              <div style="margin-top:12px; padding-top:10px; border-top:1px solid var(--border);">
+                <strong>90 Days:</strong> <span class="goal-text">${pd.staged.m3}</span><br>
+                <strong>6 Months:</strong> <span class="goal-text">${pd.staged.m6}</span><br>
+                <strong>12 Months:</strong> <span class="goal-text">${pd.staged.m12}</span>
+              </div>
             </div>
           </div>
         `).join('')}
@@ -1838,8 +1838,10 @@ function resetForm() {
   userData.name = ''; userData.age = ''; userData.relationship = ''; userData.occupation = '';
   userData.love = []; userData.goodAt = []; userData.worldNeeds = []; userData.paidFor = [];
   userData.pillars = {
-    finances: { m3: '', m6: '', m12: '' }, family: { m3: '', m6: '', m12: '' },
-    fitness: { m3: '', m6: '', m12: '' }, mindset: { m3: '', m6: '', m12: '' }
+    mindset:    { goal: '', blocker: '', dailyWin: '', successLook: '' },
+    finances:   { goal: '', currentSituation: '', quickestWin: '', dreamScenario: '' },
+    fitness:    { goal: '', currentLevel: '', obstacle: '', milestone: '' },
+    family:     { goal: '', biggestChange: '', present: '', strengthen: '' }
   };
 
   // Clear form fields
@@ -1920,24 +1922,28 @@ function loadDevData() {
   renderSelectedTags('paid');
 
   // Step 6 — Frame of Mind
-  document.getElementById('g-mind-3').value = 'Read 2 personal development books, start daily journaling habit, establish a morning routine that sets me up for the day';
-  document.getElementById('g-mind-6').value = 'Overcome imposter syndrome around positioning myself as a consultant/trainer, build unshakeable confidence in my expertise and value';
-  document.getElementById('g-mind-12').value = 'Have a bulletproof mindset — handle rejection, setbacks and pressure with calm confidence. Be known as someone who leads with clarity and conviction';
+  document.getElementById('g-mind-goal').value = 'I want to believe in myself enough to back myself fully and stop second-guessing every decision. I want to have the confidence to go out on my own as a consultant and trainer.';
+  document.getElementById('g-mind-blocker').value = 'I keep telling myself I\'m not experienced enough to go out on my own, that I\'ll fail and end up worse off than I am now. Imposter syndrome holds me back from taking the leap.';
+  document.getElementById('g-mind-daily').value = 'They\'d wake up with purpose, make decisions quickly, not care what others think, and take bold action. They\'d back themselves 100% and not need external validation.';
+  document.getElementById('g-mind-success').value = 'I handle rejection and setbacks with ease, I lead with calm confidence, people come to me for guidance. I\'ve built a bulletproof mindset that fuels everything else.';
 
   // Step 7 — Finances
-  document.getElementById('g-fin-3').value = 'Land my first 2 paid consulting/training clients alongside my current role, generating an extra £2,000/month';
-  document.getElementById('g-fin-6').value = 'Build a consistent pipeline of consulting work worth £5,000/month. Reduce unnecessary personal expenses by 20% and build a 3-month emergency fund';
-  document.getElementById('g-fin-12').value = 'Transition fully into sales consulting and training, matching or exceeding my current salary with the freedom to control my own schedule and income';
+  document.getElementById('g-fin-goal').value = 'I want to earn enough to have real freedom — no money stress, ability to provide for my family, and build long-term wealth through my own consulting and training business.';
+  document.getElementById('g-fin-current').value = 'I earn well but I\'m living month to month, no real savings, and I feel trapped in my current role because I need the salary. No safety net if I wanted to make a change.';
+  document.getElementById('g-fin-quick').value = 'Land a couple of freelance consulting clients on the side — I could realistically generate an extra £2,000/month from my network without leaving my current job.';
+  document.getElementById('g-fin-dream').value = 'I\'d work on my own terms, choose projects I\'m passionate about, earn £10K+ a month, take 6 weeks holiday a year, and never worry about bills. Full financial freedom.';
 
   // Step 8 — Fitness
-  document.getElementById('g-fit-3').value = 'Train 4x per week consistently — mix of gym sessions and outdoor runs. Lose 5kg and get my energy levels back up';
-  document.getElementById('g-fit-6').value = 'Run a 10K, hit target weight, and have a solid routine that I maintain even during busy work weeks. Sleep 7+ hours consistently';
-  document.getElementById('g-fit-12').value = 'Be in the best shape of my life — strong, lean, and full of energy. Fitness is non-negotiable and fuels everything else I do';
+  document.getElementById('g-fit-goal').value = 'I want to be strong, lean, and full of energy — someone who looks after themselves and leads by example. Be in the best shape of my life.';
+  document.getElementById('g-fit-current').value = 'I train maybe once a week if I\'m lucky, feel sluggish most afternoons, and I\'ve put on about 8kg since getting comfortable in my desk job. Energy is inconsistent.';
+  document.getElementById('g-fit-obstacle').value = 'Time — between work and family I can\'t find the hours. Also motivation — I start strong then lose momentum after a few weeks when things get busy.';
+  document.getElementById('g-fit-milestone').value = 'Running a 10K and training 4x a week consistently for 3 months straight. That would prove to myself that I can commit and follow through.';
 
   // Step 9 — Family
-  document.getElementById('g-fam-3').value = 'Establish a weekly date night, be fully present at weekends with no work distractions, call parents every Sunday';
-  document.getElementById('g-fam-6').value = 'Plan and book a meaningful family holiday, strengthen my closest 5 friendships with regular catch-ups, be the partner and family member I want to be';
-  document.getElementById('g-fam-12').value = 'Have a life where family time is protected and prioritised. My career supports my family life, not the other way around. Be fully present and deeply connected';
+  document.getElementById('g-fam-goal').value = 'I want to be fully present with my family, have deep meaningful relationships, and never feel like work is stealing time from the people I love.';
+  document.getElementById('g-fam-change').value = 'I\'m always distracted — even when I\'m home, my mind is on work. I want to actually be there, not just physically present. My wife deserves better than half my attention.';
+  document.getElementById('g-fam-present').value = 'Honestly, a 5. I work long hours, I check my phone during family time, and I\'ve missed too many things I shouldn\'t have. I\'m there but not really there.';
+  document.getElementById('g-fam-strengthen').value = 'My relationship with my wife — I want us to have proper quality time together, regular date nights, and feel like a real team again instead of two people running a household.';
 
 }
 loadDevData();
