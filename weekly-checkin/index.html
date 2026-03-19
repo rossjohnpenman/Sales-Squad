@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Weekly Check-In — RJP AI Tools</title>
+  <title>Client Check-In — RJP AI Tools</title>
   <style>
     :root {
       --bg: #000000;
@@ -145,11 +145,12 @@
       border-radius: 10px;
       color: var(--text);
       font-family: inherit;
-      font-size: .92rem;
+      font-size: 16px;
       padding: 14px;
       resize: vertical;
       line-height: 1.6;
       transition: border-color .2s;
+      -webkit-appearance: none;
     }
     .form-group textarea:focus {
       outline: none;
@@ -167,9 +168,10 @@
       border-radius: 10px;
       color: var(--text);
       font-family: inherit;
-      font-size: .92rem;
+      font-size: 16px;
       padding: 14px;
       transition: border-color .2s;
+      -webkit-appearance: none;
     }
     .name-input:focus {
       outline: none;
@@ -322,16 +324,67 @@
     }
 
     /* ── RESPONSIVE ── */
-    @media (max-width: 480px) {
+    @media (max-width: 600px) {
       .app { padding: 20px 14px 40px; }
-      .logo-row { gap: 12px; margin-bottom: 28px; }
-      .logo-rjp { height: 32px; }
-      .logo-title { font-size: .95rem; }
-      .home-link { padding: 6px 12px; font-size: .75rem; }
-      .form-group { padding: 18px; }
-      .summary-card { padding: 20px; }
+
+      /* Header: stack logo and home link vertically */
+      .logo-row {
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-bottom: 24px;
+      }
+      .home-link {
+        position: static;
+        transform: none;
+        order: -1;
+        width: 100%;
+        justify-content: center;
+        padding: 10px 16px;
+        font-size: .8rem;
+      }
+      .logo-rjp { height: 30px; }
+      .logo-divider { height: 28px; }
+      .logo-title { font-size: .92rem; }
+      .logo-subtitle { font-size: .72rem; }
+
+      /* Hero */
+      .hero-heading { margin-bottom: 12px; }
+      .hero-sub { font-size: .95rem; margin-bottom: 24px; }
+
+      /* Week label */
+      .week-label { font-size: .75rem; padding: 7px 14px; margin-bottom: 20px; }
+
+      /* Form */
+      .checkin-form { gap: 20px; }
+      .form-group { padding: 16px; }
+      .form-group .emoji-icon { font-size: 1.3rem; margin-bottom: 8px; }
+      .form-group .question-number { width: 24px; height: 24px; font-size: .7rem; margin-bottom: 8px; }
+      .form-group label { font-size: .92rem; }
+      .form-group .hint { font-size: .78rem; margin-bottom: 10px; }
+      .form-group textarea { min-height: 90px; padding: 12px; font-size: .88rem; }
+      .name-input { padding: 12px; font-size: .88rem; }
+
+      /* Buttons */
       .btn-row { flex-direction: column; }
       .btn-primary, .btn-secondary { width: 100%; justify-content: center; }
+      .btn-primary { padding: 14px 24px; font-size: .95rem; }
+      .btn-secondary { padding: 12px 20px; }
+
+      /* Summary */
+      .summary-card { padding: 18px; }
+      .summary-card h3 { font-size: .85rem; }
+      .summary-card p { font-size: .88rem; }
+      .success-banner { padding: 16px 18px; }
+      .success-banner h2 { font-size: 1rem; }
+    }
+
+    /* Extra small screens */
+    @media (max-width: 360px) {
+      .app { padding: 16px 10px 32px; }
+      .hero-heading { font-size: 1.5rem; }
+      .form-group { padding: 14px; }
+      .form-group label { font-size: .86rem; }
+      .form-group textarea { min-height: 80px; font-size: .84rem; }
     }
   </style>
 </head>
@@ -346,7 +399,7 @@
       </svg>
       <div class="logo-divider"></div>
       <div>
-        <div class="logo-title">Weekly Check-In</div>
+        <div class="logo-title">Client Check-In</div>
         <div class="logo-subtitle">Client Progress Tracker</div>
       </div>
       <a href="../index.html" class="home-link">
@@ -360,7 +413,7 @@
     <!-- ══════════════════════════════════════════════════════════════════ -->
     <div id="screen-form" class="screen active">
 
-      <h1 class="hero-heading"><span>Weekly Check-In</span></h1>
+      <h1 class="hero-heading"><span>Client Check-In</span></h1>
       <p class="hero-sub">Take a few minutes to reflect on your week. Your answers help us track your progress and make sure you're getting the most out of our time together.</p>
 
       <div class="week-label" id="week-label"></div>
@@ -497,7 +550,7 @@
       // Send via FormSubmit.co
       try {
         const formData = new FormData();
-        formData.append('_subject', `Weekly Check-In — ${submittedData.name} — ${submittedData.date}`);
+        formData.append('_subject', `Client Check-In — ${submittedData.name} — ${submittedData.date}`);
         formData.append('_template', 'table');
         formData.append('_captcha', 'false');
         formData.append('Client Name', submittedData.name);
@@ -555,7 +608,7 @@
 
     function getPlainTextSummary() {
       const d = submittedData;
-      let text = `WEEKLY CHECK-IN\n`;
+      let text = `CLIENT CHECK-IN\n`;
       text += `${d.name} — ${d.date}\n`;
       text += `${d.weekLabel}\n`;
       text += `${'─'.repeat(40)}\n\n`;
@@ -578,7 +631,7 @@
 
     function emailSummary() {
       const d = submittedData;
-      const subject = encodeURIComponent(`Weekly Check-In — ${d.name} — ${d.date}`);
+      const subject = encodeURIComponent(`Client Check-In — ${d.name} — ${d.date}`);
       const body = encodeURIComponent(getPlainTextSummary());
       window.location.href = `mailto:contact@rossjohnpenman.com?subject=${subject}&body=${body}`;
     }
