@@ -1197,11 +1197,18 @@ function validateTagStep(key, nextStep) {
 }
 
 const pillarFieldMap = {
-  mindset:    { m3: 'g-mind-3', m6: 'g-mind-6', m12: 'g-mind-12' },
-  finances:   { m3: 'g-fin-3',  m6: 'g-fin-6',  m12: 'g-fin-12' },
-  fitness:    { m3: 'g-fit-3',  m6: 'g-fit-6',  m12: 'g-fit-12' },
-  family:     { m3: 'g-fam-3',  m6: 'g-fam-6',  m12: 'g-fam-12' }
+  mindset:    { goal: 'g-mind-goal', blocker: 'g-mind-blocker', dailyWin: 'g-mind-daily', successLook: 'g-mind-success' },
+  finances:   { goal: 'g-fin-goal',  currentSituation: 'g-fin-current', quickestWin: 'g-fin-quick', dreamScenario: 'g-fin-dream' },
+  fitness:    { goal: 'g-fit-goal',  currentLevel: 'g-fit-current', obstacle: 'g-fit-obstacle', milestone: 'g-fit-milestone' },
+  family:     { goal: 'g-fam-goal',  biggestChange: 'g-fam-change', present: 'g-fam-present', strengthen: 'g-fam-strengthen' }
 };
+
+function savePillarData(pillarKey) {
+  const fields = pillarFieldMap[pillarKey];
+  Object.keys(fields).forEach(dataKey => {
+    userData.pillars[pillarKey][dataKey] = document.getElementById(fields[dataKey]).value.trim();
+  });
+}
 
 function validatePillarStep(stepNum, pillarKey, nextStep) {
   const fields = pillarFieldMap[pillarKey];
@@ -1212,11 +1219,7 @@ function validatePillarStep(stepNum, pillarKey, nextStep) {
   });
   if (!ok) return;
 
-  // Save this pillar's data
-  userData.pillars[pillarKey].m3  = document.getElementById(fields.m3).value.trim();
-  userData.pillars[pillarKey].m6  = document.getElementById(fields.m6).value.trim();
-  userData.pillars[pillarKey].m12 = document.getElementById(fields.m12).value.trim();
-
+  savePillarData(pillarKey);
   goToStep(nextStep);
 }
 
@@ -1229,11 +1232,35 @@ function validateFinalStep() {
   });
   if (!ok) return;
 
-  userData.pillars.family.m3  = document.getElementById(fields.m3).value.trim();
-  userData.pillars.family.m6  = document.getElementById(fields.m6).value.trim();
-  userData.pillars.family.m12 = document.getElementById(fields.m12).value.trim();
-
+  savePillarData('family');
   generateResults();
+}
+
+/* ─── Auto-generate staged 3/6/12 month actions from drill-down answers ─── */
+function generateStagedActions() {
+  const p = userData.pillars;
+  return {
+    mindset: {
+      m3: `Start a daily mindset practice to address: "${p.mindset.blocker}". Build the habit of ${p.mindset.dailyWin.toLowerCase().startsWith('they') ? p.mindset.dailyWin.replace(/^they'?d?\s*/i, '').replace(/^would\s*/i, '') : p.mindset.dailyWin}. Read 2 personal development books and journal daily for 10 minutes.`,
+      m6: `Break through your core limiting belief ("${p.mindset.blocker.substring(0, 80)}"). Invest in a course, coach, or mastermind to accelerate your growth. Build unshakeable self-belief in your ability to ${p.mindset.goal.toLowerCase().replace(/^i want to\s*/i, '').replace(/\.*$/, '')}.`,
+      m12: `${p.mindset.successLook}. Your mindset is now your greatest asset — you handle setbacks with calm confidence and lead with clarity.`
+    },
+    finances: {
+      m3: `${p.finances.quickestWin}. Audit all expenses and cut unnecessary spending by 20%. Build a clear financial dashboard tracking income, expenses, and savings weekly.`,
+      m6: `Address the core pressure: "${p.finances.currentSituation.substring(0, 80)}". Build a 3-month emergency fund and create a consistent secondary income stream aligned with your Ikigai.`,
+      m12: `${p.finances.dreamScenario}. Your finances now support your purpose — you have freedom, security, and a clear path to long-term wealth.`
+    },
+    fitness: {
+      m3: `Overcome "${p.fitness.obstacle.substring(0, 60)}" by building a sustainable routine. Train 3–4x per week minimum. From your current level ("${p.fitness.currentLevel.substring(0, 60)}"), focus on consistency over intensity.`,
+      m6: `Achieve your proud milestone: ${p.fitness.milestone}. Your routine is now automatic and survives busy weeks. Energy levels are consistently high.`,
+      m12: `${p.fitness.goal}. Fitness is non-negotiable and fuels every other pillar — you look, feel, and perform at your best.`
+    },
+    family: {
+      m3: `Address the biggest gap: "${p.family.biggestChange.substring(0, 80)}". Establish 2–3 weekly rituals that strengthen your key relationship${p.family.strengthen ? ' (especially: ' + p.family.strengthen.substring(0, 50) + ')' : ''}. Move your presence score from ${p.family.present.match(/\d+/) ? p.family.present.match(/\d+/)[0] : 'current'} towards 8+.`,
+      m6: `Deepen the relationship you most want to strengthen: ${p.family.strengthen.substring(0, 80)}. Your weekly rituals are automatic. The people closest to you can feel the difference.`,
+      m12: `${p.family.goal}. Your relationships are thriving because you show up fully present — your career supports your family life, not the other way around.`
+    }
+  };
 }
 
 /* ═══════════════════════════════════════════════════════════════════════ */
