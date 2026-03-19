@@ -505,6 +505,21 @@
     .wobble { animation: wobble .4s ease; }
     .field-error { border-color: #e74c3c !important; }
 
+    /* ── ROAD GRAPHIC ── */
+    .road-graphic {
+      margin-bottom: 24px;
+      max-width: 420px;
+      opacity: 0.85;
+    }
+    .road-graphic svg {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+    @media (max-width: 480px) {
+      .road-graphic { max-width: 300px; }
+    }
+
     /* ── APP FOOTER ── */
     .app-footer {
       text-align: center;
@@ -536,39 +551,34 @@
       </div>
     </div>
 
-    <div class="road-graphic">
-      <svg viewBox="0 0 600 120" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
-        <!-- Road surface -->
-        <path d="M-20,100 C80,100 100,40 200,40 C300,40 300,90 400,90 C500,90 520,30 620,30"
-              stroke="#252840" stroke-width="48" fill="none" stroke-linecap="round"/>
-        <!-- Road edge lines -->
-        <path d="M-20,100 C80,100 100,40 200,40 C300,40 300,90 400,90 C500,90 520,30 620,30"
-              stroke="#3a3d5c" stroke-width="50" fill="none" stroke-linecap="round" opacity="0.3"/>
-        <path d="M-20,100 C80,100 100,40 200,40 C300,40 300,90 400,90 C500,90 520,30 620,30"
-              stroke="var(--bg)" stroke-width="46" fill="none" stroke-linecap="round"/>
-        <path d="M-20,100 C80,100 100,40 200,40 C300,40 300,90 400,90 C500,90 520,30 620,30"
-              stroke="#252840" stroke-width="44" fill="none" stroke-linecap="round"/>
-        <!-- Centre dashes -->
-        <path d="M-20,100 C80,100 100,40 200,40 C300,40 300,90 400,90 C500,90 520,30 620,30"
-              stroke="url(#roadGrad)" stroke-width="3" fill="none" stroke-dasharray="16,12" stroke-linecap="round"/>
-        <!-- Milestone dots -->
-        <circle cx="120" cy="64" r="6" fill="#7b68ee" opacity="0.9"/>
-        <circle cx="300" cy="66" r="6" fill="#38bdf8" opacity="0.9"/>
-        <circle cx="460" cy="56" r="6" fill="#4ade80" opacity="0.9"/>
-        <!-- Pin at destination -->
-        <g transform="translate(570,14)">
-          <circle cx="0" cy="0" r="8" fill="#e879a8" opacity="0.9"/>
-          <circle cx="0" cy="0" r="4" fill="#fff"/>
-        </g>
-        <defs>
-          <linearGradient id="roadGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" stop-color="#7b68ee"/>
-            <stop offset="100%" stop-color="#38bdf8"/>
-          </linearGradient>
-        </defs>
-      </svg>
+    <div class="hero-block">
+      <div class="road-bg">
+        <svg viewBox="0 0 600 120" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
+          <path d="M-20,100 C80,100 100,40 200,40 C300,40 300,90 400,90 C500,90 520,30 620,30"
+                stroke="#3a3d5c" stroke-width="50" fill="none" stroke-linecap="round" opacity="0.3"/>
+          <path d="M-20,100 C80,100 100,40 200,40 C300,40 300,90 400,90 C500,90 520,30 620,30"
+                stroke="#000" stroke-width="46" fill="none" stroke-linecap="round"/>
+          <path d="M-20,100 C80,100 100,40 200,40 C300,40 300,90 400,90 C500,90 520,30 620,30"
+                stroke="#252840" stroke-width="44" fill="none" stroke-linecap="round"/>
+          <path d="M-20,100 C80,100 100,40 200,40 C300,40 300,90 400,90 C500,90 520,30 620,30"
+                stroke="url(#roadGrad)" stroke-width="3" fill="none" stroke-dasharray="16,12" stroke-linecap="round"/>
+          <circle cx="120" cy="64" r="6" fill="#7b68ee" opacity="0.9"/>
+          <circle cx="300" cy="66" r="6" fill="#38bdf8" opacity="0.9"/>
+          <circle cx="460" cy="56" r="6" fill="#4ade80" opacity="0.9"/>
+          <g transform="translate(570,14)">
+            <circle cx="0" cy="0" r="8" fill="#e879a8" opacity="0.9"/>
+            <circle cx="0" cy="0" r="4" fill="#fff"/>
+          </g>
+          <defs>
+            <linearGradient id="roadGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#7b68ee"/>
+              <stop offset="100%" stop-color="#38bdf8"/>
+            </linearGradient>
+          </defs>
+        </svg>
+      </div>
+      <h1 class="hero-heading">Discover Your <span>Ikigai</span><br>& Build Your Personal Roadmap to Achieve it.</h1>
     </div>
-    <h1 class="hero-heading">Discover Your <span>Ikigai</span><br>& Build Your Personal Roadmap to Achieve it.</h1>
     <p class="hero-sub">
       Ikigai is the Japanese concept of finding your life's purpose — the sweet spot where what you
       <strong>love</strong>, what you're <strong>good at</strong>, what the world <strong>needs</strong>,
