@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Weekly Check-In — RJP AI Tools</title>
+  <style>
+    :root {
+      --bg: #000000;
+      --surface: #111318;
+      --surface2: #191c28;
+      --border: #252840;
+      --text: #e8eaf6;
+      --text-muted: #8892b0;
+      --radius: 14px;
+      --accent: #7b68ee;
+      --accent2: #38bdf8;
+      --gradient: linear-gradient(135deg, #7b68ee, #38bdf8);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 760px;
+      padding: 32px 20px 60px;
+    }
+
+    /* ── SCREENS ── */
+    .screen { display: none; animation: fadeIn .4s ease; }
+    .screen.active { display: block; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* ── HEADER ── */
+    .logo-row {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      margin-bottom: 40px;
+      position: relative;
+    }
+    .logo-rjp { height: 42px; width: auto; display: block; }
+    .logo-divider { width: 1px; height: 36px; background: var(--border); }
+    .logo-title { font-size: 1.1rem; font-weight: 700; letter-spacing: .5px; }
+    .logo-subtitle { font-size: .8rem; color: var(--text-muted); }
+    .home-link {
+      position: absolute; right: 0; top: 50%; transform: translateY(-50%);
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: .82rem; font-weight: 700; color: var(--text-muted);
+      text-decoration: none; padding: 8px 16px;
+      border: 1.5px solid var(--border); border-radius: 50px;
+      transition: border-color .2s, color .2s;
+    }
+    .home-link:hover { border-color: var(--accent); color: var(--text); }
+
+    /* ── HERO ── */
+    .hero-heading {
+      font-size: clamp(1.8rem, 5vw, 2.8rem);
+      font-weight: 800;
+      line-height: 1.15;
+      margin-bottom: 16px;
+    }
+    .hero-heading span {
+      background: var(--gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .hero-sub {
+      color: var(--text-muted);
+      font-size: 1.05rem;
+      line-height: 1.7;
+      max-width: 600px;
+      margin-bottom: 36px;
+    }
+
+    /* ── FORM ── */
+    .checkin-form {
+      display: flex;
+      flex-direction: column;
+      gap: 28px;
+    }
+
+    .form-group {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+      transition: border-color .2s;
+    }
+    .form-group:focus-within {
+      border-color: var(--accent);
+    }
+
+    .form-group .question-number {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--accent);
+      color: #fff;
+      font-size: .78rem;
+      font-weight: 800;
+      margin-bottom: 12px;
+    }
+
+    .form-group .emoji-icon {
+      font-size: 1.6rem;
+      margin-bottom: 10px;
+      display: block;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 6px;
+      line-height: 1.4;
+    }
+
+    .form-group .hint {
+      display: block;
+      font-size: .82rem;
+      color: var(--text-muted);
+      margin-bottom: 14px;
+      line-height: 1.5;
+    }
+
+    .form-group textarea {
+      width: 100%;
+      min-height: 100px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--text);
+      font-family: inherit;
+      font-size: .92rem;
+      padding: 14px;
+      resize: vertical;
+      line-height: 1.6;
+      transition: border-color .2s;
+    }
+    .form-group textarea:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+    .form-group textarea::placeholder {
+      color: var(--text-muted);
+      opacity: .6;
+    }
+
+    .name-input {
+      width: 100%;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--text);
+      font-family: inherit;
+      font-size: .92rem;
+      padding: 14px;
+      transition: border-color .2s;
+    }
+    .name-input:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+    .name-input::placeholder {
+      color: var(--text-muted);
+      opacity: .6;
+    }
+
+    /* ── BUTTONS ── */
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 16px 36px;
+      background: var(--gradient);
+      color: #fff;
+      font-family: inherit;
+      font-size: 1rem;
+      font-weight: 700;
+      border: none;
+      border-radius: 50px;
+      cursor: pointer;
+      transition: transform .15s, box-shadow .2s;
+    }
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(123, 104, 238, .35);
+    }
+    .btn-primary:disabled {
+      opacity: .5;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .btn-secondary {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 12px 24px;
+      background: transparent;
+      color: var(--text-muted);
+      font-family: inherit;
+      font-size: .88rem;
+      font-weight: 700;
+      border: 1.5px solid var(--border);
+      border-radius: 50px;
+      cursor: pointer;
+      transition: border-color .2s, color .2s;
+    }
+    .btn-secondary:hover {
+      border-color: var(--accent);
+      color: var(--text);
+    }
+
+    .btn-row {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 8px;
+    }
+
+    /* ── SUMMARY SCREEN ── */
+    .summary-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+      margin-bottom: 24px;
+    }
+
+    .summary-card h3 {
+      font-size: .92rem;
+      font-weight: 700;
+      margin-bottom: 6px;
+      color: var(--accent2);
+    }
+
+    .summary-card p {
+      font-size: .92rem;
+      color: var(--text);
+      line-height: 1.7;
+      white-space: pre-wrap;
+    }
+
+    .summary-meta {
+      font-size: .82rem;
+      color: var(--text-muted);
+      margin-bottom: 24px;
+    }
+
+    .success-banner {
+      background: linear-gradient(135deg, rgba(123,104,238,.12), rgba(56,189,248,.12));
+      border: 1px solid rgba(123,104,238,.3);
+      border-radius: var(--radius);
+      padding: 20px 24px;
+      margin-bottom: 32px;
+      text-align: center;
+    }
+    .success-banner .check {
+      font-size: 2rem;
+      margin-bottom: 8px;
+      display: block;
+    }
+    .success-banner h2 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+    .success-banner p {
+      font-size: .85rem;
+      color: var(--text-muted);
+    }
+
+    .copy-toast {
+      position: fixed;
+      bottom: 32px;
+      left: 50%;
+      transform: translateX(-50%) translateY(80px);
+      background: var(--accent);
+      color: #fff;
+      padding: 12px 24px;
+      border-radius: 50px;
+      font-size: .88rem;
+      font-weight: 700;
+      opacity: 0;
+      transition: transform .3s ease, opacity .3s ease;
+      z-index: 100;
+      pointer-events: none;
+    }
+    .copy-toast.show {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+
+    /* ── WEEK SELECTOR ── */
+    .week-label {
+      display: inline-block;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 50px;
+      padding: 8px 18px;
+      font-size: .82rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      margin-bottom: 28px;
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 480px) {
+      .app { padding: 20px 14px 40px; }
+      .logo-row { gap: 12px; margin-bottom: 28px; }
+      .logo-rjp { height: 32px; }
+      .logo-title { font-size: .95rem; }
+      .home-link { padding: 6px 12px; font-size: .75rem; }
+      .form-group { padding: 18px; }
+      .summary-card { padding: 20px; }
+      .btn-row { flex-direction: column; }
+      .btn-primary, .btn-secondary { width: 100%; justify-content: center; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="app">
+    <!-- ── HEADER ── -->
+    <div class="logo-row">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 220" class="logo-rjp">
+        <defs><filter id="sh" x="-5%" y="-5%" width="115%" height="125%"><feDropShadow dx="2" dy="2" stdDeviation="0.5" flood-color="rgba(255,255,255,0.1)"/></filter></defs>
+        <text x="8" y="190" font-family="'Arial Black','Helvetica Neue',Arial,sans-serif" font-weight="900" font-size="195" fill="white" filter="url(#sh)">RJP</text>
+      </svg>
+      <div class="logo-divider"></div>
+      <div>
+        <div class="logo-title">Weekly Check-In</div>
+        <div class="logo-subtitle">Client Progress Tracker</div>
+      </div>
+      <a href="../index.html" class="home-link">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>
+        AI Tools
+      </a>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════════════════ -->
+    <!--  SCREEN 1 — CHECK-IN FORM                                        -->
+    <!-- ══════════════════════════════════════════════════════════════════ -->
+    <div id="screen-form" class="screen active">
+
+      <h1 class="hero-heading"><span>Weekly Check-In</span></h1>
+      <p class="hero-sub">Take a few minutes to reflect on your week. Your answers help us track your progress and make sure you're getting the most out of our time together.</p>
+
+      <div class="week-label" id="week-label"></div>
+
+      <form class="checkin-form" id="checkin-form" onsubmit="submitCheckin(event)">
+
+        <!-- Name -->
+        <div class="form-group">
+          <span class="emoji-icon">👤</span>
+          <label for="client-name">Your Name</label>
+          <span class="hint">So Ross knows who this check-in is from.</span>
+          <input type="text" id="client-name" class="name-input" placeholder="Enter your full name" required />
+        </div>
+
+        <!-- Q1: Wins -->
+        <div class="form-group">
+          <span class="question-number">1</span>
+          <span class="emoji-icon">🏆</span>
+          <label for="q-wins">What has been your biggest WIN this week?</label>
+          <span class="hint">Think about both professional and personal achievements — no win is too small.</span>
+          <textarea id="q-wins" placeholder="e.g. Closed a new client deal, hit a personal fitness goal..." required></textarea>
+        </div>
+
+        <!-- Q2: Struggles -->
+        <div class="form-group">
+          <span class="question-number">2</span>
+          <span class="emoji-icon">🧗</span>
+          <label for="q-struggles">What have you struggled with this week?</label>
+          <span class="hint">Be honest — understanding your challenges helps us work through them together.</span>
+          <textarea id="q-struggles" placeholder="e.g. Time management, difficult conversation, staying motivated..." required></textarea>
+        </div>
+
+        <!-- Q3: Intentions -->
+        <div class="form-group">
+          <span class="question-number">3</span>
+          <span class="emoji-icon">🎯</span>
+          <label for="q-intentions">What are your intentions for next week?</label>
+          <span class="hint">What do you want to focus on, achieve, or change going into next week?</span>
+          <textarea id="q-intentions" placeholder="e.g. Block out 2 hours for deep work each morning, follow up with 5 leads..." required></textarea>
+        </div>
+
+        <!-- Q4: Anything else (optional) -->
+        <div class="form-group">
+          <span class="question-number">4</span>
+          <span class="emoji-icon">💬</span>
+          <label for="q-extra">Anything else you'd like to share?</label>
+          <span class="hint">Optional — anything on your mind that would be useful for Ross to know.</span>
+          <textarea id="q-extra" placeholder="Any additional thoughts, questions, or updates..."></textarea>
+        </div>
+
+        <div class="btn-row">
+          <button type="submit" class="btn-primary" id="submit-btn">
+            <span id="submit-text">Submit Check-In</span>
+            <svg id="submit-arrow" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            <span id="submit-spinner" style="display:none;">Sending...</span>
+          </button>
+        </div>
+        <div id="form-error" style="display:none; background:rgba(239,68,68,.12); border:1px solid rgba(239,68,68,.3); border-radius:10px; padding:14px 18px; margin-top:12px; color:#f87171; font-size:.88rem; font-weight:600;"></div>
+      </form>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════════════════ -->
+    <!--  SCREEN 2 — CONFIRMATION / SUMMARY                               -->
+    <!-- ══════════════════════════════════════════════════════════════════ -->
+    <div id="screen-done" class="screen">
+
+      <div class="success-banner">
+        <span class="check">✅</span>
+        <h2>Check-In Submitted!</h2>
+        <p>Thanks for taking the time to reflect on your week.</p>
+      </div>
+
+      <div class="summary-meta" id="summary-meta"></div>
+
+      <div id="summary-cards"></div>
+
+      <div class="btn-row">
+        <button class="btn-primary" onclick="copySummary()">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+          Copy Summary
+        </button>
+        <button class="btn-secondary" onclick="emailSummary()">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M22 4l-10 8L2 4"/></svg>
+          Email to Ross
+        </button>
+        <button class="btn-secondary" onclick="resetForm()">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 4v6h6"/><path d="M3.51 15a9 9 0 105.64-11.36L1 10"/></svg>
+          New Check-In
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="copy-toast" id="copy-toast">Copied to clipboard!</div>
+
+  <script>
+    // ── Week label ──
+    (function setWeekLabel() {
+      const now = new Date();
+      const start = new Date(now);
+      start.setDate(now.getDate() - now.getDay() + 1); // Monday
+      const end = new Date(start);
+      end.setDate(start.getDate() + 4); // Friday
+      const fmt = d => d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+      document.getElementById('week-label').textContent = `Week of ${fmt(start)} — ${fmt(end)}`;
+    })();
+
+    let submittedData = {};
+
+    async function submitCheckin(e) {
+      e.preventDefault();
+
+      const btn = document.getElementById('submit-btn');
+      const errorEl = document.getElementById('form-error');
+      errorEl.style.display = 'none';
+
+      // Show loading state
+      btn.disabled = true;
+      document.getElementById('submit-text').style.display = 'none';
+      document.getElementById('submit-arrow').style.display = 'none';
+      document.getElementById('submit-spinner').style.display = 'inline';
+
+      submittedData = {
+        name: document.getElementById('client-name').value.trim(),
+        wins: document.getElementById('q-wins').value.trim(),
+        struggles: document.getElementById('q-struggles').value.trim(),
+        intentions: document.getElementById('q-intentions').value.trim(),
+        extra: document.getElementById('q-extra').value.trim(),
+        date: new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }),
+        weekLabel: document.getElementById('week-label').textContent
+      };
+
+      // Send via FormSubmit.co
+      try {
+        const formData = new FormData();
+        formData.append('_subject', `Weekly Check-In — ${submittedData.name} — ${submittedData.date}`);
+        formData.append('_template', 'table');
+        formData.append('_captcha', 'false');
+        formData.append('Client Name', submittedData.name);
+        formData.append('Week', submittedData.weekLabel);
+        formData.append('Date Submitted', submittedData.date);
+        formData.append('Biggest Win This Week', submittedData.wins);
+        formData.append('Struggles This Week', submittedData.struggles);
+        formData.append('Intentions For Next Week', submittedData.intentions);
+        if (submittedData.extra) {
+          formData.append('Additional Notes', submittedData.extra);
+        }
+
+        const res = await fetch('https://formsubmit.co/ajax/contact@rossjohnpenman.com', {
+          method: 'POST',
+          body: formData
+        });
+
+        if (!res.ok) throw new Error('Submission failed');
+
+        // Build summary cards
+        const cards = [
+          { title: 'Biggest Win This Week', text: submittedData.wins },
+          { title: 'Struggles This Week', text: submittedData.struggles },
+          { title: 'Intentions for Next Week', text: submittedData.intentions }
+        ];
+        if (submittedData.extra) {
+          cards.push({ title: 'Additional Notes', text: submittedData.extra });
+        }
+
+        document.getElementById('summary-meta').textContent =
+          `${submittedData.name} — ${submittedData.date}`;
+
+        document.getElementById('summary-cards').innerHTML = cards.map(c => `
+          <div class="summary-card">
+            <h3>${c.title}</h3>
+            <p>${escapeHtml(c.text)}</p>
+          </div>
+        `).join('');
+
+        // Switch screens
+        document.getElementById('screen-form').classList.remove('active');
+        document.getElementById('screen-done').classList.add('active');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+
+      } catch (err) {
+        errorEl.textContent = 'Something went wrong sending your check-in. Please try again or use the "Email to Ross" option instead.';
+        errorEl.style.display = 'block';
+      } finally {
+        btn.disabled = false;
+        document.getElementById('submit-text').style.display = 'inline';
+        document.getElementById('submit-arrow').style.display = 'inline';
+        document.getElementById('submit-spinner').style.display = 'none';
+      }
+    }
+
+    function getPlainTextSummary() {
+      const d = submittedData;
+      let text = `WEEKLY CHECK-IN\n`;
+      text += `${d.name} — ${d.date}\n`;
+      text += `${d.weekLabel}\n`;
+      text += `${'─'.repeat(40)}\n\n`;
+      text += `🏆 BIGGEST WIN THIS WEEK\n${d.wins}\n\n`;
+      text += `🧗 STRUGGLES THIS WEEK\n${d.struggles}\n\n`;
+      text += `🎯 INTENTIONS FOR NEXT WEEK\n${d.intentions}\n`;
+      if (d.extra) {
+        text += `\n💬 ADDITIONAL NOTES\n${d.extra}\n`;
+      }
+      return text;
+    }
+
+    function copySummary() {
+      navigator.clipboard.writeText(getPlainTextSummary()).then(() => {
+        const toast = document.getElementById('copy-toast');
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), 2200);
+      });
+    }
+
+    function emailSummary() {
+      const d = submittedData;
+      const subject = encodeURIComponent(`Weekly Check-In — ${d.name} — ${d.date}`);
+      const body = encodeURIComponent(getPlainTextSummary());
+      window.location.href = `mailto:contact@rossjohnpenman.com?subject=${subject}&body=${body}`;
+    }
+
+    function resetForm() {
+      document.getElementById('checkin-form').reset();
+      document.getElementById('screen-done').classList.remove('active');
+      document.getElementById('screen-form').classList.add('active');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function escapeHtml(str) {
+      const div = document.createElement('div');
+      div.textContent = str;
+      return div.innerHTML;
+    }
+  </script>
+
+</body>
+</html>
