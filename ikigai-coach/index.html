@@ -1780,7 +1780,7 @@ function generateResults() {
     <div class="results-hero">
       <h1><span>${userData.name}</span>, this is your Personal Roadmap to achieving Ikigai.</h1>
       <p>${userData.age} · ${userData.relationship} · ${userData.occupation}</p>
-      <p style="margin-top:12px; font-size:1.8rem; font-weight:800; background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">${overallScore}% Ikigai Alignment</p>
+      <p style="margin-top:12px; font-size:1.8rem; font-weight:800; background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Your Ikigai Roadmap</p>
     </div>`;
 
   // Ikigai Diagram
@@ -1811,33 +1811,12 @@ function generateResults() {
           <text x="260" y="200" fill="#38bdf8" font-size="10" font-weight="600" text-anchor="middle">Profession</text>
           <text x="200" y="268" fill="#60d5a0" font-size="10" font-weight="600" text-anchor="middle">Vocation</text>
 
-          <text x="200" y="196" fill="#fff" font-size="14" font-weight="800" text-anchor="middle">IKIGAI</text>
-          <text x="200" y="212" fill="var(--text-muted)" font-size="9" text-anchor="middle">${overallScore}% aligned</text>
+          <text x="200" y="200" fill="#fff" font-size="14" font-weight="800" text-anchor="middle">IKIGAI</text>
         </svg>
       </div>
     </div>`;
 
-  // Intersection Cards
-  html += `
-    <div class="result-section">
-      <h2>Your Four Intersections</h2>
-      <div class="intersection-grid">
-        ${buildIntersectionCard('Passion', 'What You Love + What You\'re Good At', 'passion', analysis.passion)}
-        ${buildIntersectionCard('Mission', 'What You Love + What The World Needs', 'mission', analysis.mission)}
-        ${buildIntersectionCard('Vocation', 'What You\'re Good At + What You Can Be Paid For', 'vocation', analysis.vocation)}
-        ${buildIntersectionCard('Profession', 'What The World Needs + What You Can Be Paid For', 'profession', analysis.profession)}
-      </div>
-    </div>`;
 
-  // Strength Bars
-  html += `
-    <div class="result-section">
-      <h2>Alignment Scores</h2>
-      ${buildStrengthBar('Passion', 'passion', analysis.passion.score)}
-      ${buildStrengthBar('Mission', 'mission', analysis.mission.score)}
-      ${buildStrengthBar('Vocation', 'vocation', analysis.vocation.score)}
-      ${buildStrengthBar('Profession', 'profession', analysis.profession.score)}
-    </div>`;
 
   // 4 Pillars Summary
   const pil = userData.pillars;
