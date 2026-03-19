@@ -719,6 +719,22 @@
         <input type="text" id="f-occupation" placeholder="e.g. Sales Manager" />
       </div>
     </div>
+    <div class="field-row">
+      <div class="field-group">
+        <label for="f-parent">Do you have children?</label>
+        <select id="f-parent">
+          <option value="">Select...</option>
+          <option>Yes</option>
+          <option>No</option>
+          <option>Expecting</option>
+          <option>Prefer not to say</option>
+        </select>
+      </div>
+      <div class="field-group">
+        <label for="f-date">Today's Date</label>
+        <input type="text" id="f-date" readonly style="color:var(--text-muted); cursor:default;" />
+      </div>
+    </div>
 
     <div class="actions">
       <button class="btn-secondary" onclick="showScreen('screen-intro')">Back</button>
@@ -1055,7 +1071,7 @@
 /* ═══════════════════════════════════════════════════════════════════════ */
 
 const userData = {
-  name: '', age: '', email: '', phone: '', relationship: '', occupation: '',
+  name: '', age: '', email: '', phone: '', relationship: '', occupation: '', parent: '', date: '',
   love: [], goodAt: [], worldNeeds: [], paidFor: [],
   pillars: {
     mindset:    { blocker: '', impact: '', successLook: '' },
@@ -1268,15 +1284,22 @@ function shake(el) {
 function validateStep1() {
   const name = document.getElementById('f-name');
   const age = document.getElementById('f-age');
+  const email = document.getElementById('f-email');
+  const phone = document.getElementById('f-phone');
   const rel = document.getElementById('f-relationship');
   const occ = document.getElementById('f-occupation');
+  const parent = document.getElementById('f-parent');
   let ok = true;
-  [name, age, rel, occ].forEach(el => { if (!el.value.trim()) { shake(el); ok = false; } });
+  [name, age, email, phone, rel, occ, parent].forEach(el => { if (!el.value.trim()) { shake(el); ok = false; } });
   if (!ok) return;
   userData.name = name.value.trim();
   userData.age = age.value.trim();
+  userData.email = email.value.trim();
+  userData.phone = phone.value.trim();
   userData.relationship = rel.value;
   userData.occupation = occ.value.trim();
+  userData.parent = parent.value;
+  userData.date = document.getElementById('f-date').value;
   goToStep(2);
 }
 
@@ -1941,7 +1964,7 @@ function buildStrengthBar(label, cls, score) {
 /* ═══════════════════════════════════════════════════════════════════════ */
 
 function resetForm() {
-  userData.name = ''; userData.age = ''; userData.relationship = ''; userData.occupation = '';
+  userData.name = ''; userData.age = ''; userData.email = ''; userData.phone = ''; userData.relationship = ''; userData.occupation = ''; userData.parent = ''; userData.date = '';
   userData.love = []; userData.goodAt = []; userData.worldNeeds = []; userData.paidFor = [];
   userData.pillars = {
     mindset:    { blocker: '', impact: '', successLook: '' },
@@ -1951,7 +1974,7 @@ function resetForm() {
   };
 
   // Clear form fields
-  ['f-name','f-age','f-occupation'].forEach(id => document.getElementById(id).value = '');
+  ['f-name','f-age','f-email','f-phone','f-occupation'].forEach(id => document.getElementById(id).value = '');
   document.getElementById('f-relationship').selectedIndex = 0;
   Object.values(pillarFieldMap).forEach(fields => {
     Object.values(fields).forEach(id => document.getElementById(id).value = '');
@@ -1985,6 +2008,15 @@ function buildStepDots() {
 buildStepDots();
 initTags();
 
+/* ── Auto-fill today's date ── */
+(function setTodayDate() {
+  const now = new Date();
+  const dd = String(now.getDate()).padStart(2, '0');
+  const mm = String(now.getMonth() + 1).padStart(2, '0');
+  const yyyy = now.getFullYear();
+  document.getElementById('f-date').value = dd + '/' + mm + '/' + yyyy;
+})();
+
 /* ── Dynamic finance question label ── */
 document.getElementById('g-fin-target').addEventListener('input', function() {
   const val = this.value;
@@ -2003,8 +2035,11 @@ function loadDevData() {
   // Step 1 — Personal Info
   document.getElementById('f-name').value = 'Ross Penman';
   document.getElementById('f-age').value = '33';
+  document.getElementById('f-email').value = 'ross@rjpenman.com';
+  document.getElementById('f-phone').value = '07700 900123';
   document.getElementById('f-relationship').value = 'Married';
   document.getElementById('f-occupation').value = 'Sales Director';
+  document.getElementById('f-parent').value = 'No';
 
   // Step 2 — What You Love
   const loveTags = ['Teaching Others', 'Helping People', 'Public Speaking', 'Mentoring', 'Strategy & Planning', 'Sport & Fitness', 'Entrepreneurship'];
