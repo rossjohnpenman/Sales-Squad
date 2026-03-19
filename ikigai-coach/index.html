@@ -781,16 +781,16 @@
     </div>
 
     <div class="field-group">
-      <label for="g-mind-goal">What's the single biggest mindset shift that would transform your life?</label>
-      <textarea id="g-mind-goal" placeholder="e.g. I want to believe in myself enough to back myself fully and stop second-guessing every decision..."></textarea>
-    </div>
-    <div class="field-group">
-      <label for="g-mind-blocker">What's the biggest mental barrier or limiting belief holding you back right now?</label>
+      <label for="g-mind-blocker">What do you feel is the biggest mental barrier or belief holding you back right now?</label>
       <textarea id="g-mind-blocker" placeholder="e.g. I keep telling myself I'm not experienced enough to go out on my own, that I'll fail..."></textarea>
     </div>
     <div class="field-group">
-      <label for="g-mind-success">In 12 months, what does success look like for your mindset?</label>
-      <textarea id="g-mind-success" placeholder="e.g. I handle rejection and setbacks with ease, I lead with calm confidence, people come to me for guidance..."></textarea>
+      <label for="g-mind-impact">If that was to change, what would it do for you?</label>
+      <textarea id="g-mind-impact" placeholder="e.g. I'd back myself fully, take bold action, and stop waiting for permission to go after what I really want..."></textarea>
+    </div>
+    <div class="field-group">
+      <label for="g-mind-success">List 5 words that you feel would reflect the frame of mind you strive to possess?</label>
+      <textarea id="g-mind-success" placeholder="e.g. Confident, Resilient, Decisive, Focused, Fearless"></textarea>
     </div>
 
     <div class="actions">
@@ -969,7 +969,7 @@ const userData = {
   name: '', age: '', relationship: '', occupation: '',
   love: [], goodAt: [], worldNeeds: [], paidFor: [],
   pillars: {
-    mindset:    { goal: '', blocker: '', successLook: '' },
+    mindset:    { blocker: '', impact: '', successLook: '' },
     finances:   { goal: '', currentEarnings: '', targetEarnings: '' },
     fitness:    { goal: '', obstacle: '', milestone: '' },
     family:     { goal: '', biggestChange: '', strengthen: '' }
@@ -1203,7 +1203,7 @@ function validateTagStep(key, nextStep) {
 }
 
 const pillarFieldMap = {
-  mindset:    { goal: 'g-mind-goal', blocker: 'g-mind-blocker', successLook: 'g-mind-success' },
+  mindset:    { blocker: 'g-mind-blocker', impact: 'g-mind-impact', successLook: 'g-mind-success' },
   finances:   { goal: 'g-fin-goal',  currentEarnings: 'g-fin-current', targetEarnings: 'g-fin-target' },
   fitness:    { goal: 'g-fit-goal',  obstacle: 'g-fit-obstacle', milestone: 'g-fit-milestone' },
   family:     { goal: 'g-fam-goal',  biggestChange: 'g-fam-change', strengthen: 'g-fam-strengthen' }
@@ -1259,7 +1259,7 @@ function generateStagedActions() {
   return {
     mindset: {
       m3: `Start a daily mindset practice to address: "${p.mindset.blocker}". Read 2 personal development books, journal daily for 10 minutes, and build self-awareness around your limiting beliefs.`,
-      m6: `Break through your core limiting belief ("${p.mindset.blocker.substring(0, 80)}"). Invest in a course, coach, or mastermind to accelerate your growth. Build unshakeable self-belief in your ability to ${p.mindset.goal.toLowerCase().replace(/^i want to\s*/i, '').replace(/\.*$/, '')}.`,
+      m6: `Break through your core limiting belief ("${p.mindset.blocker.substring(0, 80)}"). Invest in a course, coach, or mastermind to accelerate your growth. The impact: ${p.mindset.impact.toLowerCase().replace(/^i'?d?\s*/i, '').replace(/\.*$/, '')}.`,
       m12: `${p.mindset.successLook}. Your mindset is now your greatest asset — you handle setbacks with calm confidence and lead with clarity.`
     },
     finances: {
@@ -1445,7 +1445,7 @@ function generateRoadmapActions(analysis) {
       },
       {
         title: '90-Day Pillar Review',
-        desc: `Score each pillar 1–10: Frame of Mind (goal: "${p.mindset.goal.substring(0, 40)}..."), Finances, Fitness, Family. Celebrate wins, identify which pillar needs the most attention in the next phase, and recalibrate.`,
+        desc: `Score each pillar 1–10: Frame of Mind (barrier: "${p.mindset.blocker.substring(0, 40)}..."), Finances, Fitness, Family. Celebrate wins, identify which pillar needs the most attention in the next phase, and recalibrate.`,
         tag: 'review', pillar: null
       }
     ]
@@ -1715,23 +1715,23 @@ function generateResults() {
   const pil = userData.pillars;
   const staged = generateStagedActions();
   const pillarData = [
-    { key: 'mindset',    icon: '&#129504;', label: 'Frame of Mind',        zone: 'Passion & Vocation — What You\'re Good At',        cls: 'pr-fortitude',  raw: pil.mindset,  staged: staged.mindset },
-    { key: 'finances',   icon: '&#128176;', label: 'Finances',            zone: 'Vocation & Profession — What You Can Be Paid For', cls: 'pr-finances',   raw: pil.finances, staged: staged.finances },
-    { key: 'fitness',    icon: '&#128170;', label: 'Fitness',             zone: 'Foundation — Supports All 4 Ikigai Zones',         cls: 'pr-fitness',    raw: pil.fitness,  staged: staged.fitness },
-    { key: 'family',     icon: '&#128106;', label: 'Family',              zone: 'Passion & Mission — What You Love',                cls: 'pr-family',     raw: pil.family,   staged: staged.family }
+    { key: 'mindset',    icon: '&#129504;', label: 'Frame of Mind',        zone: 'Passion & Vocation — What You\'re Good At',        cls: 'pr-fortitude',  summaryLabel: 'Barrier to Overcome', summary: pil.mindset.blocker,  staged: staged.mindset },
+    { key: 'finances',   icon: '&#128176;', label: 'Finances',            zone: 'Vocation & Profession — What You Can Be Paid For', cls: 'pr-finances',   summaryLabel: 'Your Goal', summary: pil.finances.goal,  staged: staged.finances },
+    { key: 'fitness',    icon: '&#128170;', label: 'Fitness',             zone: 'Foundation — Supports All 4 Ikigai Zones',         cls: 'pr-fitness',    summaryLabel: 'Your Goal', summary: pil.fitness.goal,   staged: staged.fitness },
+    { key: 'family',     icon: '&#128106;', label: 'Family',              zone: 'Passion & Mission — What You Love',                cls: 'pr-family',     summaryLabel: 'Your Goal', summary: pil.family.goal,    staged: staged.family }
   ];
 
   html += `
     <div class="result-section">
       <h2>Your 4 Pillars &amp; Ikigai Alignment</h2>
-      <p style="color:var(--text-muted); font-size:.88rem; margin-bottom:20px; line-height:1.6;">Your overarching goal for each pillar, with staged actions auto-generated from your drill-down answers.</p>
+      <p style="color:var(--text-muted); font-size:.88rem; margin-bottom:20px; line-height:1.6;">Your focus for each pillar, with staged actions auto-generated from your answers.</p>
       <div class="pillar-results-grid">
         ${pillarData.map(pd => `
           <div class="pillar-result-card ${pd.cls}">
             <h4>${pd.icon} ${pd.label}</h4>
             <div class="pillar-zone">${pd.zone}</div>
             <div class="pillar-goals">
-              <strong style="font-size:.9rem;">Your Goal:</strong> <span class="goal-text">${pd.raw.goal}</span>
+              <strong style="font-size:.9rem;">${pd.summaryLabel}:</strong> <span class="goal-text">${pd.summary}</span>
               <div style="margin-top:12px; padding-top:10px; border-top:1px solid var(--border);">
                 <strong>90 Days:</strong> <span class="goal-text">${pd.staged.m3}</span><br>
                 <strong>6 Months:</strong> <span class="goal-text">${pd.staged.m6}</span><br>
@@ -1855,7 +1855,7 @@ function resetForm() {
   userData.name = ''; userData.age = ''; userData.relationship = ''; userData.occupation = '';
   userData.love = []; userData.goodAt = []; userData.worldNeeds = []; userData.paidFor = [];
   userData.pillars = {
-    mindset:    { goal: '', blocker: '', successLook: '' },
+    mindset:    { blocker: '', impact: '', successLook: '' },
     finances:   { goal: '', currentEarnings: '', targetEarnings: '' },
     fitness:    { goal: '', obstacle: '', milestone: '' },
     family:     { goal: '', biggestChange: '', strengthen: '' }
@@ -1939,8 +1939,8 @@ function loadDevData() {
   renderSelectedTags('paid');
 
   // Step 6 — Frame of Mind
-  document.getElementById('g-mind-goal').value = 'I want to believe in myself enough to back myself fully and stop second-guessing every decision. I want to have the confidence to go out on my own as a consultant and trainer.';
   document.getElementById('g-mind-blocker').value = 'I keep telling myself I\'m not experienced enough to go out on my own, that I\'ll fail and end up worse off than I am now. Imposter syndrome holds me back from taking the leap.';
+  document.getElementById('g-mind-impact').value = 'I\'d back myself fully, take bold action without second-guessing, and finally make the move into consulting and training on my own terms. I\'d stop waiting for permission and just go for it.';
   document.getElementById('g-mind-success').value = 'I handle rejection and setbacks with ease, I lead with calm confidence, people come to me for guidance. I\'ve built a bulletproof mindset that fuels everything else.';
 
   // Step 7 — Finances
