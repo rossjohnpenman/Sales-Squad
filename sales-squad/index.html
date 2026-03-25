@@ -253,6 +253,45 @@
       white-space: nowrap;
     }
 
+    /* Filter bar */
+    .filter-bar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 16px;
+      background: var(--surface);
+      padding: 10px 16px;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-sm);
+    }
+    .filter-bar label {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      white-space: nowrap;
+    }
+    .filter-bar select {
+      padding: 7px 12px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-size: 13px;
+      font-family: var(--font);
+      color: var(--text);
+      background: var(--surface);
+      outline: none;
+      cursor: pointer;
+      flex: 1;
+      max-width: 300px;
+      transition: border-color var(--duration), box-shadow var(--duration);
+    }
+    .filter-bar select:focus {
+      border-color: var(--navy);
+      box-shadow: 0 0 0 3px rgba(29,29,46,.10);
+    }
+
     /* Funnel */
     .funnel-card {
       background: var(--surface);
@@ -555,6 +594,7 @@
         min-height: 44px;
       }
       .calculate-bar { flex-direction: column; align-items: stretch; }
+      .filter-bar select { max-width: none; font-size: 16px; min-height: 44px; }
       .period-selectors { flex-direction: column; }
       .period-select-group select { font-size: 16px; min-height: 44px; }
       .product-row {
@@ -692,6 +732,14 @@
     <!-- RESULTS -->
     <div class="section-label">Results</div>
 
+    <!-- Product filter -->
+    <div class="filter-bar">
+      <label for="product-filter">Filter by</label>
+      <select id="product-filter" onchange="autoCalculate()">
+        <option value="all">All Products / Services</option>
+      </select>
+    </div>
+
     <!-- KPI cards -->
     <div class="results-grid" id="kpi-grid"></div>
 
@@ -731,59 +779,94 @@
       hasCalculated = true;
       const viewLabel = periodLabels[$('period-input').value];
 
-      // Aggregate from product rows (raw input values)
-      let rawLeads = 0, rawMtgsSched = 0, rawMtgsAtt = 0, rawUnits = 0, rawRevenue = 0;
-      document.querySelectorAll('#product-list .product-row').forEach(row => {
-        const l = Number(row.querySelector('.product-leads').value) || 0;
-        const ms = Number(row.querySelector('.product-mtgs-sched').value) || 0;
-        const ma = Number(row.querySelector('.product-mtgs-att').value) || 0;
+      // Build product filter dropdown
+      const filterEl = $('product-filter');
+      const currentFilter = filterEl.value;
+      const productRows = Array.from(document.querySelectorAll('#product-list .product-row'));
+      const productNames = productRows.map(row => {
+        const name = row.querySelector('.product-name').value.trim();
+        return name || null;
+      });
+
+      // Rebuild options preserving selection
+      let opts = '<option value="all">All Products / Services</option>';
+      productNames.forEach((name, i) => {
+        if (name) {
+          const val = 'p-' + i;
+          opts += `<option value="${val}"${currentFilter === val ? ' selected' : ''}>${name}</option>`;
+        }
+      });
+      filterEl.innerHTML = opts;
+      // Restore selection if still valid
+      if (currentFilter !== 'all' && filterEl.querySelector(`option[value="${currentFilter}"]`)) {
+        filterEl.value = currentFilter;
+      }
+
+      // Aggregate all product rows (for totals display)
+      let allLeads = 0, allMtgsSched = 0, allMtgsAtt = 0, allUnits = 0, allRevenue = 0;
+      productRows.forEach(row => {
         const u = Number(row.querySelector('.product-units').value) || 0;
         const p = Number(row.querySelector('.product-price').value) || 0;
-        rawLeads += l;
-        rawMtgsSched += ms;
-        rawMtgsAtt += ma;
-        rawUnits += u;
-        rawRevenue += u * p;
+        allLeads += Number(row.querySelector('.product-leads').value) || 0;
+        allMtgsSched += Number(row.querySelector('.product-mtgs-sched').value) || 0;
+        allMtgsAtt += Number(row.querySelector('.product-mtgs-att').value) || 0;
+        allUnits += u;
+        allRevenue += u * p;
         row.querySelector('.product-total').textContent = fmt.currency(u * p);
       });
-      $('products-total-leads').textContent = rawLeads;
-      $('products-total-mtgs-sched').textContent = rawMtgsSched;
-      $('products-total-mtgs-att').textContent = rawMtgsAtt;
-      $('products-total-units').textContent = rawUnits;
-      $('products-total-revenue').textContent = fmt.currency(rawRevenue);
+      $('products-total-leads').textContent = allLeads;
+      $('products-total-mtgs-sched').textContent = allMtgsSched;
+      $('products-total-mtgs-att').textContent = allMtgsAtt;
+      $('products-total-units').textContent = allUnits;
+      $('products-total-revenue').textContent = fmt.currency(allRevenue);
 
-      const leads = rawLeads;
-      const meetingsSched = rawMtgsSched;
-      const meetingsAtt = rawMtgsAtt;
-      const units = rawUnits;
-      const revenue = rawRevenue;
+      // Filtered values for results
+      const filterIdx = filterEl.value.startsWith('p-') ? Number(filterEl.value.split('-')[1]) : null;
+      let leads = 0, meetingsSched = 0, meetingsAtt = 0, units = 0, revenue = 0;
+      productRows.forEach((row, i) => {
+        if (filterIdx !== null && i !== filterIdx) return;
+        const u = Number(row.querySelector('.product-units').value) || 0;
+        const p = Number(row.querySelector('.product-price').value) || 0;
+        leads += Number(row.querySelector('.product-leads').value) || 0;
+        meetingsSched += Number(row.querySelector('.product-mtgs-sched').value) || 0;
+        meetingsAtt += Number(row.querySelector('.product-mtgs-att').value) || 0;
+        units += u;
+        revenue += u * p;
+      });
 
-      // Aggregate targets (raw)
-      let rawTLeads = 0, rawTMtgsSched = 0, rawTMtgsAtt = 0, rawTUnits = 0, rawTRevenue = 0;
-      document.querySelectorAll('#target-list .product-row').forEach(row => {
-        const l = Number(row.querySelector('.target-leads').value) || 0;
-        const ms = Number(row.querySelector('.target-mtgs-sched').value) || 0;
-        const ma = Number(row.querySelector('.target-mtgs-att').value) || 0;
+      // Aggregate all target rows (for totals display)
+      const targetRows = Array.from(document.querySelectorAll('#target-list .product-row'));
+      let allTLeads = 0, allTMtgsSched = 0, allTMtgsAtt = 0, allTUnits = 0, allTRevenue = 0;
+      targetRows.forEach(row => {
         const u = Number(row.querySelector('.target-units').value) || 0;
         const p = Number(row.querySelector('.target-price').value) || 0;
-        rawTLeads += l;
-        rawTMtgsSched += ms;
-        rawTMtgsAtt += ma;
-        rawTUnits += u;
-        rawTRevenue += u * p;
+        allTLeads += Number(row.querySelector('.target-leads').value) || 0;
+        allTMtgsSched += Number(row.querySelector('.target-mtgs-sched').value) || 0;
+        allTMtgsAtt += Number(row.querySelector('.target-mtgs-att').value) || 0;
+        allTUnits += u;
+        allTRevenue += u * p;
         row.querySelector('.product-total').textContent = fmt.currency(u * p);
       });
-      $('targets-total-leads').textContent = rawTLeads;
-      $('targets-total-mtgs-sched').textContent = rawTMtgsSched;
-      $('targets-total-mtgs-att').textContent = rawTMtgsAtt;
-      $('targets-total-units').textContent = rawTUnits;
-      $('targets-total-revenue').textContent = fmt.currency(rawTRevenue);
+      $('targets-total-leads').textContent = allTLeads;
+      $('targets-total-mtgs-sched').textContent = allTMtgsSched;
+      $('targets-total-mtgs-att').textContent = allTMtgsAtt;
+      $('targets-total-units').textContent = allTUnits;
+      $('targets-total-revenue').textContent = fmt.currency(allTRevenue);
 
-      const tLeads = rawTLeads;
-      const tMtgsSched = rawTMtgsSched;
-      const tMtgsAtt = rawTMtgsAtt;
-      const tUnits = rawTUnits;
-      const tRevenue = rawTRevenue;
+      // Filtered target values — match by product name
+      const filterName = filterIdx !== null ? (productNames[filterIdx] || '').toLowerCase() : null;
+      let tLeads = 0, tMtgsSched = 0, tMtgsAtt = 0, tUnits = 0, tRevenue = 0;
+      targetRows.forEach(row => {
+        const name = (row.querySelector('.product-name').value.trim()).toLowerCase();
+        if (filterName !== null && name !== filterName) return;
+        const u = Number(row.querySelector('.target-units').value) || 0;
+        const p = Number(row.querySelector('.target-price').value) || 0;
+        tLeads += Number(row.querySelector('.target-leads').value) || 0;
+        tMtgsSched += Number(row.querySelector('.target-mtgs-sched').value) || 0;
+        tMtgsAtt += Number(row.querySelector('.target-mtgs-att').value) || 0;
+        tUnits += u;
+        tRevenue += u * p;
+      });
 
       // Conversion rates
       const leadToSale = leads > 0 ? (units / leads * 100) : 0;
