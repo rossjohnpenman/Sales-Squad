@@ -287,14 +287,6 @@
       flex-shrink: 0;
     }
 
-    /* Two column layout */
-    .two-col {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 14px;
-      margin-bottom: 20px;
-    }
-
     /* Target progress */
     .target-row {
       display: flex;
@@ -335,25 +327,6 @@
       text-align: right;
     }
 
-    /* Summary items */
-    .summary-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-    }
-    .sum-item {
-      background: var(--bg);
-      border-radius: var(--radius-sm);
-      padding: 11px 14px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 12.5px;
-      border: 1px solid var(--border);
-    }
-    .sum-item span { color: var(--muted); font-weight: 500; }
-    .sum-item strong { color: var(--navy); font-size: 13px; font-weight: 700; }
-
     /* Card title */
     .card-title {
       font-size: 11px;
@@ -381,8 +354,6 @@
     @media (max-width: 900px) {
       .input-grid { grid-template-columns: repeat(2, 1fr); }
       .results-grid { grid-template-columns: repeat(2, 1fr); }
-      .two-col { grid-template-columns: 1fr; }
-      .summary-grid { grid-template-columns: 1fr; }
     }
     @media (max-width: 640px) {
       .app-header { height: auto; }
@@ -433,7 +404,7 @@
 
   <main class="app-main">
     <h1 class="page-title">Sales Pipeline Calculator</h1>
-    <p class="page-sub">Enter your numbers to calculate conversion rates, pipeline value and target progress.</p>
+    <p class="page-sub">Enter your numbers to calculate conversion rates and target progress.</p>
 
     <!-- ACTIVITY INPUTS -->
     <div class="section-label">Activity</div>
@@ -462,46 +433,6 @@
         <div class="input-group">
           <label for="in-revenue">Revenue (&pound;)</label>
           <input type="number" id="in-revenue" min="0" step="0.01" value="0" placeholder="0.00">
-        </div>
-      </div>
-    </div>
-
-    <!-- PIPELINE INPUTS -->
-    <div class="section-label">Pipeline</div>
-    <div class="input-card">
-      <div class="input-grid">
-        <div class="input-group">
-          <label for="in-open-deals">Open Deals</label>
-          <input type="number" id="in-open-deals" min="0" value="0" placeholder="0">
-        </div>
-        <div class="input-group">
-          <label for="in-pipeline-value">Pipeline Value (&pound;)</label>
-          <input type="number" id="in-pipeline-value" min="0" step="0.01" value="0" placeholder="0.00">
-        </div>
-        <div class="input-group">
-          <label for="in-avg-probability">Avg Probability (%)</label>
-          <input type="number" id="in-avg-probability" min="0" max="100" value="0" placeholder="0">
-          <span class="input-hint">Weighted close likelihood</span>
-        </div>
-        <div class="input-group">
-          <label for="in-won-deals">Won Deals</label>
-          <input type="number" id="in-won-deals" min="0" value="0" placeholder="0">
-        </div>
-        <div class="input-group">
-          <label for="in-won-value">Won Value (&pound;)</label>
-          <input type="number" id="in-won-value" min="0" step="0.01" value="0" placeholder="0.00">
-        </div>
-        <div class="input-group">
-          <label for="in-lost-deals">Lost Deals</label>
-          <input type="number" id="in-lost-deals" min="0" value="0" placeholder="0">
-        </div>
-        <div class="input-group">
-          <label for="in-avg-lead-days">Avg Lead &rarr; Prospect (days)</label>
-          <input type="number" id="in-avg-lead-days" min="0" value="0" placeholder="0">
-        </div>
-        <div class="input-group">
-          <label for="in-avg-prospect-days">Avg Prospect &rarr; Close (days)</label>
-          <input type="number" id="in-avg-prospect-days" min="0" value="0" placeholder="0">
         </div>
       </div>
     </div>
@@ -548,16 +479,10 @@
       <div id="funnel"></div>
     </div>
 
-    <!-- Pipeline + Target Progress -->
-    <div class="two-col">
-      <div class="input-card" style="margin-bottom:0;">
-        <div class="card-title">Pipeline Summary</div>
-        <div class="summary-grid" id="pipeline-summary"></div>
-      </div>
-      <div class="input-card" style="margin-bottom:0;">
-        <div class="card-title">Target Progress</div>
-        <div id="target-progress"></div>
-      </div>
+    <!-- Target Progress -->
+    <div class="input-card">
+      <div class="card-title">Target Progress</div>
+      <div id="target-progress"></div>
     </div>
   </main>
 
@@ -569,7 +494,6 @@
       currency(v) { return '\u00A3' + Number(v || 0).toLocaleString('en-GB', { minimumFractionDigits: 0, maximumFractionDigits: 0 }); },
       pct(v) { return isNaN(v) || v === null ? '\u2014' : Number(v).toFixed(1) + '%'; },
       num(v) { return Number(v || 0).toLocaleString('en-GB'); },
-      days(n) { return n === 0 ? '\u2014' : n + ' day' + (n !== 1 ? 's' : ''); }
     };
 
     // ─── CALCULATE ───────────────────────────────────────────────────────────
@@ -581,15 +505,6 @@
       const meetingsAtt = num('in-meetings-att');
       const units = num('in-units');
       const revenue = num('in-revenue');
-
-      const openDeals = num('in-open-deals');
-      const pipelineValue = num('in-pipeline-value');
-      const avgProb = num('in-avg-probability');
-      const wonDeals = num('in-won-deals');
-      const wonValue = num('in-won-value');
-      const lostDeals = num('in-lost-deals');
-      const avgLeadDays = num('in-avg-lead-days');
-      const avgProspectDays = num('in-avg-prospect-days');
 
       const tLeads = num('in-target-leads');
       const tConversations = num('in-target-conversations');
@@ -603,11 +518,6 @@
       const leadToClient = leads > 0 ? (units / leads * 100) : 0;
       const showRate = meetingsSched > 0 ? (meetingsAtt / meetingsSched * 100) : 0;
       const avgDealValue = units > 0 ? (revenue / units) : 0;
-
-      // Pipeline
-      const weightedForecast = pipelineValue * avgProb / 100;
-      const winRate = (wonDeals + lostDeals) > 0 ? (wonDeals / (wonDeals + lostDeals) * 100) : 0;
-      const totalAcqTime = avgLeadDays + avgProspectDays;
 
       // ─── KPI CARDS ─────────────────────────────────────────────────────────
       $('kpi-grid').innerHTML = [
@@ -641,18 +551,6 @@
           <div class="funnel-rate" style="${rateColor}">${f.rate !== null ? fmt.pct(f.rate) : ''}</div>
         </div>`;
       }).join('');
-
-      // ─── PIPELINE SUMMARY ─────────────────────────────────────────────────
-      $('pipeline-summary').innerHTML = [
-        sum('Open Deals', fmt.num(openDeals)),
-        sum('Pipeline Value', fmt.currency(pipelineValue)),
-        sum('Weighted Forecast', fmt.currency(weightedForecast)),
-        sum('Won Deals', fmt.num(wonDeals)),
-        sum('Won Value', fmt.currency(wonValue)),
-        sum('Win Rate', fmt.pct(winRate)),
-        sum('Avg Lead Time', fmt.days(avgLeadDays)),
-        sum('Total Acq. Time', fmt.days(totalAcqTime)),
-      ].join('');
 
       // ─── TARGET PROGRESS ──────────────────────────────────────────────────
       const targets = [
@@ -693,10 +591,6 @@
         <div class="result-value">${value}</div>
         <div class="result-sub">${sub}</div>
       </div>`;
-    }
-
-    function sum(label, value) {
-      return `<div class="sum-item"><span>${label}</span><strong>${value}</strong></div>`;
     }
 
     function resetAll() {
