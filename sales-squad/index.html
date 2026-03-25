@@ -381,6 +381,8 @@
       background: #dbeafe;
       border-color: var(--blue);
     }
+    .mobile-label { display: none; }
+    .mobile-field { display: contents; }
     .product-row {
       display: grid;
       grid-template-columns: 1.4fr 70px 70px 70px 60px 80px 80px 32px;
@@ -565,46 +567,73 @@
       .period-selectors { flex-direction: column; }
       .period-select-group select { font-size: 16px; min-height: 44px; }
 
-      /* Product rows become stacked cards on mobile */
+      /* Product rows become labelled stacked cards on mobile */
       .product-row-header { display: none; }
       .product-row {
-        display: flex;
-        flex-wrap: wrap;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
         gap: 8px;
-        padding: 12px;
-        margin-bottom: 10px;
+        padding: 14px;
+        margin-bottom: 12px;
         background: var(--bg);
-        border-radius: var(--radius-sm);
+        border-radius: var(--radius);
         position: relative;
       }
       .product-row .product-name {
-        flex: 1 1 100%;
+        grid-column: 1 / -1;
         font-size: 16px;
         min-height: 44px;
         font-weight: 600;
+        margin-bottom: 2px;
+        padding-right: 40px;
       }
-      .product-row input[type="number"] {
-        flex: 1 1 calc(33.33% - 6px);
+      .mobile-label {
+        display: block !important;
+        font-size: 10px;
+        font-weight: 700;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 4px;
+      }
+      .mobile-field {
+        display: flex;
+        flex-direction: column;
+      }
+      .mobile-field input[type="number"] {
+        width: 100%;
         min-width: 0;
         font-size: 16px;
         min-height: 44px;
-        text-align: center;
+        text-align: left;
+        padding: 8px 10px;
       }
       .product-row .product-total {
-        flex: 1 1 calc(33.33% - 6px);
+        grid-column: 1 / -1;
         display: flex;
         align-items: center;
-        justify-content: center;
-        font-size: 15px;
+        justify-content: space-between;
+        font-size: 16px;
+        font-weight: 800;
         min-height: 44px;
+        padding: 10px 12px;
         background: var(--surface);
         border-radius: var(--radius-sm);
         border: 1px solid var(--border);
+        margin-top: 4px;
+      }
+      .product-row .product-total::before {
+        content: 'Revenue';
+        font-size: 10px;
+        font-weight: 700;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
       }
       .product-row .product-remove {
         position: absolute;
-        top: 8px;
-        right: 8px;
+        top: 14px;
+        right: 14px;
         width: 32px;
         height: 32px;
         font-size: 18px;
@@ -612,18 +641,8 @@
         border-radius: var(--radius-sm);
         border: 1px solid var(--border);
       }
-      /* Mobile labels for product inputs */
-      .product-row input[type="number"]::placeholder { font-size: 11px; }
       .product-row-totals {
-        display: grid;
-        grid-template-columns: 1fr 1fr 1fr;
-        gap: 8px;
-        padding: 12px;
-      }
-      .product-row-totals span { font-size: 12px; text-align: center; }
-      .product-row-totals span:first-child {
-        grid-column: 1 / -1;
-        text-align: left;
+        display: none;
       }
 
       .products-header { flex-wrap: wrap; gap: 8px; }
@@ -635,11 +654,8 @@
       .input-grid { grid-template-columns: 1fr; }
       .results-grid { grid-template-columns: 1fr; }
       .logo-text { display: none; }
-      .product-row input[type="number"] {
-        flex: 1 1 calc(50% - 4px);
-      }
-      .product-row .product-total {
-        flex: 1 1 calc(50% - 4px);
+      .product-row {
+        grid-template-columns: 1fr;
       }
     }
   </style>
@@ -683,11 +699,11 @@
       <div id="product-list">
         <div class="product-row">
           <input type="text" class="product-name" placeholder="Product or service name" value="">
-          <input type="number" class="product-leads" min="0" value="0" placeholder="Leads">
-          <input type="number" class="product-mtgs-sched" min="0" value="0" placeholder="Appts Sched">
-          <input type="number" class="product-mtgs-att" min="0" value="0" placeholder="Appts Att">
-          <input type="number" class="product-units" min="0" value="0" placeholder="Units">
-          <input type="number" class="product-price" min="0" step="0.01" value="0" placeholder="Value (£)">
+          <div class="mobile-field"><span class="mobile-label">Leads</span><input type="number" class="product-leads" min="0" value="0" placeholder="Leads"></div>
+          <div class="mobile-field"><span class="mobile-label">Appts Sched</span><input type="number" class="product-mtgs-sched" min="0" value="0" placeholder="Appts Sched"></div>
+          <div class="mobile-field"><span class="mobile-label">Appts Att</span><input type="number" class="product-mtgs-att" min="0" value="0" placeholder="Appts Att"></div>
+          <div class="mobile-field"><span class="mobile-label">Units</span><input type="number" class="product-units" min="0" value="0" placeholder="Units"></div>
+          <div class="mobile-field"><span class="mobile-label">Value (&pound;)</span><input type="number" class="product-price" min="0" step="0.01" value="0" placeholder="Value (£)"></div>
           <span class="product-total">&pound;0</span>
           <button class="product-remove" onclick="removeProduct(this)" title="Remove">&times;</button>
         </div>
@@ -742,11 +758,11 @@
       <div id="target-list">
         <div class="product-row">
           <input type="text" class="product-name" placeholder="Product or service name" value="">
-          <input type="number" class="target-leads" min="0" value="0" placeholder="Leads">
-          <input type="number" class="target-mtgs-sched" min="0" value="0" placeholder="Appts Sched">
-          <input type="number" class="target-mtgs-att" min="0" value="0" placeholder="Appts Att">
-          <input type="number" class="target-units" min="0" value="0" placeholder="Units">
-          <input type="number" class="target-price" min="0" step="0.01" value="0" placeholder="Value (£)">
+          <div class="mobile-field"><span class="mobile-label">Leads</span><input type="number" class="target-leads" min="0" value="0" placeholder="Leads"></div>
+          <div class="mobile-field"><span class="mobile-label">Appts Sched</span><input type="number" class="target-mtgs-sched" min="0" value="0" placeholder="Appts Sched"></div>
+          <div class="mobile-field"><span class="mobile-label">Appts Att</span><input type="number" class="target-mtgs-att" min="0" value="0" placeholder="Appts Att"></div>
+          <div class="mobile-field"><span class="mobile-label">Units</span><input type="number" class="target-units" min="0" value="0" placeholder="Units"></div>
+          <div class="mobile-field"><span class="mobile-label">Value (&pound;)</span><input type="number" class="target-price" min="0" step="0.01" value="0" placeholder="Value (£)"></div>
           <span class="product-total">&pound;0</span>
           <button class="product-remove" onclick="removeTarget(this)" title="Remove">&times;</button>
         </div>
@@ -1119,11 +1135,11 @@
       row.className = 'product-row';
       row.innerHTML = `
         <input type="text" class="product-name" placeholder="Product or service name" value="">
-        <input type="number" class="product-leads" min="0" value="0" placeholder="Leads">
-        <input type="number" class="product-mtgs-sched" min="0" value="0" placeholder="Appts Sched">
-        <input type="number" class="product-mtgs-att" min="0" value="0" placeholder="Appts Att">
-        <input type="number" class="product-units" min="0" value="0" placeholder="Units">
-        <input type="number" class="product-price" min="0" step="0.01" value="0" placeholder="Value (£)">
+        <div class="mobile-field"><span class="mobile-label">Leads</span><input type="number" class="product-leads" min="0" value="0" placeholder="Leads"></div>
+        <div class="mobile-field"><span class="mobile-label">Appts Sched</span><input type="number" class="product-mtgs-sched" min="0" value="0" placeholder="Appts Sched"></div>
+        <div class="mobile-field"><span class="mobile-label">Appts Att</span><input type="number" class="product-mtgs-att" min="0" value="0" placeholder="Appts Att"></div>
+        <div class="mobile-field"><span class="mobile-label">Units</span><input type="number" class="product-units" min="0" value="0" placeholder="Units"></div>
+        <div class="mobile-field"><span class="mobile-label">Value (\u00A3)</span><input type="number" class="product-price" min="0" step="0.01" value="0" placeholder="Value (\u00A3)"></div>
         <span class="product-total">\u00A30</span>
         <button class="product-remove" onclick="removeProduct(this)" title="Remove">\u00D7</button>
       `;
@@ -1135,11 +1151,11 @@
       targetRow.className = 'product-row';
       targetRow.innerHTML = `
         <input type="text" class="product-name" placeholder="Product or service name" value="">
-        <input type="number" class="target-leads" min="0" value="0" placeholder="Leads">
-        <input type="number" class="target-mtgs-sched" min="0" value="0" placeholder="Appts Sched">
-        <input type="number" class="target-mtgs-att" min="0" value="0" placeholder="Appts Att">
-        <input type="number" class="target-units" min="0" value="0" placeholder="Units">
-        <input type="number" class="target-price" min="0" step="0.01" value="0" placeholder="Value (£)">
+        <div class="mobile-field"><span class="mobile-label">Leads</span><input type="number" class="target-leads" min="0" value="0" placeholder="Leads"></div>
+        <div class="mobile-field"><span class="mobile-label">Appts Sched</span><input type="number" class="target-mtgs-sched" min="0" value="0" placeholder="Appts Sched"></div>
+        <div class="mobile-field"><span class="mobile-label">Appts Att</span><input type="number" class="target-mtgs-att" min="0" value="0" placeholder="Appts Att"></div>
+        <div class="mobile-field"><span class="mobile-label">Units</span><input type="number" class="target-units" min="0" value="0" placeholder="Units"></div>
+        <div class="mobile-field"><span class="mobile-label">Value (\u00A3)</span><input type="number" class="target-price" min="0" step="0.01" value="0" placeholder="Value (\u00A3)"></div>
         <span class="product-total">\u00A30</span>
         <button class="product-remove" onclick="removeTarget(this)" title="Remove">\u00D7</button>
       `;
@@ -1158,11 +1174,11 @@
       row.className = 'product-row';
       row.innerHTML = `
         <input type="text" class="product-name" placeholder="Product or service name" value="">
-        <input type="number" class="target-leads" min="0" value="0" placeholder="Leads">
-        <input type="number" class="target-mtgs-sched" min="0" value="0" placeholder="Appts Sched">
-        <input type="number" class="target-mtgs-att" min="0" value="0" placeholder="Appts Att">
-        <input type="number" class="target-units" min="0" value="0" placeholder="Units">
-        <input type="number" class="target-price" min="0" step="0.01" value="0" placeholder="Value (£)">
+        <div class="mobile-field"><span class="mobile-label">Leads</span><input type="number" class="target-leads" min="0" value="0" placeholder="Leads"></div>
+        <div class="mobile-field"><span class="mobile-label">Appts Sched</span><input type="number" class="target-mtgs-sched" min="0" value="0" placeholder="Appts Sched"></div>
+        <div class="mobile-field"><span class="mobile-label">Appts Att</span><input type="number" class="target-mtgs-att" min="0" value="0" placeholder="Appts Att"></div>
+        <div class="mobile-field"><span class="mobile-label">Units</span><input type="number" class="target-units" min="0" value="0" placeholder="Units"></div>
+        <div class="mobile-field"><span class="mobile-label">Value (\u00A3)</span><input type="number" class="target-price" min="0" step="0.01" value="0" placeholder="Value (\u00A3)"></div>
         <span class="product-total">\u00A30</span>
         <button class="product-remove" onclick="removeTarget(this)" title="Remove">\u00D7</button>
       `;
