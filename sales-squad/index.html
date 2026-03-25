@@ -741,6 +741,21 @@
     <div class="input-card">
       <div class="card-title">Targets vs Actual</div>
       <div id="target-progress"></div>
+      <div class="filter-bar" style="margin-top:12px;">
+        <label for="tva-metric">Value</label>
+        <select id="tva-metric" onchange="autoCalculate()">
+          <option value="revenue" selected>Revenue</option>
+          <option value="units">Units</option>
+        </select>
+        <label for="tva-timeframe" style="margin-left:16px;">Time Frame</label>
+        <select id="tva-timeframe" onchange="autoCalculate()">
+          <option value="daily">Daily</option>
+          <option value="weekly">Weekly</option>
+          <option value="monthly" selected>Monthly</option>
+          <option value="quarterly">Quarterly</option>
+          <option value="annually">Annually</option>
+        </select>
+      </div>
       <div style="position:relative;height:300px;margin-top:16px;">
         <canvas id="tva-chart"></canvas>
       </div>
@@ -902,9 +917,43 @@
       ].join('');
 
       // ─── TARGETS VS ACTUAL CHART ─────────────────────────────────────────
-      const tvaLabels = ['Leads', 'Appts Sched', 'Appts Att', 'Units Sold', 'Revenue'];
-      const tvaActual = [leads, meetingsSched, meetingsAtt, units, revenue];
-      const tvaTarget = [tLeads, tMtgsSched, tMtgsAtt, tUnits, tRevenue];
+      const tvaMetric = $('tva-metric').value;
+      const tvaTF = $('tva-timeframe').value;
+      const tvaDays = periodDays[tvaTF];
+      const inputDays = periodDays[inputPeriod];
+
+      // Per-period values scaled to the chart's chosen time frame
+      const perPeriodScale = tvaDays / inputDays;
+      const actualPerPeriod = tvaMetric === 'revenue' ? revenue / scale * perPeriodScale : units / scale * perPeriodScale;
+      const targetPerPeriod = tvaMetric === 'revenue' ? tRevenue / scale * perPeriodScale : tUnits / scale * perPeriodScale;
+
+      // Build cumulative time-series labels and data
+      const periodCounts = { daily: 30, weekly: 12, monthly: 12, quarterly: 8, annually: 5 };
+      const numPeriods = periodCounts[tvaTF];
+      const tvaTimeLabels = [];
+      const tvaActualData = [];
+      const tvaTargetData = [];
+      const now = new Date();
+
+      for (let i = 0; i < numPeriods; i++) {
+        if (tvaTF === 'daily') {
+          const d = new Date(now); d.setDate(now.getDate() - (numPeriods - 1 - i));
+          tvaTimeLabels.push(d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }));
+        } else if (tvaTF === 'weekly') {
+          tvaTimeLabels.push('Wk ' + (i + 1));
+        } else if (tvaTF === 'monthly') {
+          const d = new Date(now.getFullYear(), now.getMonth() - (numPeriods - 1 - i), 1);
+          tvaTimeLabels.push(d.toLocaleDateString('en-GB', { month: 'short', year: '2-digit' }));
+        } else if (tvaTF === 'quarterly') {
+          tvaTimeLabels.push('Q' + (i + 1));
+        } else {
+          tvaTimeLabels.push('Yr ' + (i + 1));
+        }
+        tvaActualData.push(Math.round(actualPerPeriod * (i + 1)));
+        tvaTargetData.push(Math.round(targetPerPeriod * (i + 1)));
+      }
+
+      const isCurrencyChart = tvaMetric === 'revenue';
 
       if (!hasTargets) {
         $('target-progress').innerHTML = '<p style="font-size:13px;color:var(--muted);text-align:center;padding:20px 0;">Enter targets above to see comparison.</p>';
@@ -918,27 +967,27 @@
         window._tvaChart = new Chart(canvas, {
           type: 'line',
           data: {
-            labels: tvaLabels,
+            labels: tvaTimeLabels,
             datasets: [
               {
                 label: 'Actual',
-                data: tvaActual,
+                data: tvaActualData,
                 borderColor: '#10b981',
                 backgroundColor: '#10b98118',
                 fill: true,
                 tension: 0.35,
-                pointRadius: 5,
+                pointRadius: 4,
                 pointBackgroundColor: '#10b981',
                 borderWidth: 2.5
               },
               {
                 label: 'Target',
-                data: tvaTarget,
+                data: tvaTargetData,
                 borderColor: '#e63946',
                 backgroundColor: '#e6394618',
                 fill: true,
                 tension: 0.35,
-                pointRadius: 5,
+                pointRadius: 4,
                 pointBackgroundColor: '#e63946',
                 borderWidth: 2.5,
                 borderDash: [6, 3]
@@ -949,11 +998,19 @@
             responsive: true,
             maintainAspectRatio: false,
             plugins: {
-              legend: { display: true, position: 'top', labels: { boxWidth: 12, font: { size: 12 } } }
+              legend: { display: true, position: 'top', labels: { boxWidth: 12, font: { size: 12 } } },
+              tooltip: { callbacks: { label: ctx => (isCurrencyChart ? '£' : '') + ctx.parsed.y.toLocaleString('en-GB') } }
             },
             scales: {
               x: { grid: { display: false }, ticks: { color: '#6b7280', font: { size: 11 } } },
-              y: { grid: { color: '#f3f4f6' }, ticks: { color: '#6b7280', font: { size: 11 } }, beginAtZero: true }
+              y: {
+                grid: { color: '#f3f4f6' },
+                ticks: {
+                  color: '#6b7280', font: { size: 11 },
+                  callback: v => isCurrencyChart ? '£' + (v >= 1000 ? (v / 1000).toFixed(0) + 'k' : v) : v
+                },
+                beginAtZero: true
+              }
             }
           }
         });
