@@ -1146,6 +1146,19 @@
       `;
     }
 
+    function clearActivity() {
+      document.querySelectorAll('#product-list .product-row').forEach(row => {
+        row.querySelectorAll('input[type="number"]').forEach(input => { input.value = 0; });
+        row.querySelector('.product-total').textContent = '\u00A30';
+      });
+      $('products-total-leads').textContent = '0';
+      $('products-total-mtgs-sched').textContent = '0';
+      $('products-total-mtgs-att').textContent = '0';
+      $('products-total-units').textContent = '0';
+      $('products-total-revenue').textContent = '\u00A30';
+      autoCalculate();
+    }
+
     function clearTargets() {
       document.querySelectorAll('#target-list .product-row').forEach(row => {
         row.querySelectorAll('input[type="number"]').forEach(input => { input.value = 0; });
