@@ -612,21 +612,11 @@
       <div class="calculate-bar">
         <div class="period-selectors">
           <div class="period-select-group">
-            <label for="period-input">Numbers entered for</label>
+            <label for="period-input">Time Frame</label>
             <select id="period-input" onchange="autoCalculate()">
               <option value="daily">Daily</option>
               <option value="weekly" selected>Weekly</option>
               <option value="monthly">Monthly</option>
-              <option value="quarterly">Quarterly</option>
-              <option value="annually">Annually</option>
-            </select>
-          </div>
-          <div class="period-select-group">
-            <label for="period-view">View results as</label>
-            <select id="period-view" onchange="autoCalculate()">
-              <option value="daily">Daily</option>
-              <option value="weekly">Weekly</option>
-              <option value="monthly" selected>Monthly</option>
               <option value="quarterly">Quarterly</option>
               <option value="annually">Annually</option>
             </select>
@@ -710,15 +700,8 @@
     };
 
     // ─── PERIOD SCALING ────────────────────────────────────────────────────
-    const periodDays = { daily: 1, weekly: 5, monthly: 22, quarterly: 66, annually: 260 };
     const periodLabels = { daily: 'Daily', weekly: 'Weekly', monthly: 'Monthly', quarterly: 'Quarterly', annually: 'Annual' };
     let hasCalculated = false;
-
-    function getScale() {
-      const input = $('period-input').value;
-      const view = $('period-view').value;
-      return periodDays[view] / periodDays[input];
-    }
 
     function autoCalculate() {
       if (hasCalculated) calculate();
@@ -727,8 +710,7 @@
     // ─── CALCULATE ───────────────────────────────────────────────────────────
     function calculate() {
       hasCalculated = true;
-      const scale = getScale();
-      const viewLabel = periodLabels[$('period-view').value];
+      const viewLabel = periodLabels[$('period-input').value];
 
       // Aggregate from product rows (raw input values)
       let rawLeads = 0, rawMtgsSched = 0, rawMtgsAtt = 0, rawUnits = 0, rawRevenue = 0;
@@ -751,12 +733,11 @@
       $('products-total-units').textContent = rawUnits;
       $('products-total-revenue').textContent = fmt.currency(rawRevenue);
 
-      // Apply period scaling
-      const leads = Math.round(rawLeads * scale);
-      const meetingsSched = Math.round(rawMtgsSched * scale);
-      const meetingsAtt = Math.round(rawMtgsAtt * scale);
-      const units = Math.round(rawUnits * scale);
-      const revenue = rawRevenue * scale;
+      const leads = rawLeads;
+      const meetingsSched = rawMtgsSched;
+      const meetingsAtt = rawMtgsAtt;
+      const units = rawUnits;
+      const revenue = rawRevenue;
 
       // Aggregate targets (raw)
       let rawTLeads = 0, rawTMtgsSched = 0, rawTMtgsAtt = 0, rawTUnits = 0, rawTRevenue = 0;
@@ -779,12 +760,11 @@
       $('targets-total-units').textContent = rawTUnits;
       $('targets-total-revenue').textContent = fmt.currency(rawTRevenue);
 
-      // Apply period scaling to targets
-      const tLeads = Math.round(rawTLeads * scale);
-      const tMtgsSched = Math.round(rawTMtgsSched * scale);
-      const tMtgsAtt = Math.round(rawTMtgsAtt * scale);
-      const tUnits = Math.round(rawTUnits * scale);
-      const tRevenue = rawTRevenue * scale;
+      const tLeads = rawTLeads;
+      const tMtgsSched = rawTMtgsSched;
+      const tMtgsAtt = rawTMtgsAtt;
+      const tUnits = rawTUnits;
+      const tRevenue = rawTRevenue;
 
       // Conversion rates
       const leadToSale = leads > 0 ? (units / leads * 100) : 0;
