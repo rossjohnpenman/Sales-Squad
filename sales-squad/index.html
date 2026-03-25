@@ -909,12 +909,14 @@
       });
 
       // Conversion rates
-      const leadToSale = leads > 0 ? (units / leads * 100) : 0;
       const showRate = meetingsSched > 0 ? (meetingsAtt / meetingsSched * 100) : 0;
+      const leadToAppt = leads > 0 ? (meetingsAtt / leads * 100) : 0;
+      const apptToSale = meetingsAtt > 0 ? (units / meetingsAtt * 100) : 0;
 
       // Target conversion rates
-      const tLeadToSale = tLeads > 0 ? (tUnits / tLeads * 100) : 0;
       const tShowRate = tMtgsSched > 0 ? (tMtgsAtt / tMtgsSched * 100) : 0;
+      const tLeadToAppt = tLeads > 0 ? (tMtgsAtt / tLeads * 100) : 0;
+      const tApptToSale = tMtgsAtt > 0 ? (tUnits / tMtgsAtt * 100) : 0;
       const hasTargets = (tLeads + tMtgsSched + tMtgsAtt + tUnits + tRevenue) > 0;
 
       // ─── KPI CARDS ─────────────────────────────────────────────────────────
