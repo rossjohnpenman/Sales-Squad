@@ -791,12 +791,6 @@
     <!-- KPI cards -->
     <div class="results-grid" id="kpi-grid"></div>
 
-    <!-- Conversion Funnel -->
-    <div class="funnel-card">
-      <div class="card-title">Conversion Funnel</div>
-      <div id="funnel"></div>
-    </div>
-
     <!-- Target Progress -->
     <div class="input-card">
       <div class="card-title">Target Progress</div>
@@ -957,26 +951,6 @@
         kpi('Leads \u2192 Appts', fmt.pct(leadToAppt), 'Conversion rate', 'green', hasTargets && tLeads > 0 ? tLeadToAppt : null, true),
         kpi('Appts \u2192 Sales', fmt.pct(apptToSale), 'Conversion rate', 'green', hasTargets && tMtgsAtt > 0 ? tApptToSale : null, true),
       ].join('');
-
-      // ─── FUNNEL ────────────────────────────────────────────────────────────
-      const maxFunnel = Math.max(leads, meetingsAtt, units, 1);
-      const funnelData = [
-        { label: 'Leads Generated', value: leads, color: '#3b82f6', rate: null },
-        { label: 'Attended', value: meetingsAtt, color: '#8b5cf6', rate: showRate },
-        { label: 'Sales', value: units, color: '#10b981', rate: leadToSale },
-      ];
-      $('funnel').innerHTML = funnelData.map(f => {
-        const pct = maxFunnel > 0 ? (f.value / maxFunnel * 100) : 0;
-        const rateColor = f.rate === null ? '' : f.rate >= 50 ? 'color:#10b981' : f.rate >= 25 ? 'color:#f59e0b' : 'color:#e63946';
-        return `<div class="funnel-row">
-          <div class="funnel-label">${f.label}</div>
-          <div class="funnel-bar-bg">
-            <div class="funnel-bar-fill" style="width:${pct}%;background:${f.color}"></div>
-          </div>
-          <div class="funnel-num">${fmt.num(f.value)}</div>
-          <div class="funnel-rate" style="${rateColor}">${f.rate !== null ? fmt.pct(f.rate) : ''}</div>
-        </div>`;
-      }).join('');
 
       // ─── TARGET PROGRESS ──────────────────────────────────────────────────
       const targetItems = [
