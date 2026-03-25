@@ -1027,6 +1027,28 @@
         <button class="product-remove" onclick="removeProduct(this)" title="Remove">\u00D7</button>
       `;
       list.appendChild(row);
+
+      // Auto-add a matching row in targets
+      const nameInput = row.querySelector('.product-name');
+      const targetRow = document.createElement('div');
+      targetRow.className = 'product-row';
+      targetRow.innerHTML = `
+        <input type="text" class="product-name" placeholder="Product or service name" value="">
+        <input type="number" class="target-leads" min="0" value="0" placeholder="0">
+        <input type="number" class="target-mtgs-sched" min="0" value="0" placeholder="0">
+        <input type="number" class="target-mtgs-att" min="0" value="0" placeholder="0">
+        <input type="number" class="target-units" min="0" value="0" placeholder="0">
+        <input type="number" class="target-price" min="0" step="0.01" value="0" placeholder="0.00">
+        <span class="product-total">\u00A30</span>
+        <button class="product-remove" onclick="removeTarget(this)" title="Remove">\u00D7</button>
+      `;
+      $('target-list').appendChild(targetRow);
+
+      // Sync the product name from activity to target as user types
+      const targetNameInput = targetRow.querySelector('.product-name');
+      nameInput.addEventListener('input', function() {
+        targetNameInput.value = this.value;
+      });
     }
 
     function addTarget() {
