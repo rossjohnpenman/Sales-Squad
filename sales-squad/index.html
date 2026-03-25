@@ -554,6 +554,7 @@
       .logo-text { display: none; }
     }
   </style>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 </head>
 <body>
 
@@ -736,10 +737,13 @@
     <!-- KPI cards -->
     <div class="results-grid" id="kpi-grid"></div>
 
-    <!-- Target Progress -->
+    <!-- Targets vs Actual -->
     <div class="input-card">
-      <div class="card-title">Target Progress</div>
+      <div class="card-title">Targets vs Actual</div>
       <div id="target-progress"></div>
+      <div style="position:relative;height:300px;margin-top:16px;">
+        <canvas id="tva-chart"></canvas>
+      </div>
     </div>
   </main>
 
@@ -897,35 +901,62 @@
         kpi('Appts \u2192 Sales', fmt.pct(apptToSale), 'Conversion rate', 'green', hasTargets && tMtgsAtt > 0 ? tApptToSale : null, true),
       ].join('');
 
-      // ─── TARGET PROGRESS ──────────────────────────────────────────────────
-      const targetItems = [
-        { label: 'Leads Generated', actual: leads, target: tLeads },
-        { label: 'Appts Scheduled', actual: meetingsSched, target: tMtgsSched },
-        { label: 'Appts Attended', actual: meetingsAtt, target: tMtgsAtt },
-        { label: 'Units Sold', actual: units, target: tUnits },
-        { label: 'Revenue', actual: revenue, target: tRevenue, currency: true },
-      ];
+      // ─── TARGETS VS ACTUAL CHART ─────────────────────────────────────────
+      const tvaLabels = ['Leads', 'Appts Sched', 'Appts Att', 'Units Sold', 'Revenue'];
+      const tvaActual = [leads, meetingsSched, meetingsAtt, units, revenue];
+      const tvaTarget = [tLeads, tMtgsSched, tMtgsAtt, tUnits, tRevenue];
+
       if (!hasTargets) {
-        $('target-progress').innerHTML = '<p style="font-size:13px;color:var(--muted);text-align:center;padding:20px 0;">Enter targets above to see progress.</p>';
+        $('target-progress').innerHTML = '<p style="font-size:13px;color:var(--muted);text-align:center;padding:20px 0;">Enter targets above to see comparison.</p>';
+        if (window._tvaChart) { window._tvaChart.destroy(); window._tvaChart = null; }
+        const canvas = $('tva-chart'); if (canvas) canvas.style.display = 'none';
       } else {
-        $('target-progress').innerHTML = targetItems.filter(t => t.target > 0).map(t => {
-          const pct = t.target > 0 ? Math.min(t.actual / t.target * 100, 200) : 0;
-          const displayPct = Math.min(pct, 100);
-          const onTrack = t.actual >= t.target;
-          const color = onTrack ? '#10b981' : pct >= 75 ? '#f59e0b' : '#e63946';
-          const actualStr = t.currency ? fmt.currency(t.actual) : fmt.num(t.actual);
-          const targetStr = t.currency ? fmt.currency(t.target) : fmt.num(t.target);
-          return `<div class="target-row">
-            <div class="target-meta">
-              <span class="target-label">${t.label}</span>
-              <span class="target-nums">${actualStr} / ${targetStr}</span>
-            </div>
-            <div class="target-bar-bg">
-              <div class="target-bar-fill" style="width:${displayPct}%;background:${color}"></div>
-            </div>
-            <span class="target-pct" style="color:${color}">${Math.round(pct)}%</span>
-          </div>`;
-        }).join('');
+        $('target-progress').innerHTML = '';
+        const canvas = $('tva-chart');
+        if (canvas) canvas.style.display = '';
+        if (window._tvaChart) window._tvaChart.destroy();
+        window._tvaChart = new Chart(canvas, {
+          type: 'line',
+          data: {
+            labels: tvaLabels,
+            datasets: [
+              {
+                label: 'Actual',
+                data: tvaActual,
+                borderColor: '#10b981',
+                backgroundColor: '#10b98118',
+                fill: true,
+                tension: 0.35,
+                pointRadius: 5,
+                pointBackgroundColor: '#10b981',
+                borderWidth: 2.5
+              },
+              {
+                label: 'Target',
+                data: tvaTarget,
+                borderColor: '#e63946',
+                backgroundColor: '#e6394618',
+                fill: true,
+                tension: 0.35,
+                pointRadius: 5,
+                pointBackgroundColor: '#e63946',
+                borderWidth: 2.5,
+                borderDash: [6, 3]
+              }
+            ]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { display: true, position: 'top', labels: { boxWidth: 12, font: { size: 12 } } }
+            },
+            scales: {
+              x: { grid: { display: false }, ticks: { color: '#6b7280', font: { size: 11 } } },
+              y: { grid: { color: '#f3f4f6' }, ticks: { color: '#6b7280', font: { size: 11 } }, beginAtZero: true }
+            }
+          }
+        });
       }
     }
 
