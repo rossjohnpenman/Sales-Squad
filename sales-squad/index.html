@@ -923,12 +923,13 @@
       $('kpi-grid').innerHTML = [
         kpi('Leads Generated', fmt.num(leads), `${viewLabel} total`, 'blue', hasTargets ? tLeads : null),
         kpi('Appts Scheduled', fmt.num(meetingsSched), `${viewLabel} total`, 'navy', hasTargets ? tMtgsSched : null),
-        kpi('Show Rate', fmt.pct(showRate), `${meetingsAtt} of ${meetingsSched} attended`, 'purple', hasTargets && tMtgsSched > 0 ? tShowRate : null, true),
         kpi('Appts Attended', fmt.num(meetingsAtt), `${viewLabel} total`, 'purple', hasTargets ? tMtgsAtt : null),
+        kpi('Show Rate', fmt.pct(showRate), `${meetingsAtt} of ${meetingsSched} attended`, 'purple', hasTargets && tMtgsSched > 0 ? tShowRate : null, true),
         kpi('Units Sold', fmt.num(units), `${viewLabel} total`, 'green', hasTargets ? tUnits : null),
         kpi('Revenue', fmt.currency(revenue), `${viewLabel} projected`, 'red', hasTargets ? tRevenue : null, false, true),
         kpi('Avg Unit Value', fmt.currency(units > 0 ? revenue / units : 0), 'Revenue per unit', 'amber'),
-        kpi('Lead \u2192 Sale', fmt.pct(leadToSale), 'Conversion rate', 'green', hasTargets && tLeads > 0 ? tLeadToSale : null, true),
+        kpi('Leads \u2192 Appts', fmt.pct(leadToAppt), 'Conversion rate', 'green', hasTargets && tLeads > 0 ? tLeadToAppt : null, true),
+        kpi('Appts \u2192 Sales', fmt.pct(apptToSale), 'Conversion rate', 'green', hasTargets && tMtgsAtt > 0 ? tApptToSale : null, true),
       ].join('');
 
       // ─── FUNNEL ────────────────────────────────────────────────────────────
