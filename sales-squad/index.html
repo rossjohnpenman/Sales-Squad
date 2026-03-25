@@ -349,12 +349,6 @@
       transition: all var(--duration);
     }
     .btn-reset:hover { border-color: var(--red); color: var(--red); }
-    /* Products section */
-    .products-section {
-      margin-top: 20px;
-      border-top: 1px solid var(--border);
-      padding-top: 18px;
-    }
     .products-header {
       display: flex;
       justify-content: space-between;
@@ -383,7 +377,7 @@
     }
     .product-row {
       display: grid;
-      grid-template-columns: 1fr 80px 100px 80px 32px;
+      grid-template-columns: 1.4fr 70px 70px 70px 60px 80px 80px 32px;
       gap: 8px;
       align-items: center;
       margin-bottom: 8px;
@@ -498,7 +492,8 @@
         min-height: 44px;
       }
       .product-row {
-        grid-template-columns: 1fr 1fr 1fr 70px 32px;
+        grid-template-columns: 1fr repeat(3, 50px) 50px 65px 65px 28px;
+        gap: 5px;
       }
       .product-row input { font-size: 14px; min-height: 44px; }
     }
@@ -530,50 +525,41 @@
     <!-- ACTIVITY INPUTS -->
     <div class="section-label">Activity</div>
     <div class="input-card">
-      <div class="input-grid">
-        <div class="input-group">
-          <label for="in-leads">Leads Generated</label>
-          <input type="number" id="in-leads" min="0" value="0" placeholder="0">
-        </div>
-        <div class="input-group">
-          <label for="in-meetings-sched">Meetings/Appointments Scheduled</label>
-          <input type="number" id="in-meetings-sched" min="0" value="0" placeholder="0">
-        </div>
-        <div class="input-group">
-          <label for="in-meetings-att">Meetings/Appointments Attended</label>
-          <input type="number" id="in-meetings-att" min="0" value="0" placeholder="0">
+      <div class="products-header">
+        <span class="products-label">Products / Services</span>
+        <button class="btn-add-product" onclick="addProduct()">+ Add Product</button>
+      </div>
+      <div class="product-row product-row-header">
+        <span>Product / Service</span>
+        <span>Leads</span>
+        <span>Mtgs Sched</span>
+        <span>Mtgs Att</span>
+        <span>Units Sold</span>
+        <span>Value (&pound;)</span>
+        <span>Total</span>
+        <span></span>
+      </div>
+      <div id="product-list">
+        <div class="product-row">
+          <input type="text" class="product-name" placeholder="Product or service name" value="">
+          <input type="number" class="product-leads" min="0" value="0" placeholder="0">
+          <input type="number" class="product-mtgs-sched" min="0" value="0" placeholder="0">
+          <input type="number" class="product-mtgs-att" min="0" value="0" placeholder="0">
+          <input type="number" class="product-units" min="0" value="0" placeholder="0">
+          <input type="number" class="product-price" min="0" step="0.01" value="0" placeholder="0.00">
+          <span class="product-total">&pound;0</span>
+          <button class="product-remove" onclick="removeProduct(this)" title="Remove">&times;</button>
         </div>
       </div>
-
-      <!-- Products / Services -->
-      <div class="products-section">
-        <div class="products-header">
-          <span class="products-label">Products / Services</span>
-          <button class="btn-add-product" onclick="addProduct()">+ Add Product</button>
-        </div>
-        <div class="product-row product-row-header">
-          <span>Product / Service</span>
-          <span>Units Sold</span>
-          <span>Value (&pound;)</span>
-          <span>Total</span>
-          <span></span>
-        </div>
-        <div id="product-list">
-          <div class="product-row" data-index="0">
-            <input type="text" class="product-name" placeholder="Product or service name" value="">
-            <input type="number" class="product-units" min="0" value="0" placeholder="Units">
-            <input type="number" class="product-price" min="0" step="0.01" value="0" placeholder="Unit price (&pound;)">
-            <span class="product-total">&pound;0</span>
-            <button class="product-remove" onclick="removeProduct(this)" title="Remove">&times;</button>
-          </div>
-        </div>
-        <div class="product-row product-row-totals">
-          <span>Revenue Total</span>
-          <span id="products-total-units">0</span>
-          <span></span>
-          <span id="products-total-revenue">&pound;0</span>
-          <span></span>
-        </div>
+      <div class="product-row product-row-totals">
+        <span>Totals</span>
+        <span id="products-total-leads">0</span>
+        <span id="products-total-mtgs-sched">0</span>
+        <span id="products-total-mtgs-att">0</span>
+        <span id="products-total-units">0</span>
+        <span></span>
+        <span id="products-total-revenue">&pound;0</span>
+        <span></span>
       </div>
 
       <div style="margin-top:16px;display:flex;gap:8px;">
@@ -638,21 +624,24 @@
 
     // ─── CALCULATE ───────────────────────────────────────────────────────────
     function calculate() {
-      // Read inputs
-      const leads = num('in-leads');
-      const meetingsSched = num('in-meetings-sched');
-      const meetingsAtt = num('in-meetings-att');
-
-      // Aggregate products
-      let units = 0;
-      let revenue = 0;
-      document.querySelectorAll('.product-row').forEach(row => {
+      // Aggregate from product rows
+      let leads = 0, meetingsSched = 0, meetingsAtt = 0, units = 0, revenue = 0;
+      document.querySelectorAll('#product-list .product-row').forEach(row => {
+        const l = Number(row.querySelector('.product-leads').value) || 0;
+        const ms = Number(row.querySelector('.product-mtgs-sched').value) || 0;
+        const ma = Number(row.querySelector('.product-mtgs-att').value) || 0;
         const u = Number(row.querySelector('.product-units').value) || 0;
         const p = Number(row.querySelector('.product-price').value) || 0;
+        leads += l;
+        meetingsSched += ms;
+        meetingsAtt += ma;
         units += u;
         revenue += u * p;
         row.querySelector('.product-total').textContent = fmt.currency(u * p);
       });
+      $('products-total-leads').textContent = leads;
+      $('products-total-mtgs-sched').textContent = meetingsSched;
+      $('products-total-mtgs-att').textContent = meetingsAtt;
       $('products-total-units').textContent = units;
       $('products-total-revenue').textContent = fmt.currency(revenue);
 
@@ -741,8 +730,11 @@
       row.className = 'product-row';
       row.innerHTML = `
         <input type="text" class="product-name" placeholder="Product or service name" value="">
-        <input type="number" class="product-units" min="0" value="0" placeholder="Units">
-        <input type="number" class="product-price" min="0" step="0.01" value="0" placeholder="Unit price (\u00A3)">
+        <input type="number" class="product-leads" min="0" value="0" placeholder="0">
+        <input type="number" class="product-mtgs-sched" min="0" value="0" placeholder="0">
+        <input type="number" class="product-mtgs-att" min="0" value="0" placeholder="0">
+        <input type="number" class="product-units" min="0" value="0" placeholder="0">
+        <input type="number" class="product-price" min="0" step="0.01" value="0" placeholder="0.00">
         <span class="product-total">\u00A30</span>
         <button class="product-remove" onclick="removeProduct(this)" title="Remove">\u00D7</button>
       `;
@@ -764,8 +756,11 @@
       list.innerHTML = `
         <div class="product-row">
           <input type="text" class="product-name" placeholder="Product or service name" value="">
-          <input type="number" class="product-units" min="0" value="0" placeholder="Units">
-          <input type="number" class="product-price" min="0" step="0.01" value="0" placeholder="Unit price (\u00A3)">
+          <input type="number" class="product-leads" min="0" value="0" placeholder="0">
+          <input type="number" class="product-mtgs-sched" min="0" value="0" placeholder="0">
+          <input type="number" class="product-mtgs-att" min="0" value="0" placeholder="0">
+          <input type="number" class="product-units" min="0" value="0" placeholder="0">
+          <input type="number" class="product-price" min="0" step="0.01" value="0" placeholder="0.00">
           <span class="product-total">\u00A30</span>
           <button class="product-remove" onclick="removeProduct(this)" title="Remove">\u00D7</button>
         </div>
