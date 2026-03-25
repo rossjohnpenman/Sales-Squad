@@ -778,6 +778,14 @@
       <select id="product-filter" onchange="autoCalculate()">
         <option value="all">All Products / Services</option>
       </select>
+      <label for="view-period" style="margin-left:16px;">View As</label>
+      <select id="view-period" onchange="autoCalculate()">
+        <option value="daily">Daily</option>
+        <option value="weekly">Weekly</option>
+        <option value="monthly" selected>Monthly</option>
+        <option value="quarterly">Quarterly</option>
+        <option value="annually">Annually</option>
+      </select>
     </div>
 
     <!-- KPI cards -->
@@ -808,6 +816,7 @@
 
     // ─── PERIOD SCALING ────────────────────────────────────────────────────
     const periodLabels = { daily: 'Daily', weekly: 'Weekly', monthly: 'Monthly', quarterly: 'Quarterly', annually: 'Annual' };
+    const periodDays = { daily: 1, weekly: 7, monthly: 30.44, quarterly: 91.31, annually: 365.25 };
     let hasCalculated = false;
 
     function autoCalculate() {
@@ -817,7 +826,10 @@
     // ─── CALCULATE ───────────────────────────────────────────────────────────
     function calculate() {
       hasCalculated = true;
-      const viewLabel = periodLabels[$('period-input').value];
+      const inputPeriod = $('period-input').value;
+      const viewPeriod = $('view-period').value;
+      const scale = periodDays[viewPeriod] / periodDays[inputPeriod];
+      const viewLabel = periodLabels[viewPeriod];
 
       // Build product filter dropdown
       const filterEl = $('product-filter');
@@ -908,7 +920,21 @@
         tRevenue += u * p;
       });
 
-      // Conversion rates
+      // Apply time-frame scaling to activity values
+      leads = Math.round(leads * scale);
+      meetingsSched = Math.round(meetingsSched * scale);
+      meetingsAtt = Math.round(meetingsAtt * scale);
+      units = Math.round(units * scale);
+      revenue = Math.round(revenue * scale);
+
+      // Apply time-frame scaling to target values
+      tLeads = Math.round(tLeads * scale);
+      tMtgsSched = Math.round(tMtgsSched * scale);
+      tMtgsAtt = Math.round(tMtgsAtt * scale);
+      tUnits = Math.round(tUnits * scale);
+      tRevenue = Math.round(tRevenue * scale);
+
+      // Conversion rates (ratios unaffected by scaling)
       const showRate = meetingsSched > 0 ? (meetingsAtt / meetingsSched * 100) : 0;
       const leadToAppt = leads > 0 ? (meetingsAtt / leads * 100) : 0;
       const apptToSale = meetingsAtt > 0 ? (units / meetingsAtt * 100) : 0;
