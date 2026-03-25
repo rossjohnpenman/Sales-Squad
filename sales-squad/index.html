@@ -349,6 +349,80 @@
       transition: all var(--duration);
     }
     .btn-reset:hover { border-color: var(--red); color: var(--red); }
+    /* Products section */
+    .products-section {
+      margin-top: 20px;
+      border-top: 1px solid var(--border);
+      padding-top: 18px;
+    }
+    .products-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    .products-label {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: 0.1px;
+    }
+    .btn-add-product {
+      padding: 5px 12px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--blue);
+      background: var(--blue-lt);
+      border: 1px solid #bfdbfe;
+      border-radius: var(--radius-sm);
+      transition: all var(--duration);
+    }
+    .btn-add-product:hover {
+      background: #dbeafe;
+      border-color: var(--blue);
+    }
+    .product-row {
+      display: grid;
+      grid-template-columns: 1fr 80px 100px 80px 32px;
+      gap: 8px;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+    .product-row input {
+      padding: 8px 10px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-size: 13px;
+      font-family: var(--font);
+      color: var(--text);
+      background: var(--surface);
+      outline: none;
+      transition: border-color var(--duration), box-shadow var(--duration);
+    }
+    .product-row input:focus {
+      border-color: var(--navy);
+      box-shadow: 0 0 0 3px rgba(29,29,46,.10);
+    }
+    .product-total {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--navy);
+      text-align: right;
+      white-space: nowrap;
+    }
+    .product-remove {
+      width: 28px;
+      height: 28px;
+      border-radius: var(--radius-sm);
+      font-size: 16px;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all var(--duration);
+    }
+    .product-remove:hover { background: var(--red-lt); color: var(--red); }
+
     .btn-calculate {
       background: var(--red);
       color: #fff;
@@ -396,6 +470,10 @@
         padding: 11px 12px;
         min-height: 44px;
       }
+      .product-row {
+        grid-template-columns: 1fr 1fr 1fr 70px 32px;
+      }
+      .product-row input { font-size: 14px; min-height: 44px; }
     }
     @media (max-width: 380px) {
       .input-grid { grid-template-columns: 1fr; }
@@ -438,15 +516,25 @@
           <label for="in-meetings-att">Meetings/Appointments Attended</label>
           <input type="number" id="in-meetings-att" min="0" value="0" placeholder="0">
         </div>
-        <div class="input-group">
-          <label for="in-units">Units Sold</label>
-          <input type="number" id="in-units" min="0" value="0" placeholder="0">
+      </div>
+
+      <!-- Products / Services -->
+      <div class="products-section">
+        <div class="products-header">
+          <span class="products-label">Products / Services</span>
+          <button class="btn-add-product" onclick="addProduct()">+ Add Product</button>
         </div>
-        <div class="input-group">
-          <label for="in-unit-value">Unit Value (&pound;)</label>
-          <input type="number" id="in-unit-value" min="0" step="0.01" value="0" placeholder="0.00">
+        <div id="product-list">
+          <div class="product-row" data-index="0">
+            <input type="text" class="product-name" placeholder="Product or service name" value="">
+            <input type="number" class="product-units" min="0" value="0" placeholder="Units">
+            <input type="number" class="product-price" min="0" step="0.01" value="0" placeholder="Unit price (&pound;)">
+            <span class="product-total">&pound;0</span>
+            <button class="product-remove" onclick="removeProduct(this)" title="Remove">&times;</button>
+          </div>
         </div>
       </div>
+
       <div style="margin-top:16px;display:flex;gap:8px;">
         <button class="btn-calculate" onclick="calculate()">Calculate</button>
       </div>
@@ -513,9 +601,17 @@
       const leads = num('in-leads');
       const meetingsSched = num('in-meetings-sched');
       const meetingsAtt = num('in-meetings-att');
-      const units = num('in-units');
-      const unitValue = num('in-unit-value');
-      const revenue = units * unitValue;
+
+      // Aggregate products
+      let units = 0;
+      let revenue = 0;
+      document.querySelectorAll('.product-row').forEach(row => {
+        const u = Number(row.querySelector('.product-units').value) || 0;
+        const p = Number(row.querySelector('.product-price').value) || 0;
+        units += u;
+        revenue += u * p;
+        row.querySelector('.product-total').textContent = fmt.currency(u * p);
+      });
 
       const tLeads = num('in-target-leads');
       const tMeetings = num('in-target-meetings');
@@ -530,9 +626,9 @@
       $('kpi-grid').innerHTML = [
         kpi('Leads Generated', fmt.num(leads), 'Total leads generated', 'blue'),
         kpi('Show Rate', fmt.pct(showRate), `${meetingsAtt} of ${meetingsSched} attended`, 'purple'),
-        kpi('Units Sold', fmt.num(units), 'Closed deals', 'green'),
-        kpi('Revenue', fmt.currency(revenue), `${units} units \u00D7 ${fmt.currency(unitValue)}`, 'red'),
-        kpi('Unit Value', fmt.currency(unitValue), 'Value per unit', 'amber'),
+        kpi('Units Sold', fmt.num(units), 'Total across all products', 'green'),
+        kpi('Revenue', fmt.currency(revenue), `From ${document.querySelectorAll('.product-row').length} product${document.querySelectorAll('.product-row').length !== 1 ? 's' : ''}`, 'red'),
+        kpi('Avg Unit Value', fmt.currency(units > 0 ? revenue / units : 0), 'Revenue per unit', 'amber'),
         kpi('Lead \u2192 Sale', fmt.pct(leadToSale), 'Conversion rate', 'green'),
       ].join('');
 
@@ -596,9 +692,41 @@
       </div>`;
     }
 
+    function addProduct() {
+      const list = $('product-list');
+      const row = document.createElement('div');
+      row.className = 'product-row';
+      row.innerHTML = `
+        <input type="text" class="product-name" placeholder="Product or service name" value="">
+        <input type="number" class="product-units" min="0" value="0" placeholder="Units">
+        <input type="number" class="product-price" min="0" step="0.01" value="0" placeholder="Unit price (\u00A3)">
+        <span class="product-total">\u00A30</span>
+        <button class="product-remove" onclick="removeProduct(this)" title="Remove">\u00D7</button>
+      `;
+      list.appendChild(row);
+    }
+
+    function removeProduct(btn) {
+      const list = $('product-list');
+      if (list.children.length > 1) {
+        btn.closest('.product-row').remove();
+      }
+    }
+
     function resetAll() {
       document.querySelectorAll('.input-card input[type="number"]').forEach(i => i.value = 0);
-      calculate();
+      document.querySelectorAll('.input-card input[type="text"]').forEach(i => i.value = '');
+      // Reset to single product row
+      const list = $('product-list');
+      list.innerHTML = `
+        <div class="product-row">
+          <input type="text" class="product-name" placeholder="Product or service name" value="">
+          <input type="number" class="product-units" min="0" value="0" placeholder="Units">
+          <input type="number" class="product-price" min="0" step="0.01" value="0" placeholder="Unit price (\u00A3)">
+          <span class="product-total">\u00A30</span>
+          <button class="product-remove" onclick="removeProduct(this)" title="Remove">\u00D7</button>
+        </div>
+      `;
     }
 
     // ─── INIT ────────────────────────────────────────────────────────────────
