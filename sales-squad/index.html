@@ -1089,6 +1089,61 @@
           }
         });
       }
+
+      // ─── DATA ANALYSIS ────────────────────────────────────────────────────
+      const insights = [];
+      const leadToApptSched = leads > 0 ? (meetingsSched / leads * 100) : null;
+      if (leadToApptSched !== null && leadToApptSched < 40) {
+        insights.push({ type: 'warning', text: `Your Leads \u2192 Appts Scheduled conversion is ${leadToApptSched.toFixed(1)}% (below 40%). Your messaging or qualifying process may need tightening. Focus on lead quality over quantity.` });
+      }
+      if (showRate !== null && meetingsSched > 0 && showRate < 80) {
+        insights.push({ type: 'warning', text: `Your Show Rate is ${showRate.toFixed(1)}% (below 80%). Prospects are dropping off before meetings. Send reminders, confirm value upfront and reduce the gap between booking and attending.` });
+      }
+      if (meetingsAtt > 0 && apptToSale < 30) {
+        insights.push({ type: 'warning', text: `Your Appts Attended \u2192 Sales conversion is ${apptToSale.toFixed(1)}% (below 30%). Review your sales process. Are you qualifying properly before the meeting? Is your offer clear and compelling? Are your team trained to sell well?` });
+      }
+      if (hasTargets) {
+        const revenueOnTrack = tRevenue > 0 && revenue >= tRevenue;
+        const unitsBehind = tUnits > 0 && units < tUnits;
+        const unitsOnTrack = tUnits > 0 && units >= tUnits;
+        const revenueBehind = tRevenue > 0 && revenue < tRevenue;
+        const leadsBehind = tLeads > 0 && leads < tLeads;
+        const mtgsBehind = tMtgsSched > 0 && meetingsSched < tMtgsSched;
+
+        if (revenueOnTrack && unitsBehind) {
+          insights.push({ type: 'info', text: `Revenue is on target but units are behind. You\u2019re closing higher-value deals but fewer of them. Consider whether volume or value matters more for your goals.` });
+        }
+        if (unitsOnTrack && revenueBehind) {
+          insights.push({ type: 'info', text: `Units are on target but revenue is behind. You\u2019re selling volume at lower prices. Look at upselling, bundling or repositioning your offer at a higher price point.` });
+        }
+        if (leadsBehind && mtgsBehind && unitsBehind && revenueBehind) {
+          insights.push({ type: 'alert', text: `All metrics are below target. Start at the top of the funnel. More leads in means more opportunities throughout. Increase outreach before optimising conversions.` });
+        }
+      }
+
+      if (leads > 0 && leadToApptSched >= 40 && showRate >= 80 && apptToSale >= 30) {
+        insights.push({ type: 'success', text: `All conversion rates are healthy. Keep doing what you\u2019re doing and focus on maintaining consistency.` });
+      }
+      if (hasTargets && tRevenue > 0 && revenue >= tRevenue && tUnits > 0 && units >= tUnits) {
+        insights.push({ type: 'success', text: `You\u2019re hitting both revenue and unit targets. Strong performance across the board.` });
+      }
+
+      const colours = { warning: '#f59e0b', alert: '#e63946', info: '#3b82f6', success: '#10b981' };
+      const bgColours = { warning: '#fef9ed', alert: '#fff1f2', info: '#eff6ff', success: '#ecfdf5' };
+      const icons = { warning: '\u26A0\uFE0F', alert: '\uD83D\uDEA8', info: '\uD83D\uDCA1', success: '\u2705' };
+
+      if (insights.length === 0 && leads === 0) {
+        $('data-analysis').innerHTML = '<p style="font-size:13px;color:var(--muted);text-align:center;padding:20px 0;">Enter activity data and click Calculate to see insights.</p>';
+      } else if (insights.length === 0) {
+        $('data-analysis').innerHTML = '<p style="font-size:13px;color:var(--muted);text-align:center;padding:20px 0;">Not enough data to generate insights yet. Add more activity or targets.</p>';
+      } else {
+        $('data-analysis').innerHTML = insights.map(i => `
+          <div style="display:flex;gap:10px;align-items:flex-start;padding:12px 14px;margin-bottom:8px;background:${bgColours[i.type]};border-left:4px solid ${colours[i.type]};border-radius:6px;">
+            <span style="font-size:16px;flex-shrink:0;">${icons[i.type]}</span>
+            <span style="font-size:13px;line-height:1.6;color:var(--text);">${i.text}</span>
+          </div>
+        `).join('');
+      }
     }
 
     function kpi(label, value, sub, accent, target, isPct, isCurrency) {
