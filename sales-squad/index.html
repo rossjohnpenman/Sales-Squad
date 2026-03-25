@@ -571,26 +571,44 @@
     <!-- TARGET INPUTS -->
     <div class="section-label">Targets (optional)</div>
     <div class="input-card">
-      <div class="input-grid">
-        <div class="input-group">
-          <label for="in-target-leads">Target Leads Generated</label>
-          <input type="number" id="in-target-leads" min="0" value="0" placeholder="0">
+      <div class="products-header">
+        <span class="products-label">Target Products / Services</span>
+        <button class="btn-add-product" onclick="addTarget()">+ Add</button>
+      </div>
+      <div class="product-row product-row-header">
+        <span>Product / Service</span>
+        <span>Leads</span>
+        <span>Appts Scheduled</span>
+        <span>Appts Attended</span>
+        <span>Units Sold</span>
+        <span>Value (&pound;)</span>
+        <span>Revenue</span>
+        <span></span>
+      </div>
+      <div id="target-list">
+        <div class="product-row">
+          <input type="text" class="product-name" placeholder="Product or service name" value="">
+          <input type="number" class="target-leads" min="0" value="0" placeholder="0">
+          <input type="number" class="target-mtgs-sched" min="0" value="0" placeholder="0">
+          <input type="number" class="target-mtgs-att" min="0" value="0" placeholder="0">
+          <input type="number" class="target-units" min="0" value="0" placeholder="0">
+          <input type="number" class="target-price" min="0" step="0.01" value="0" placeholder="0.00">
+          <span class="product-total">&pound;0</span>
+          <button class="product-remove" onclick="removeTarget(this)" title="Remove">&times;</button>
         </div>
-        <div class="input-group">
-          <label for="in-target-meetings">Target Meetings/Appts</label>
-          <input type="number" id="in-target-meetings" min="0" value="0" placeholder="0">
-        </div>
-        <div class="input-group">
-          <label for="in-target-units">Target Units Sold</label>
-          <input type="number" id="in-target-units" min="0" value="0" placeholder="0">
-        </div>
-        <div class="input-group">
-          <label for="in-target-revenue">Target Revenue (&pound;)</label>
-          <input type="number" id="in-target-revenue" min="0" step="0.01" value="0" placeholder="0.00">
-        </div>
-        <div class="input-group" style="display:flex;align-items:flex-end;">
-          <button class="btn-reset" onclick="resetAll()">Reset All</button>
-        </div>
+      </div>
+      <div class="product-row product-row-totals">
+        <span>Totals</span>
+        <span id="targets-total-leads">0</span>
+        <span id="targets-total-mtgs-sched">0</span>
+        <span id="targets-total-mtgs-att">0</span>
+        <span id="targets-total-units">0</span>
+        <span></span>
+        <span id="targets-total-revenue">&pound;0</span>
+        <span></span>
+      </div>
+      <div style="margin-top:12px;display:flex;justify-content:flex-end;">
+        <button class="btn-reset" onclick="resetAll()">Reset All</button>
       </div>
     </div>
 
@@ -646,10 +664,26 @@
       $('products-total-units').textContent = units;
       $('products-total-revenue').textContent = fmt.currency(revenue);
 
-      const tLeads = num('in-target-leads');
-      const tMeetings = num('in-target-meetings');
-      const tUnits = num('in-target-units');
-      const tRevenue = num('in-target-revenue');
+      // Aggregate targets
+      let tLeads = 0, tMtgsSched = 0, tMtgsAtt = 0, tUnits = 0, tRevenue = 0;
+      document.querySelectorAll('#target-list .product-row').forEach(row => {
+        const l = Number(row.querySelector('.target-leads').value) || 0;
+        const ms = Number(row.querySelector('.target-mtgs-sched').value) || 0;
+        const ma = Number(row.querySelector('.target-mtgs-att').value) || 0;
+        const u = Number(row.querySelector('.target-units').value) || 0;
+        const p = Number(row.querySelector('.target-price').value) || 0;
+        tLeads += l;
+        tMtgsSched += ms;
+        tMtgsAtt += ma;
+        tUnits += u;
+        tRevenue += u * p;
+        row.querySelector('.product-total').textContent = fmt.currency(u * p);
+      });
+      $('targets-total-leads').textContent = tLeads;
+      $('targets-total-mtgs-sched').textContent = tMtgsSched;
+      $('targets-total-mtgs-att').textContent = tMtgsAtt;
+      $('targets-total-units').textContent = tUnits;
+      $('targets-total-revenue').textContent = fmt.currency(tRevenue);
 
       // Conversion rates
       const leadToSale = leads > 0 ? (units / leads * 100) : 0;
@@ -688,7 +722,8 @@
       // ─── TARGET PROGRESS ──────────────────────────────────────────────────
       const targets = [
         { label: 'Leads Generated', actual: leads, target: tLeads },
-        { label: 'Meetings/Appts', actual: meetingsAtt, target: tMeetings },
+        { label: 'Appts Scheduled', actual: meetingsSched, target: tMtgsSched },
+        { label: 'Appts Attended', actual: meetingsAtt, target: tMtgsAtt },
         { label: 'Units Sold', actual: units, target: tUnits },
         { label: 'Revenue', actual: revenue, target: tRevenue, currency: true },
       ];
@@ -742,6 +777,30 @@
       list.appendChild(row);
     }
 
+    function addTarget() {
+      const list = $('target-list');
+      const row = document.createElement('div');
+      row.className = 'product-row';
+      row.innerHTML = `
+        <input type="text" class="product-name" placeholder="Product or service name" value="">
+        <input type="number" class="target-leads" min="0" value="0" placeholder="0">
+        <input type="number" class="target-mtgs-sched" min="0" value="0" placeholder="0">
+        <input type="number" class="target-mtgs-att" min="0" value="0" placeholder="0">
+        <input type="number" class="target-units" min="0" value="0" placeholder="0">
+        <input type="number" class="target-price" min="0" step="0.01" value="0" placeholder="0.00">
+        <span class="product-total">\u00A30</span>
+        <button class="product-remove" onclick="removeTarget(this)" title="Remove">\u00D7</button>
+      `;
+      list.appendChild(row);
+    }
+
+    function removeTarget(btn) {
+      const list = $('target-list');
+      if (list.children.length > 1) {
+        btn.closest('.product-row').remove();
+      }
+    }
+
     function removeProduct(btn) {
       const list = $('product-list');
       if (list.children.length > 1) {
@@ -750,11 +809,8 @@
     }
 
     function resetAll() {
-      document.querySelectorAll('.input-card input[type="number"]').forEach(i => i.value = 0);
-      document.querySelectorAll('.input-card input[type="text"]').forEach(i => i.value = '');
-      // Reset to single product row
-      const list = $('product-list');
-      list.innerHTML = `
+      // Reset activity products
+      $('product-list').innerHTML = `
         <div class="product-row">
           <input type="text" class="product-name" placeholder="Product or service name" value="">
           <input type="number" class="product-leads" min="0" value="0" placeholder="0">
@@ -764,6 +820,19 @@
           <input type="number" class="product-price" min="0" step="0.01" value="0" placeholder="0.00">
           <span class="product-total">\u00A30</span>
           <button class="product-remove" onclick="removeProduct(this)" title="Remove">\u00D7</button>
+        </div>
+      `;
+      // Reset target products
+      $('target-list').innerHTML = `
+        <div class="product-row">
+          <input type="text" class="product-name" placeholder="Product or service name" value="">
+          <input type="number" class="target-leads" min="0" value="0" placeholder="0">
+          <input type="number" class="target-mtgs-sched" min="0" value="0" placeholder="0">
+          <input type="number" class="target-mtgs-att" min="0" value="0" placeholder="0">
+          <input type="number" class="target-units" min="0" value="0" placeholder="0">
+          <input type="number" class="target-price" min="0" step="0.01" value="0" placeholder="0.00">
+          <span class="product-total">\u00A30</span>
+          <button class="product-remove" onclick="removeTarget(this)" title="Remove">\u00D7</button>
         </div>
       `;
     }
