@@ -233,6 +233,25 @@
       color: var(--muted);
       font-weight: 500;
     }
+    .kpi-target {
+      margin-top: 8px;
+      padding-top: 8px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 6px;
+    }
+    .kpi-target-label {
+      font-size: 11px;
+      color: var(--muted);
+      font-weight: 600;
+    }
+    .kpi-diff {
+      font-size: 12px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
 
     /* Funnel */
     .funnel-card {
@@ -770,14 +789,21 @@
       const leadToSale = leads > 0 ? (units / leads * 100) : 0;
       const showRate = meetingsSched > 0 ? (meetingsAtt / meetingsSched * 100) : 0;
 
+      // Target conversion rates
+      const tLeadToSale = tLeads > 0 ? (tUnits / tLeads * 100) : 0;
+      const tShowRate = tMtgsSched > 0 ? (tMtgsAtt / tMtgsSched * 100) : 0;
+      const hasTargets = (tLeads + tMtgsSched + tMtgsAtt + tUnits + tRevenue) > 0;
+
       // ─── KPI CARDS ─────────────────────────────────────────────────────────
       $('kpi-grid').innerHTML = [
-        kpi('Leads Generated', fmt.num(leads), `${viewLabel} total`, 'blue'),
-        kpi('Show Rate', fmt.pct(showRate), `${meetingsAtt} of ${meetingsSched} attended`, 'purple'),
-        kpi('Units Sold', fmt.num(units), `${viewLabel} total`, 'green'),
-        kpi('Revenue', fmt.currency(revenue), `${viewLabel} projected`, 'red'),
+        kpi('Leads Generated', fmt.num(leads), `${viewLabel} total`, 'blue', hasTargets ? tLeads : null),
+        kpi('Appts Scheduled', fmt.num(meetingsSched), `${viewLabel} total`, 'navy', hasTargets ? tMtgsSched : null),
+        kpi('Show Rate', fmt.pct(showRate), `${meetingsAtt} of ${meetingsSched} attended`, 'purple', hasTargets && tMtgsSched > 0 ? tShowRate : null, true),
+        kpi('Appts Attended', fmt.num(meetingsAtt), `${viewLabel} total`, 'purple', hasTargets ? tMtgsAtt : null),
+        kpi('Units Sold', fmt.num(units), `${viewLabel} total`, 'green', hasTargets ? tUnits : null),
+        kpi('Revenue', fmt.currency(revenue), `${viewLabel} projected`, 'red', hasTargets ? tRevenue : null, false, true),
         kpi('Avg Unit Value', fmt.currency(units > 0 ? revenue / units : 0), 'Revenue per unit', 'amber'),
-        kpi('Lead \u2192 Sale', fmt.pct(leadToSale), 'Conversion rate', 'green'),
+        kpi('Lead \u2192 Sale', fmt.pct(leadToSale), 'Conversion rate', 'green', hasTargets && tLeads > 0 ? tLeadToSale : null, true),
       ].join('');
 
       // ─── FUNNEL ────────────────────────────────────────────────────────────
@@ -801,18 +827,17 @@
       }).join('');
 
       // ─── TARGET PROGRESS ──────────────────────────────────────────────────
-      const targets = [
+      const targetItems = [
         { label: 'Leads Generated', actual: leads, target: tLeads },
         { label: 'Appts Scheduled', actual: meetingsSched, target: tMtgsSched },
         { label: 'Appts Attended', actual: meetingsAtt, target: tMtgsAtt },
         { label: 'Units Sold', actual: units, target: tUnits },
         { label: 'Revenue', actual: revenue, target: tRevenue, currency: true },
       ];
-      const hasTargets = targets.some(t => t.target > 0);
       if (!hasTargets) {
         $('target-progress').innerHTML = '<p style="font-size:13px;color:var(--muted);text-align:center;padding:20px 0;">Enter targets above to see progress.</p>';
       } else {
-        $('target-progress').innerHTML = targets.filter(t => t.target > 0).map(t => {
+        $('target-progress').innerHTML = targetItems.filter(t => t.target > 0).map(t => {
           const pct = t.target > 0 ? Math.min(t.actual / t.target * 100, 200) : 0;
           const displayPct = Math.min(pct, 100);
           const onTrack = t.actual >= t.target;
@@ -833,11 +858,34 @@
       }
     }
 
-    function kpi(label, value, sub, accent) {
+    function kpi(label, value, sub, accent, target, isPct, isCurrency) {
+      let targetHtml = '';
+      if (target !== null && target !== undefined) {
+        // Parse actual number from formatted value
+        const actualNum = Number(String(value).replace(/[^0-9.\-]/g, '')) || 0;
+        const diff = actualNum - target;
+        const isPositive = diff >= 0;
+        const color = isPositive ? '#10b981' : '#e63946';
+        const arrow = isPositive ? '\u25B2' : '\u25BC';
+        let diffStr;
+        if (isPct) {
+          diffStr = Math.abs(diff).toFixed(1) + '%';
+        } else if (isCurrency) {
+          diffStr = fmt.currency(Math.abs(diff));
+        } else {
+          diffStr = fmt.num(Math.abs(diff));
+        }
+        const targetStr = isPct ? fmt.pct(target) : isCurrency ? fmt.currency(target) : fmt.num(target);
+        targetHtml = `<div class="kpi-target">
+          <span class="kpi-target-label">Target: ${targetStr}</span>
+          <span class="kpi-diff" style="color:${color}">${arrow} ${diffStr}</span>
+        </div>`;
+      }
       return `<div class="result-card accent-${accent}">
         <div class="result-label">${label}</div>
         <div class="result-value">${value}</div>
         <div class="result-sub">${sub}</div>
+        ${targetHtml}
       </div>`;
     }
 
