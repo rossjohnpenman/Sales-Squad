@@ -415,10 +415,6 @@
           <input type="number" id="in-leads" min="0" value="0" placeholder="0">
         </div>
         <div class="input-group">
-          <label for="in-qualified">Leads Qualified</label>
-          <input type="number" id="in-qualified" min="0" value="0" placeholder="0">
-        </div>
-        <div class="input-group">
           <label for="in-meetings-sched">Meetings/Appointments Scheduled</label>
           <input type="number" id="in-meetings-sched" min="0" value="0" placeholder="0">
         </div>
@@ -444,10 +440,6 @@
         <div class="input-group">
           <label for="in-target-leads">Target Leads Generated</label>
           <input type="number" id="in-target-leads" min="0" value="0" placeholder="0">
-        </div>
-        <div class="input-group">
-          <label for="in-target-qualified">Target Leads Qualified</label>
-          <input type="number" id="in-target-qualified" min="0" value="0" placeholder="0">
         </div>
         <div class="input-group">
           <label for="in-target-meetings">Target Meetings/Appts</label>
@@ -500,7 +492,6 @@
     function calculate() {
       // Read inputs
       const leads = num('in-leads');
-      const qualified = num('in-qualified');
       const meetingsSched = num('in-meetings-sched');
       const meetingsAtt = num('in-meetings-att');
       const units = num('in-units');
@@ -508,36 +499,30 @@
       const revenue = units * unitValue;
 
       const tLeads = num('in-target-leads');
-      const tQualified = num('in-target-qualified');
       const tMeetings = num('in-target-meetings');
       const tUnits = num('in-target-units');
       const tRevenue = num('in-target-revenue');
 
       // Conversion rates
-      const leadToQualified = leads > 0 ? (qualified / leads * 100) : 0;
-      const qualifiedToClient = qualified > 0 ? (units / qualified * 100) : 0;
-      const leadToClient = leads > 0 ? (units / leads * 100) : 0;
+      const leadToSale = leads > 0 ? (units / leads * 100) : 0;
       const showRate = meetingsSched > 0 ? (meetingsAtt / meetingsSched * 100) : 0;
 
       // ─── KPI CARDS ─────────────────────────────────────────────────────────
       $('kpi-grid').innerHTML = [
         kpi('Leads Generated', fmt.num(leads), 'Total leads generated', 'blue'),
-        kpi('Leads Qualified', fmt.num(qualified), 'Qualified prospects', 'navy'),
         kpi('Show Rate', fmt.pct(showRate), `${meetingsAtt} of ${meetingsSched} attended`, 'purple'),
         kpi('Units Sold', fmt.num(units), 'Closed deals', 'green'),
         kpi('Revenue', fmt.currency(revenue), `${units} units \u00D7 ${fmt.currency(unitValue)}`, 'red'),
         kpi('Unit Value', fmt.currency(unitValue), 'Value per unit', 'amber'),
-        kpi('Lead \u2192 Qualified', fmt.pct(leadToQualified), 'Conversion rate', 'blue'),
-        kpi('Qualified \u2192 Sale', fmt.pct(qualifiedToClient), 'Conversion rate', 'green'),
+        kpi('Lead \u2192 Sale', fmt.pct(leadToSale), 'Conversion rate', 'green'),
       ].join('');
 
       // ─── FUNNEL ────────────────────────────────────────────────────────────
-      const maxFunnel = Math.max(leads, qualified, meetingsAtt, units, 1);
+      const maxFunnel = Math.max(leads, meetingsAtt, units, 1);
       const funnelData = [
         { label: 'Leads Generated', value: leads, color: '#3b82f6', rate: null },
-        { label: 'Leads Qualified', value: qualified, color: '#f59e0b', rate: leadToQualified },
         { label: 'Attended', value: meetingsAtt, color: '#8b5cf6', rate: showRate },
-        { label: 'Sales', value: units, color: '#10b981', rate: qualifiedToClient },
+        { label: 'Sales', value: units, color: '#10b981', rate: leadToSale },
       ];
       $('funnel').innerHTML = funnelData.map(f => {
         const pct = maxFunnel > 0 ? (f.value / maxFunnel * 100) : 0;
@@ -555,7 +540,6 @@
       // ─── TARGET PROGRESS ──────────────────────────────────────────────────
       const targets = [
         { label: 'Leads Generated', actual: leads, target: tLeads },
-        { label: 'Leads Qualified', actual: qualified, target: tQualified },
         { label: 'Meetings/Appts', actual: meetingsAtt, target: tMeetings },
         { label: 'Units Sold', actual: units, target: tUnits },
         { label: 'Revenue', actual: revenue, target: tRevenue, currency: true },
