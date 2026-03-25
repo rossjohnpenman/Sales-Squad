@@ -656,6 +656,7 @@
       <div class="products-header">
         <span class="products-label">Products / Services</span>
         <button class="btn-add-product" onclick="addTarget()">+ Add</button>
+        <button class="btn-reset" onclick="clearTargets()">Clear Targets</button>
       </div>
       <div class="product-row product-row-header">
         <span>Product / Service</span>
@@ -1057,6 +1058,19 @@
           <button class="product-remove" onclick="removeTarget(this)" title="Remove">\u00D7</button>
         </div>
       `;
+    }
+
+    function clearTargets() {
+      document.querySelectorAll('#target-list .product-row').forEach(row => {
+        row.querySelectorAll('input[type="number"]').forEach(input => { input.value = 0; });
+        row.querySelector('.product-total').textContent = '\u00A30';
+      });
+      $('targets-total-leads').textContent = '0';
+      $('targets-total-mtgs-sched').textContent = '0';
+      $('targets-total-mtgs-att').textContent = '0';
+      $('targets-total-units').textContent = '0';
+      $('targets-total-revenue').textContent = '\u00A30';
+      autoCalculate();
     }
 
     // ─── INIT ────────────────────────────────────────────────────────────────
