@@ -698,13 +698,33 @@
       </div>
       <div id="product-list">
         <div class="product-row">
-          <input type="text" class="product-name" placeholder="Product or service name" value="">
-          <div class="mobile-field"><span class="mobile-label">Leads</span><input type="number" class="product-leads" min="0" value="0" placeholder="Leads"></div>
-          <div class="mobile-field"><span class="mobile-label">Appts Sched</span><input type="number" class="product-mtgs-sched" min="0" value="0" placeholder="Appts Sched"></div>
-          <div class="mobile-field"><span class="mobile-label">Appts Att</span><input type="number" class="product-mtgs-att" min="0" value="0" placeholder="Appts Att"></div>
-          <div class="mobile-field"><span class="mobile-label">Units</span><input type="number" class="product-units" min="0" value="0" placeholder="Units"></div>
-          <div class="mobile-field"><span class="mobile-label">Value (&pound;)</span><input type="number" class="product-price" min="0" step="0.01" value="0" placeholder="Value (£)"></div>
-          <span class="product-total">&pound;0</span>
+          <input type="text" class="product-name" placeholder="Product or service name" value="Business Coaching">
+          <div class="mobile-field"><span class="mobile-label">Leads</span><input type="number" class="product-leads" min="0" value="50" placeholder="Leads"></div>
+          <div class="mobile-field"><span class="mobile-label">Appts Sched</span><input type="number" class="product-mtgs-sched" min="0" value="18" placeholder="Appts Sched"></div>
+          <div class="mobile-field"><span class="mobile-label">Appts Att</span><input type="number" class="product-mtgs-att" min="0" value="14" placeholder="Appts Att"></div>
+          <div class="mobile-field"><span class="mobile-label">Units</span><input type="number" class="product-units" min="0" value="5" placeholder="Units"></div>
+          <div class="mobile-field"><span class="mobile-label">Value (&pound;)</span><input type="number" class="product-price" min="0" step="0.01" value="1500" placeholder="Value (£)"></div>
+          <span class="product-total">&pound;7,500</span>
+          <button class="product-remove" onclick="removeProduct(this)" title="Remove">&times;</button>
+        </div>
+        <div class="product-row">
+          <input type="text" class="product-name" placeholder="Product or service name" value="Online Course">
+          <div class="mobile-field"><span class="mobile-label">Leads</span><input type="number" class="product-leads" min="0" value="120" placeholder="Leads"></div>
+          <div class="mobile-field"><span class="mobile-label">Appts Sched</span><input type="number" class="product-mtgs-sched" min="0" value="8" placeholder="Appts Sched"></div>
+          <div class="mobile-field"><span class="mobile-label">Appts Att</span><input type="number" class="product-mtgs-att" min="0" value="6" placeholder="Appts Att"></div>
+          <div class="mobile-field"><span class="mobile-label">Units</span><input type="number" class="product-units" min="0" value="22" placeholder="Units"></div>
+          <div class="mobile-field"><span class="mobile-label">Value (&pound;)</span><input type="number" class="product-price" min="0" step="0.01" value="297" placeholder="Value (£)"></div>
+          <span class="product-total">&pound;6,534</span>
+          <button class="product-remove" onclick="removeProduct(this)" title="Remove">&times;</button>
+        </div>
+        <div class="product-row">
+          <input type="text" class="product-name" placeholder="Product or service name" value="Strategy Workshop">
+          <div class="mobile-field"><span class="mobile-label">Leads</span><input type="number" class="product-leads" min="0" value="35" placeholder="Leads"></div>
+          <div class="mobile-field"><span class="mobile-label">Appts Sched</span><input type="number" class="product-mtgs-sched" min="0" value="12" placeholder="Appts Sched"></div>
+          <div class="mobile-field"><span class="mobile-label">Appts Att</span><input type="number" class="product-mtgs-att" min="0" value="9" placeholder="Appts Att"></div>
+          <div class="mobile-field"><span class="mobile-label">Units</span><input type="number" class="product-units" min="0" value="3" placeholder="Units"></div>
+          <div class="mobile-field"><span class="mobile-label">Value (&pound;)</span><input type="number" class="product-price" min="0" step="0.01" value="3500" placeholder="Value (£)"></div>
+          <span class="product-total">&pound;10,500</span>
           <button class="product-remove" onclick="removeProduct(this)" title="Remove">&times;</button>
         </div>
       </div>
@@ -757,13 +777,33 @@
       </div>
       <div id="target-list">
         <div class="product-row">
-          <input type="text" class="product-name" placeholder="Product or service name" value="">
-          <div class="mobile-field"><span class="mobile-label">Leads</span><input type="number" class="target-leads" min="0" value="0" placeholder="Leads"></div>
-          <div class="mobile-field"><span class="mobile-label">Appts Sched</span><input type="number" class="target-mtgs-sched" min="0" value="0" placeholder="Appts Sched"></div>
-          <div class="mobile-field"><span class="mobile-label">Appts Att</span><input type="number" class="target-mtgs-att" min="0" value="0" placeholder="Appts Att"></div>
-          <div class="mobile-field"><span class="mobile-label">Units</span><input type="number" class="target-units" min="0" value="0" placeholder="Units"></div>
-          <div class="mobile-field"><span class="mobile-label">Value (&pound;)</span><input type="number" class="target-price" min="0" step="0.01" value="0" placeholder="Value (£)"></div>
-          <span class="product-total">&pound;0</span>
+          <input type="text" class="product-name" placeholder="Product or service name" value="Business Coaching">
+          <div class="mobile-field"><span class="mobile-label">Leads</span><input type="number" class="target-leads" min="0" value="60" placeholder="Leads"></div>
+          <div class="mobile-field"><span class="mobile-label">Appts Sched</span><input type="number" class="target-mtgs-sched" min="0" value="25" placeholder="Appts Sched"></div>
+          <div class="mobile-field"><span class="mobile-label">Appts Att</span><input type="number" class="target-mtgs-att" min="0" value="20" placeholder="Appts Att"></div>
+          <div class="mobile-field"><span class="mobile-label">Units</span><input type="number" class="target-units" min="0" value="8" placeholder="Units"></div>
+          <div class="mobile-field"><span class="mobile-label">Value (&pound;)</span><input type="number" class="target-price" min="0" step="0.01" value="1500" placeholder="Value (£)"></div>
+          <span class="product-total">&pound;12,000</span>
+          <button class="product-remove" onclick="removeTarget(this)" title="Remove">&times;</button>
+        </div>
+        <div class="product-row">
+          <input type="text" class="product-name" placeholder="Product or service name" value="Online Course">
+          <div class="mobile-field"><span class="mobile-label">Leads</span><input type="number" class="target-leads" min="0" value="150" placeholder="Leads"></div>
+          <div class="mobile-field"><span class="mobile-label">Appts Sched</span><input type="number" class="target-mtgs-sched" min="0" value="15" placeholder="Appts Sched"></div>
+          <div class="mobile-field"><span class="mobile-label">Appts Att</span><input type="number" class="target-mtgs-att" min="0" value="12" placeholder="Appts Att"></div>
+          <div class="mobile-field"><span class="mobile-label">Units</span><input type="number" class="target-units" min="0" value="30" placeholder="Units"></div>
+          <div class="mobile-field"><span class="mobile-label">Value (&pound;)</span><input type="number" class="target-price" min="0" step="0.01" value="297" placeholder="Value (£)"></div>
+          <span class="product-total">&pound;8,910</span>
+          <button class="product-remove" onclick="removeTarget(this)" title="Remove">&times;</button>
+        </div>
+        <div class="product-row">
+          <input type="text" class="product-name" placeholder="Product or service name" value="Strategy Workshop">
+          <div class="mobile-field"><span class="mobile-label">Leads</span><input type="number" class="target-leads" min="0" value="40" placeholder="Leads"></div>
+          <div class="mobile-field"><span class="mobile-label">Appts Sched</span><input type="number" class="target-mtgs-sched" min="0" value="15" placeholder="Appts Sched"></div>
+          <div class="mobile-field"><span class="mobile-label">Appts Att</span><input type="number" class="target-mtgs-att" min="0" value="12" placeholder="Appts Att"></div>
+          <div class="mobile-field"><span class="mobile-label">Units</span><input type="number" class="target-units" min="0" value="5" placeholder="Units"></div>
+          <div class="mobile-field"><span class="mobile-label">Value (&pound;)</span><input type="number" class="target-price" min="0" step="0.01" value="3500" placeholder="Value (£)"></div>
+          <span class="product-total">&pound;17,500</span>
           <button class="product-remove" onclick="removeTarget(this)" title="Remove">&times;</button>
         </div>
       </div>
