@@ -293,58 +293,6 @@
     }
 
     /* Funnel */
-    .funnel-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 24px;
-      box-shadow: var(--shadow);
-      margin-bottom: 20px;
-    }
-    .funnel-row {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      margin-bottom: 12px;
-    }
-    .funnel-row:last-child { margin-bottom: 0; }
-    .funnel-label {
-      width: 120px;
-      font-size: 13px;
-      font-weight: 600;
-      color: var(--text);
-      flex-shrink: 0;
-    }
-    .funnel-bar-bg {
-      flex: 1;
-      height: 28px;
-      background: var(--bg);
-      border-radius: 6px;
-      overflow: hidden;
-      position: relative;
-    }
-    .funnel-bar-fill {
-      height: 100%;
-      border-radius: 6px;
-      transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-      min-width: 2px;
-    }
-    .funnel-num {
-      width: 60px;
-      text-align: right;
-      font-size: 15px;
-      font-weight: 800;
-      color: var(--navy);
-      flex-shrink: 0;
-    }
-    .funnel-rate {
-      width: 60px;
-      text-align: right;
-      font-size: 12px;
-      font-weight: 700;
-      flex-shrink: 0;
-    }
-
     /* Target progress */
     .target-row {
       display: flex;
@@ -583,10 +531,7 @@
       .results-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
       .result-value { font-size: 22px; }
       .input-card { padding: 16px; }
-      .funnel-card { padding: 16px; }
-      .funnel-label { width: 90px; font-size: 12px; }
-      .funnel-num { width: 45px; font-size: 13px; }
-      .funnel-rate { width: 50px; font-size: 11px; }
+
       .input-group input,
       .input-group select {
         font-size: 16px;
