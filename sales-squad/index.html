@@ -445,6 +445,49 @@
     }
     .product-remove:hover { background: var(--red-lt); color: var(--red); }
 
+    /* Period selectors & calculate bar */
+    .calculate-bar {
+      margin-top: 16px;
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .period-selectors {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .period-select-group {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+    .period-select-group label {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .period-select-group select {
+      padding: 8px 12px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-size: 13px;
+      font-family: var(--font);
+      color: var(--text);
+      background: var(--surface);
+      outline: none;
+      cursor: pointer;
+      transition: border-color var(--duration), box-shadow var(--duration);
+    }
+    .period-select-group select:focus {
+      border-color: var(--navy);
+      box-shadow: 0 0 0 3px rgba(29,29,46,.10);
+    }
+
     .btn-calculate {
       background: var(--red);
       color: #fff;
@@ -492,6 +535,9 @@
         padding: 11px 12px;
         min-height: 44px;
       }
+      .calculate-bar { flex-direction: column; align-items: stretch; }
+      .period-selectors { flex-direction: column; }
+      .period-select-group select { font-size: 16px; min-height: 44px; }
       .product-row {
         grid-template-columns: 1fr repeat(3, 50px) 50px 65px 65px 28px;
         gap: 5px;
@@ -563,7 +609,29 @@
         <span></span>
       </div>
 
-      <div style="margin-top:16px;display:flex;gap:8px;">
+      <div class="calculate-bar">
+        <div class="period-selectors">
+          <div class="period-select-group">
+            <label for="period-input">Numbers entered for</label>
+            <select id="period-input" onchange="autoCalculate()">
+              <option value="daily">Daily</option>
+              <option value="weekly" selected>Weekly</option>
+              <option value="monthly">Monthly</option>
+              <option value="quarterly">Quarterly</option>
+              <option value="annually">Annually</option>
+            </select>
+          </div>
+          <div class="period-select-group">
+            <label for="period-view">View results as</label>
+            <select id="period-view" onchange="autoCalculate()">
+              <option value="daily">Daily</option>
+              <option value="weekly">Weekly</option>
+              <option value="monthly" selected>Monthly</option>
+              <option value="quarterly">Quarterly</option>
+              <option value="annually">Annually</option>
+            </select>
+          </div>
+        </div>
         <button class="btn-calculate" onclick="calculate()">Calculate</button>
       </div>
     </div>
@@ -641,49 +709,82 @@
       num(v) { return Number(v || 0).toLocaleString('en-GB'); },
     };
 
+    // ─── PERIOD SCALING ────────────────────────────────────────────────────
+    const periodDays = { daily: 1, weekly: 5, monthly: 22, quarterly: 66, annually: 260 };
+    const periodLabels = { daily: 'Daily', weekly: 'Weekly', monthly: 'Monthly', quarterly: 'Quarterly', annually: 'Annual' };
+    let hasCalculated = false;
+
+    function getScale() {
+      const input = $('period-input').value;
+      const view = $('period-view').value;
+      return periodDays[view] / periodDays[input];
+    }
+
+    function autoCalculate() {
+      if (hasCalculated) calculate();
+    }
+
     // ─── CALCULATE ───────────────────────────────────────────────────────────
     function calculate() {
-      // Aggregate from product rows
-      let leads = 0, meetingsSched = 0, meetingsAtt = 0, units = 0, revenue = 0;
+      hasCalculated = true;
+      const scale = getScale();
+      const viewLabel = periodLabels[$('period-view').value];
+
+      // Aggregate from product rows (raw input values)
+      let rawLeads = 0, rawMtgsSched = 0, rawMtgsAtt = 0, rawUnits = 0, rawRevenue = 0;
       document.querySelectorAll('#product-list .product-row').forEach(row => {
         const l = Number(row.querySelector('.product-leads').value) || 0;
         const ms = Number(row.querySelector('.product-mtgs-sched').value) || 0;
         const ma = Number(row.querySelector('.product-mtgs-att').value) || 0;
         const u = Number(row.querySelector('.product-units').value) || 0;
         const p = Number(row.querySelector('.product-price').value) || 0;
-        leads += l;
-        meetingsSched += ms;
-        meetingsAtt += ma;
-        units += u;
-        revenue += u * p;
+        rawLeads += l;
+        rawMtgsSched += ms;
+        rawMtgsAtt += ma;
+        rawUnits += u;
+        rawRevenue += u * p;
         row.querySelector('.product-total').textContent = fmt.currency(u * p);
       });
-      $('products-total-leads').textContent = leads;
-      $('products-total-mtgs-sched').textContent = meetingsSched;
-      $('products-total-mtgs-att').textContent = meetingsAtt;
-      $('products-total-units').textContent = units;
-      $('products-total-revenue').textContent = fmt.currency(revenue);
+      $('products-total-leads').textContent = rawLeads;
+      $('products-total-mtgs-sched').textContent = rawMtgsSched;
+      $('products-total-mtgs-att').textContent = rawMtgsAtt;
+      $('products-total-units').textContent = rawUnits;
+      $('products-total-revenue').textContent = fmt.currency(rawRevenue);
 
-      // Aggregate targets
-      let tLeads = 0, tMtgsSched = 0, tMtgsAtt = 0, tUnits = 0, tRevenue = 0;
+      // Apply period scaling
+      const leads = Math.round(rawLeads * scale);
+      const meetingsSched = Math.round(rawMtgsSched * scale);
+      const meetingsAtt = Math.round(rawMtgsAtt * scale);
+      const units = Math.round(rawUnits * scale);
+      const revenue = rawRevenue * scale;
+
+      // Aggregate targets (raw)
+      let rawTLeads = 0, rawTMtgsSched = 0, rawTMtgsAtt = 0, rawTUnits = 0, rawTRevenue = 0;
       document.querySelectorAll('#target-list .product-row').forEach(row => {
         const l = Number(row.querySelector('.target-leads').value) || 0;
         const ms = Number(row.querySelector('.target-mtgs-sched').value) || 0;
         const ma = Number(row.querySelector('.target-mtgs-att').value) || 0;
         const u = Number(row.querySelector('.target-units').value) || 0;
         const p = Number(row.querySelector('.target-price').value) || 0;
-        tLeads += l;
-        tMtgsSched += ms;
-        tMtgsAtt += ma;
-        tUnits += u;
-        tRevenue += u * p;
+        rawTLeads += l;
+        rawTMtgsSched += ms;
+        rawTMtgsAtt += ma;
+        rawTUnits += u;
+        rawTRevenue += u * p;
         row.querySelector('.product-total').textContent = fmt.currency(u * p);
       });
-      $('targets-total-leads').textContent = tLeads;
-      $('targets-total-mtgs-sched').textContent = tMtgsSched;
-      $('targets-total-mtgs-att').textContent = tMtgsAtt;
-      $('targets-total-units').textContent = tUnits;
-      $('targets-total-revenue').textContent = fmt.currency(tRevenue);
+      $('targets-total-leads').textContent = rawTLeads;
+      $('targets-total-mtgs-sched').textContent = rawTMtgsSched;
+      $('targets-total-mtgs-att').textContent = rawTMtgsAtt;
+      $('targets-total-units').textContent = rawTUnits;
+      $('targets-total-revenue').textContent = fmt.currency(rawTRevenue);
+
+      // Apply period scaling to targets
+      const tLeads = Math.round(rawTLeads * scale);
+      const tMtgsSched = Math.round(rawTMtgsSched * scale);
+      const tMtgsAtt = Math.round(rawTMtgsAtt * scale);
+      const tUnits = Math.round(rawTUnits * scale);
+      const tRevenue = rawTRevenue * scale;
 
       // Conversion rates
       const leadToSale = leads > 0 ? (units / leads * 100) : 0;
@@ -691,10 +792,10 @@
 
       // ─── KPI CARDS ─────────────────────────────────────────────────────────
       $('kpi-grid').innerHTML = [
-        kpi('Leads Generated', fmt.num(leads), 'Total leads generated', 'blue'),
+        kpi('Leads Generated', fmt.num(leads), `${viewLabel} total`, 'blue'),
         kpi('Show Rate', fmt.pct(showRate), `${meetingsAtt} of ${meetingsSched} attended`, 'purple'),
-        kpi('Units Sold', fmt.num(units), 'Total across all products', 'green'),
-        kpi('Revenue', fmt.currency(revenue), `From ${document.querySelectorAll('.product-row').length} product${document.querySelectorAll('.product-row').length !== 1 ? 's' : ''}`, 'red'),
+        kpi('Units Sold', fmt.num(units), `${viewLabel} total`, 'green'),
+        kpi('Revenue', fmt.currency(revenue), `${viewLabel} projected`, 'red'),
         kpi('Avg Unit Value', fmt.currency(units > 0 ? revenue / units : 0), 'Revenue per unit', 'amber'),
         kpi('Lead \u2192 Sale', fmt.pct(leadToSale), 'Conversion rate', 'green'),
       ].join('');
