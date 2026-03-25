@@ -7,11 +7,418 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../css/style.css">
+  <style>
+    :root {
+      --red: #e63946;
+      --red-lt: #fff1f2;
+      --navy: #1d1d2e;
+      --navy-lt: #2e2e47;
+      --green: #10b981;
+      --green-lt: #ecfdf5;
+      --amber: #f59e0b;
+      --amber-lt: #fef9ed;
+      --blue: #3b82f6;
+      --blue-lt: #eff6ff;
+      --purple: #8b5cf6;
+      --bg: #f0f2f8;
+      --surface: #ffffff;
+      --border: #e4e8f0;
+      --text: #1a1a2e;
+      --muted: #7c839e;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,.05), 0 1px 2px rgba(0,0,0,.04);
+      --shadow: 0 4px 16px rgba(0,0,0,.07), 0 1px 4px rgba(0,0,0,.04);
+      --shadow-lift: 0 14px 36px rgba(0,0,0,.12), 0 2px 8px rgba(0,0,0,.06);
+      --radius-sm: 6px;
+      --radius: 12px;
+      --radius-lg: 16px;
+      --font: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --ease: cubic-bezier(0.2, 0, 0, 1);
+      --duration: 0.18s;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { font-size: 15px; }
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      line-height: 1.55;
+    }
+    button { font-family: inherit; cursor: pointer; border: none; background: none; }
+    input, select { font-family: inherit; font-size: 1rem; }
+
+    /* Header */
+    .app-header {
+      background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+      height: 64px;
+      display: flex;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 16px rgba(0,0,0,.22);
+      border-bottom: 1px solid rgba(255,255,255,.06);
+    }
+    .header-inner {
+      width: 100%;
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 0 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      user-select: none;
+    }
+    .logo-img {
+      height: 44px;
+      width: auto;
+      filter: brightness(0) invert(1);
+      opacity: 0.92;
+    }
+    .logo-text {
+      font-size: 13px;
+      font-weight: 400;
+      color: rgba(255,255,255,.58);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+    .logo-text strong { font-weight: 800; color: #fff; }
+    .nav-home {
+      padding: 8px 15px;
+      font-size: 13px;
+      font-weight: 600;
+      color: rgba(255,255,255,.52);
+      border-radius: var(--radius-sm);
+      text-decoration: none;
+      transition: color var(--duration), background var(--duration);
+    }
+    .nav-home:hover { color: rgba(255,255,255,.88); background: rgba(255,255,255,.07); }
+
+    /* Layout */
+    .app-main {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 28px 24px 60px;
+    }
+    .page-title {
+      font-size: 24px;
+      font-weight: 800;
+      color: var(--navy);
+      letter-spacing: -0.4px;
+      margin-bottom: 4px;
+    }
+    .page-sub {
+      font-size: 13px;
+      color: var(--muted);
+      font-weight: 500;
+      margin-bottom: 24px;
+    }
+
+    /* Section labels */
+    .section-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .section-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    /* Input card */
+    .input-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+      box-shadow: var(--shadow);
+      margin-bottom: 20px;
+    }
+    .input-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .input-group label {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: 0.1px;
+    }
+    .input-group input,
+    .input-group select {
+      padding: 9px 12px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-size: 13.5px;
+      color: var(--text);
+      background: var(--surface);
+      transition: border-color var(--duration), box-shadow var(--duration);
+      outline: none;
+    }
+    .input-group input:focus,
+    .input-group select:focus {
+      border-color: var(--navy);
+      box-shadow: 0 0 0 3px rgba(29,29,46,.10);
+    }
+    .input-hint {
+      font-size: 11px;
+      color: var(--muted);
+      font-weight: 500;
+    }
+
+    /* Results grid */
+    .results-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      margin-bottom: 20px;
+    }
+    .result-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px 20px;
+      box-shadow: var(--shadow);
+      border-top: 3px solid transparent;
+      transition: box-shadow var(--duration), transform var(--duration);
+    }
+    .result-card:hover {
+      box-shadow: var(--shadow-lift);
+      transform: translateY(-2px);
+    }
+    .result-card.accent-red { border-top-color: var(--red); }
+    .result-card.accent-green { border-top-color: var(--green); }
+    .result-card.accent-blue { border-top-color: var(--blue); }
+    .result-card.accent-amber { border-top-color: var(--amber); }
+    .result-card.accent-purple { border-top-color: var(--purple); }
+    .result-card.accent-navy { border-top-color: var(--navy-lt); }
+    .result-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.7px;
+      margin-bottom: 8px;
+    }
+    .result-value {
+      font-size: 26px;
+      font-weight: 800;
+      color: var(--navy);
+      letter-spacing: -0.4px;
+      line-height: 1.1;
+      margin-bottom: 4px;
+    }
+    .result-sub {
+      font-size: 11.5px;
+      color: var(--muted);
+      font-weight: 500;
+    }
+
+    /* Funnel */
+    .funnel-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+      box-shadow: var(--shadow);
+      margin-bottom: 20px;
+    }
+    .funnel-row {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 12px;
+    }
+    .funnel-row:last-child { margin-bottom: 0; }
+    .funnel-label {
+      width: 120px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+      flex-shrink: 0;
+    }
+    .funnel-bar-bg {
+      flex: 1;
+      height: 28px;
+      background: var(--bg);
+      border-radius: 6px;
+      overflow: hidden;
+      position: relative;
+    }
+    .funnel-bar-fill {
+      height: 100%;
+      border-radius: 6px;
+      transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+      min-width: 2px;
+    }
+    .funnel-num {
+      width: 60px;
+      text-align: right;
+      font-size: 15px;
+      font-weight: 800;
+      color: var(--navy);
+      flex-shrink: 0;
+    }
+    .funnel-rate {
+      width: 60px;
+      text-align: right;
+      font-size: 12px;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    /* Two column layout */
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin-bottom: 20px;
+    }
+
+    /* Target progress */
+    .target-row {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 14px;
+    }
+    .target-row:last-child { margin-bottom: 0; }
+    .target-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .target-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+    }
+    .target-nums {
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 500;
+    }
+    .target-bar-bg {
+      height: 8px;
+      background: var(--bg);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    .target-bar-fill {
+      height: 100%;
+      border-radius: 4px;
+      transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .target-pct {
+      font-size: 12px;
+      font-weight: 700;
+      text-align: right;
+    }
+
+    /* Summary items */
+    .summary-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+    .sum-item {
+      background: var(--bg);
+      border-radius: var(--radius-sm);
+      padding: 11px 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12.5px;
+      border: 1px solid var(--border);
+    }
+    .sum-item span { color: var(--muted); font-weight: 500; }
+    .sum-item strong { color: var(--navy); font-size: 13px; font-weight: 700; }
+
+    /* Card title */
+    .card-title {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.9px;
+      margin-bottom: 16px;
+    }
+
+    /* Reset button */
+    .btn-reset {
+      padding: 8px 16px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--muted);
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      transition: all var(--duration);
+    }
+    .btn-reset:hover { border-color: var(--red); color: var(--red); }
+
+    /* Responsive */
+    @media (max-width: 900px) {
+      .input-grid { grid-template-columns: repeat(2, 1fr); }
+      .results-grid { grid-template-columns: repeat(2, 1fr); }
+      .two-col { grid-template-columns: 1fr; }
+      .summary-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 640px) {
+      .app-header { height: auto; }
+      .header-inner {
+        flex-direction: column;
+        padding: 10px 14px;
+        gap: 8px;
+      }
+      .logo { justify-content: center; gap: 14px; }
+      .logo-text { font-size: 10px; letter-spacing: 1.2px; }
+      .app-main { padding: 16px 12px 40px; }
+      .page-title { font-size: 20px; }
+      .input-grid { grid-template-columns: 1fr 1fr; }
+      .results-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+      .result-value { font-size: 22px; }
+      .input-card { padding: 16px; }
+      .funnel-card { padding: 16px; }
+      .funnel-label { width: 90px; font-size: 12px; }
+      .funnel-num { width: 45px; font-size: 13px; }
+      .funnel-rate { width: 50px; font-size: 11px; }
+      .input-group input,
+      .input-group select {
+        font-size: 16px;
+        padding: 11px 12px;
+        min-height: 44px;
+      }
+    }
+    @media (max-width: 380px) {
+      .input-grid { grid-template-columns: 1fr; }
+      .results-grid { grid-template-columns: 1fr; }
+      .logo-text { display: none; }
+    }
+  </style>
 </head>
 <body>
 
-  <!-- ─── HEADER ──────────────────────────────────────────────────────── -->
   <header class="app-header">
     <div class="header-inner">
       <div class="logo">
@@ -20,43 +427,289 @@
         </a>
         <span class="logo-text">SALES <strong>PIPELINE CALCULATOR</strong></span>
       </div>
-      <nav class="app-nav">
-        <button class="nav-item active" data-section="dashboard">Dashboard</button>
-        <button class="nav-item" data-section="activity">Activity</button>
-        <button class="nav-item" data-section="pipeline">Pipeline</button>
-        <button class="nav-item" data-section="reports">Reports</button>
-        <button class="nav-item" data-section="settings">Settings</button>
-        <a href="../index.html" class="nav-item nav-home" style="text-decoration:none; margin-left:12px; border-left:1px solid rgba(255,255,255,0.1); padding-left:20px;">AI Tools</a>
-      </nav>
+      <a href="../index.html" class="nav-home">AI Tools</a>
     </div>
   </header>
 
-  <!-- ─── MAIN ────────────────────────────────────────────────────────── -->
   <main class="app-main">
-    <div id="section-dashboard" class="section active"></div>
-    <div id="section-activity"  class="section"></div>
-    <div id="section-pipeline"  class="section"></div>
-    <div id="section-reports"   class="section"></div>
-    <div id="section-settings"  class="section"></div>
+    <h1 class="page-title">Sales Pipeline Calculator</h1>
+    <p class="page-sub">Enter your numbers to calculate conversion rates, pipeline value and target progress.</p>
+
+    <!-- ACTIVITY INPUTS -->
+    <div class="section-label">Activity</div>
+    <div class="input-card">
+      <div class="input-grid">
+        <div class="input-group">
+          <label for="in-leads">Leads Generated</label>
+          <input type="number" id="in-leads" min="0" value="0" placeholder="0">
+        </div>
+        <div class="input-group">
+          <label for="in-conversations">Conversations</label>
+          <input type="number" id="in-conversations" min="0" value="0" placeholder="0">
+        </div>
+        <div class="input-group">
+          <label for="in-meetings-sched">Meetings Scheduled</label>
+          <input type="number" id="in-meetings-sched" min="0" value="0" placeholder="0">
+        </div>
+        <div class="input-group">
+          <label for="in-meetings-att">Meetings Attended</label>
+          <input type="number" id="in-meetings-att" min="0" value="0" placeholder="0">
+        </div>
+        <div class="input-group">
+          <label for="in-units">Units Sold</label>
+          <input type="number" id="in-units" min="0" value="0" placeholder="0">
+        </div>
+        <div class="input-group">
+          <label for="in-revenue">Revenue (&pound;)</label>
+          <input type="number" id="in-revenue" min="0" step="0.01" value="0" placeholder="0.00">
+        </div>
+      </div>
+    </div>
+
+    <!-- PIPELINE INPUTS -->
+    <div class="section-label">Pipeline</div>
+    <div class="input-card">
+      <div class="input-grid">
+        <div class="input-group">
+          <label for="in-open-deals">Open Deals</label>
+          <input type="number" id="in-open-deals" min="0" value="0" placeholder="0">
+        </div>
+        <div class="input-group">
+          <label for="in-pipeline-value">Pipeline Value (&pound;)</label>
+          <input type="number" id="in-pipeline-value" min="0" step="0.01" value="0" placeholder="0.00">
+        </div>
+        <div class="input-group">
+          <label for="in-avg-probability">Avg Probability (%)</label>
+          <input type="number" id="in-avg-probability" min="0" max="100" value="0" placeholder="0">
+          <span class="input-hint">Weighted close likelihood</span>
+        </div>
+        <div class="input-group">
+          <label for="in-won-deals">Won Deals</label>
+          <input type="number" id="in-won-deals" min="0" value="0" placeholder="0">
+        </div>
+        <div class="input-group">
+          <label for="in-won-value">Won Value (&pound;)</label>
+          <input type="number" id="in-won-value" min="0" step="0.01" value="0" placeholder="0.00">
+        </div>
+        <div class="input-group">
+          <label for="in-lost-deals">Lost Deals</label>
+          <input type="number" id="in-lost-deals" min="0" value="0" placeholder="0">
+        </div>
+        <div class="input-group">
+          <label for="in-avg-lead-days">Avg Lead &rarr; Prospect (days)</label>
+          <input type="number" id="in-avg-lead-days" min="0" value="0" placeholder="0">
+        </div>
+        <div class="input-group">
+          <label for="in-avg-prospect-days">Avg Prospect &rarr; Close (days)</label>
+          <input type="number" id="in-avg-prospect-days" min="0" value="0" placeholder="0">
+        </div>
+      </div>
+    </div>
+
+    <!-- TARGET INPUTS -->
+    <div class="section-label">Targets (optional)</div>
+    <div class="input-card">
+      <div class="input-grid">
+        <div class="input-group">
+          <label for="in-target-leads">Target Leads</label>
+          <input type="number" id="in-target-leads" min="0" value="0" placeholder="0">
+        </div>
+        <div class="input-group">
+          <label for="in-target-conversations">Target Conversations</label>
+          <input type="number" id="in-target-conversations" min="0" value="0" placeholder="0">
+        </div>
+        <div class="input-group">
+          <label for="in-target-meetings">Target Meetings</label>
+          <input type="number" id="in-target-meetings" min="0" value="0" placeholder="0">
+        </div>
+        <div class="input-group">
+          <label for="in-target-units">Target Units</label>
+          <input type="number" id="in-target-units" min="0" value="0" placeholder="0">
+        </div>
+        <div class="input-group">
+          <label for="in-target-revenue">Target Revenue (&pound;)</label>
+          <input type="number" id="in-target-revenue" min="0" step="0.01" value="0" placeholder="0.00">
+        </div>
+        <div class="input-group" style="display:flex;align-items:flex-end;">
+          <button class="btn-reset" onclick="resetAll()">Reset All</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- RESULTS -->
+    <div class="section-label">Results</div>
+
+    <!-- KPI cards -->
+    <div class="results-grid" id="kpi-grid"></div>
+
+    <!-- Conversion Funnel -->
+    <div class="funnel-card">
+      <div class="card-title">Conversion Funnel</div>
+      <div id="funnel"></div>
+    </div>
+
+    <!-- Pipeline + Target Progress -->
+    <div class="two-col">
+      <div class="input-card" style="margin-bottom:0;">
+        <div class="card-title">Pipeline Summary</div>
+        <div class="summary-grid" id="pipeline-summary"></div>
+      </div>
+      <div class="input-card" style="margin-bottom:0;">
+        <div class="card-title">Target Progress</div>
+        <div id="target-progress"></div>
+      </div>
+    </div>
   </main>
 
-  <!-- ─── MODAL ───────────────────────────────────────────────────────── -->
-  <div id="modal" class="modal-overlay hidden">
-    <div class="modal-box">
-      <div class="modal-header">
-        <h2 id="modal-title"></h2>
-        <button class="modal-close" onclick="App.closeModal()">✕</button>
-      </div>
-      <div id="modal-body"></div>
-    </div>
-  </div>
+  <script>
+    // ─── HELPERS ──────────────────────────────────────────────────────────────
+    const $ = id => document.getElementById(id);
+    const num = id => Number($(id).value) || 0;
+    const fmt = {
+      currency(v) { return '\u00A3' + Number(v || 0).toLocaleString('en-GB', { minimumFractionDigits: 0, maximumFractionDigits: 0 }); },
+      pct(v) { return isNaN(v) || v === null ? '\u2014' : Number(v).toFixed(1) + '%'; },
+      num(v) { return Number(v || 0).toLocaleString('en-GB'); },
+      days(n) { return n === 0 ? '\u2014' : n + ' day' + (n !== 1 ? 's' : ''); }
+    };
 
-  <!-- ─── SCRIPTS ─────────────────────────────────────────────────────── -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
-  <script src="../js/data.js"></script>
-  <script src="../js/metrics.js"></script>
-  <script src="../js/charts.js"></script>
-  <script src="../js/app.js"></script>
+    // ─── CALCULATE ───────────────────────────────────────────────────────────
+    function calculate() {
+      // Read inputs
+      const leads = num('in-leads');
+      const conversations = num('in-conversations');
+      const meetingsSched = num('in-meetings-sched');
+      const meetingsAtt = num('in-meetings-att');
+      const units = num('in-units');
+      const revenue = num('in-revenue');
+
+      const openDeals = num('in-open-deals');
+      const pipelineValue = num('in-pipeline-value');
+      const avgProb = num('in-avg-probability');
+      const wonDeals = num('in-won-deals');
+      const wonValue = num('in-won-value');
+      const lostDeals = num('in-lost-deals');
+      const avgLeadDays = num('in-avg-lead-days');
+      const avgProspectDays = num('in-avg-prospect-days');
+
+      const tLeads = num('in-target-leads');
+      const tConversations = num('in-target-conversations');
+      const tMeetings = num('in-target-meetings');
+      const tUnits = num('in-target-units');
+      const tRevenue = num('in-target-revenue');
+
+      // Conversion rates
+      const leadToProspect = leads > 0 ? (conversations / leads * 100) : 0;
+      const prospectToClient = conversations > 0 ? (units / conversations * 100) : 0;
+      const leadToClient = leads > 0 ? (units / leads * 100) : 0;
+      const showRate = meetingsSched > 0 ? (meetingsAtt / meetingsSched * 100) : 0;
+      const avgDealValue = units > 0 ? (revenue / units) : 0;
+
+      // Pipeline
+      const weightedForecast = pipelineValue * avgProb / 100;
+      const winRate = (wonDeals + lostDeals) > 0 ? (wonDeals / (wonDeals + lostDeals) * 100) : 0;
+      const totalAcqTime = avgLeadDays + avgProspectDays;
+
+      // ─── KPI CARDS ─────────────────────────────────────────────────────────
+      $('kpi-grid').innerHTML = [
+        kpi('Leads', fmt.num(leads), 'Total leads generated', 'blue'),
+        kpi('Conversations', fmt.num(conversations), 'Prospects engaged', 'navy'),
+        kpi('Show Rate', fmt.pct(showRate), `${meetingsAtt} of ${meetingsSched} attended`, 'purple'),
+        kpi('Units Sold', fmt.num(units), 'Closed deals', 'green'),
+        kpi('Revenue', fmt.currency(revenue), 'Total earned', 'red'),
+        kpi('Avg Deal Value', fmt.currency(avgDealValue), 'Revenue per unit', 'amber'),
+        kpi('Lead \u2192 Prospect', fmt.pct(leadToProspect), 'Conversion rate', 'blue'),
+        kpi('Prospect \u2192 Sale', fmt.pct(prospectToClient), 'Conversion rate', 'green'),
+      ].join('');
+
+      // ─── FUNNEL ────────────────────────────────────────────────────────────
+      const maxFunnel = Math.max(leads, conversations, meetingsAtt, units, 1);
+      const funnelData = [
+        { label: 'Leads', value: leads, color: '#3b82f6', rate: null },
+        { label: 'Conversations', value: conversations, color: '#f59e0b', rate: leadToProspect },
+        { label: 'Show-ups', value: meetingsAtt, color: '#8b5cf6', rate: showRate },
+        { label: 'Sales', value: units, color: '#10b981', rate: prospectToClient },
+      ];
+      $('funnel').innerHTML = funnelData.map(f => {
+        const pct = maxFunnel > 0 ? (f.value / maxFunnel * 100) : 0;
+        const rateColor = f.rate === null ? '' : f.rate >= 50 ? 'color:#10b981' : f.rate >= 25 ? 'color:#f59e0b' : 'color:#e63946';
+        return `<div class="funnel-row">
+          <div class="funnel-label">${f.label}</div>
+          <div class="funnel-bar-bg">
+            <div class="funnel-bar-fill" style="width:${pct}%;background:${f.color}"></div>
+          </div>
+          <div class="funnel-num">${fmt.num(f.value)}</div>
+          <div class="funnel-rate" style="${rateColor}">${f.rate !== null ? fmt.pct(f.rate) : ''}</div>
+        </div>`;
+      }).join('');
+
+      // ─── PIPELINE SUMMARY ─────────────────────────────────────────────────
+      $('pipeline-summary').innerHTML = [
+        sum('Open Deals', fmt.num(openDeals)),
+        sum('Pipeline Value', fmt.currency(pipelineValue)),
+        sum('Weighted Forecast', fmt.currency(weightedForecast)),
+        sum('Won Deals', fmt.num(wonDeals)),
+        sum('Won Value', fmt.currency(wonValue)),
+        sum('Win Rate', fmt.pct(winRate)),
+        sum('Avg Lead Time', fmt.days(avgLeadDays)),
+        sum('Total Acq. Time', fmt.days(totalAcqTime)),
+      ].join('');
+
+      // ─── TARGET PROGRESS ──────────────────────────────────────────────────
+      const targets = [
+        { label: 'Leads', actual: leads, target: tLeads },
+        { label: 'Conversations', actual: conversations, target: tConversations },
+        { label: 'Meetings', actual: meetingsAtt, target: tMeetings },
+        { label: 'Units', actual: units, target: tUnits },
+        { label: 'Revenue', actual: revenue, target: tRevenue, currency: true },
+      ];
+      const hasTargets = targets.some(t => t.target > 0);
+      if (!hasTargets) {
+        $('target-progress').innerHTML = '<p style="font-size:13px;color:var(--muted);text-align:center;padding:20px 0;">Enter targets above to see progress.</p>';
+      } else {
+        $('target-progress').innerHTML = targets.filter(t => t.target > 0).map(t => {
+          const pct = t.target > 0 ? Math.min(t.actual / t.target * 100, 200) : 0;
+          const displayPct = Math.min(pct, 100);
+          const onTrack = t.actual >= t.target;
+          const color = onTrack ? '#10b981' : pct >= 75 ? '#f59e0b' : '#e63946';
+          const actualStr = t.currency ? fmt.currency(t.actual) : fmt.num(t.actual);
+          const targetStr = t.currency ? fmt.currency(t.target) : fmt.num(t.target);
+          return `<div class="target-row">
+            <div class="target-meta">
+              <span class="target-label">${t.label}</span>
+              <span class="target-nums">${actualStr} / ${targetStr}</span>
+            </div>
+            <div class="target-bar-bg">
+              <div class="target-bar-fill" style="width:${displayPct}%;background:${color}"></div>
+            </div>
+            <span class="target-pct" style="color:${color}">${Math.round(pct)}%</span>
+          </div>`;
+        }).join('');
+      }
+    }
+
+    function kpi(label, value, sub, accent) {
+      return `<div class="result-card accent-${accent}">
+        <div class="result-label">${label}</div>
+        <div class="result-value">${value}</div>
+        <div class="result-sub">${sub}</div>
+      </div>`;
+    }
+
+    function sum(label, value) {
+      return `<div class="sum-item"><span>${label}</span><strong>${value}</strong></div>`;
+    }
+
+    function resetAll() {
+      document.querySelectorAll('.input-card input[type="number"]').forEach(i => i.value = 0);
+      calculate();
+    }
+
+    // ─── INIT ────────────────────────────────────────────────────────────────
+    document.querySelectorAll('.input-card input').forEach(input => {
+      input.addEventListener('input', calculate);
+    });
+    calculate();
+  </script>
 
 </body>
 </html>
