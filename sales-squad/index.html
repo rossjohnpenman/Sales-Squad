@@ -388,6 +388,33 @@
       align-items: center;
       margin-bottom: 8px;
     }
+    .product-row-header {
+      margin-bottom: 6px;
+    }
+    .product-row-header span {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .product-row-totals {
+      margin-top: 4px;
+      padding-top: 10px;
+      border-top: 2px solid var(--border);
+      margin-bottom: 0;
+    }
+    .product-row-totals span {
+      font-size: 13px;
+      font-weight: 800;
+      color: var(--navy);
+    }
+    .product-row-totals span:first-child {
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
     .product-row input {
       padding: 8px 10px;
       border: 1px solid var(--border);
@@ -524,6 +551,13 @@
           <span class="products-label">Products / Services</span>
           <button class="btn-add-product" onclick="addProduct()">+ Add Product</button>
         </div>
+        <div class="product-row product-row-header">
+          <span>Product / Service</span>
+          <span>Units Sold</span>
+          <span>Value (&pound;)</span>
+          <span>Total</span>
+          <span></span>
+        </div>
         <div id="product-list">
           <div class="product-row" data-index="0">
             <input type="text" class="product-name" placeholder="Product or service name" value="">
@@ -532,6 +566,13 @@
             <span class="product-total">&pound;0</span>
             <button class="product-remove" onclick="removeProduct(this)" title="Remove">&times;</button>
           </div>
+        </div>
+        <div class="product-row product-row-totals">
+          <span>Revenue Total</span>
+          <span id="products-total-units">0</span>
+          <span></span>
+          <span id="products-total-revenue">&pound;0</span>
+          <span></span>
         </div>
       </div>
 
@@ -612,6 +653,8 @@
         revenue += u * p;
         row.querySelector('.product-total').textContent = fmt.currency(u * p);
       });
+      $('products-total-units').textContent = units;
+      $('products-total-revenue').textContent = fmt.currency(revenue);
 
       const tLeads = num('in-target-leads');
       const tMeetings = num('in-target-meetings');
