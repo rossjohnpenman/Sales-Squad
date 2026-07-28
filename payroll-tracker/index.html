@@ -297,6 +297,7 @@
       <div class="field"><label>Contact email (from)</label><input id="setEmail" type="email" style="width:280px;" placeholder="payroll@converted.co"></div>
       <div class="field"><label>Address (one line per line)</label><textarea id="setAddress" style="min-height:80px;" placeholder="1 Example Street&#10;London&#10;EC1A 1AA"></textarea></div>
       <div class="field"><label>Company / registration no. (optional)</label><input id="setReg" type="text" style="width:280px;"></div>
+      <div class="field"><label>Payslip password (included in employee emails)</label><input id="setSlipPassword" type="text" style="width:280px;" placeholder="AMSRJP1"></div>
       <div class="field"><label>Email sign-off name</label><input id="setSignoff" type="text" style="width:280px;" placeholder="The Converted Team"></div>
       <button class="btn" onclick="saveSettings()">Save settings</button>
     </div>
@@ -331,7 +332,7 @@ const STORAGE_KEY = 'convertedPayrollData_v2';
 
 function defaultState(){
   return {
-    business: { name:'Converted', email:'', address:'', reg:'', signoff:'The Converted Team' },
+    business: { name:'Converted', email:'', address:'', reg:'', signoff:'The Converted Team', slipPassword:'AMSRJP1' },
     employees: [],
     periods: [],
     payslips: []
@@ -440,6 +441,7 @@ function loadSettingsForm(){
   document.getElementById('setEmail').value = state.business.email||'';
   document.getElementById('setAddress').value = state.business.address||'';
   document.getElementById('setReg').value = state.business.reg||'';
+  document.getElementById('setSlipPassword').value = state.business.slipPassword||'';
   document.getElementById('setSignoff').value = state.business.signoff||'';
 }
 function saveSettings(){
@@ -447,6 +449,7 @@ function saveSettings(){
   state.business.email = document.getElementById('setEmail').value.trim();
   state.business.address = document.getElementById('setAddress').value;
   state.business.reg = document.getElementById('setReg').value.trim();
+  state.business.slipPassword = document.getElementById('setSlipPassword').value.trim();
   state.business.signoff = document.getElementById('setSignoff').value.trim() || (state.business.name);
   saveState();
   toast('Settings saved');
@@ -990,13 +993,17 @@ async function emailPayslip(id){
 
   const firstName = (slip.employeeName||'').split(' ')[0] || 'there';
   const signoff = state.business.signoff || state.business.name || 'Converted';
+  const password = state.business.slipPassword || '';
   const to = (emp && emp.email) ? emp.email : '';
   const subject = `Your payslip — ${slip.period}`;
+  const passwordBlock = password
+    ? `\nThe payslip is password protected. Please use the following password to open it:\n\nPassword: ${password}\n`
+    : '';
   const body =
 `Hi ${firstName},
 
 Please find attached your payslip for ${slip.period}.
-
+${passwordBlock}
 If you have any questions about it, just let me know.
 
 Kind regards,
