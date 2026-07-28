@@ -1,0 +1,1145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Converted — Payroll Tracker</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%23000'/%3E%3Cpath d='M20 52 L42 74 L82 22' fill='none' stroke='%2322c55e' stroke-width='16' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+  :root{
+    --bg:#0a0a0b; --panel:#151517; --border:#2a2a2e; --text:#f2f3f5; --muted:#9a9aa4;
+    --accent:#22c55e; --accent-dark:#16a34a; --accent-light:rgba(34,197,94,0.14); --accent-ink:#04150a;
+    --danger:#ef4444; --danger-light:rgba(239,68,68,0.14); --shadow:0 1px 3px rgba(0,0,0,0.5);
+    font-size:15px;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--text);}
+  header{background:#000;color:#fff;padding:18px 28px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #1a1a1c;}
+  header .brand{display:flex;align-items:center;gap:12px;}
+  header .logo-mark{flex-shrink:0;display:block;}
+  header h1{font-size:19px;margin:0;font-weight:600;letter-spacing:.01em;}
+  header .tag{font-size:12.5px;opacity:0.65;margin-top:2px;}
+  .save-indicator{font-size:12px;opacity:0.6;}
+  nav{display:flex;gap:2px;background:#000;padding:0 24px;border-bottom:1px solid #1a1a1c;flex-wrap:wrap;}
+  nav button{background:transparent;border:none;color:#b0b0b6;padding:12px 16px;font-size:14px;cursor:pointer;border-bottom:3px solid transparent;}
+  nav button.active{opacity:1;color:var(--accent);border-bottom:3px solid var(--accent);font-weight:600;}
+  nav button:hover{color:#fff;}
+  main{max-width:1100px;margin:24px auto;padding:0 24px 60px;}
+  .panel{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:22px;margin-bottom:20px;box-shadow:var(--shadow);}
+  .panel h2{margin-top:0;font-size:17px;}
+  .panel h3{font-size:14.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.03em;margin-bottom:10px;}
+  .grid{display:grid;gap:16px;}
+  .grid.cols-4{grid-template-columns:repeat(4,1fr);}
+  .stat{background:var(--accent-light);border:1px solid rgba(34,197,94,0.22);border-radius:8px;padding:16px;}
+  .stat .num{font-size:24px;font-weight:700;color:var(--accent);}
+  .stat .label{font-size:12.5px;color:var(--muted);margin-top:2px;}
+  table{width:100%;border-collapse:collapse;font-size:14px;}
+  th,td{padding:9px 10px;text-align:left;border-bottom:1px solid var(--border);}
+  th{color:var(--muted);font-weight:600;font-size:12.5px;text-transform:uppercase;letter-spacing:.02em;}
+  tr:last-child td{border-bottom:none;}
+  input,select,textarea{padding:7px 9px;border:1px solid var(--border);border-radius:6px;font-size:14px;font-family:inherit;background:#1c1c1f;color:var(--text);}
+  input:focus,select:focus,textarea:focus{outline:2px solid var(--accent);outline-offset:0;}
+  input[type="number"]{width:90px;}
+  label{font-size:12.5px;color:var(--muted);display:block;margin-bottom:3px;}
+  .field{margin-bottom:10px;}
+  .row{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end;}
+  button.btn{background:var(--accent);color:var(--accent-ink);border:none;padding:8px 16px;border-radius:6px;font-size:14px;cursor:pointer;font-weight:700;}
+  button.btn:hover{background:var(--accent-dark);}
+  button.btn.secondary{background:transparent;color:var(--accent);border:1px solid var(--accent);}
+  button.btn.secondary:hover{background:var(--accent-light);}
+  button.btn.danger{background:transparent;color:var(--danger);border:1px solid var(--danger);}
+  button.btn.danger:hover{background:var(--danger-light);}
+  button.btn.small{padding:5px 10px;font-size:13px;}
+  button.icon-btn{background:transparent;border:none;cursor:pointer;font-size:15px;color:var(--muted);padding:2px 6px;}
+  button.icon-btn:hover{color:var(--danger);}
+  .empty{color:var(--muted);font-size:14px;padding:14px 0;text-align:center;}
+  .badge{display:inline-block;font-size:11.5px;padding:2px 8px;border-radius:20px;background:var(--accent-light);color:#4ade80;font-weight:600;}
+  .badge.salary{background:rgba(129,140,248,0.16);color:#a5b4fc;}
+  .badge.inactive{background:rgba(255,255,255,0.07);color:#9a9aa4;}
+  .toolbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:10px;}
+  .muted{color:var(--muted);font-size:13px;}
+  .entry-row td{vertical-align:top;}
+  .divider{border:none;border-top:1px solid var(--border);margin:18px 0;}
+  .hint{font-size:12.5px;color:var(--muted);margin-top:4px;}
+  .flex-between{display:flex;justify-content:space-between;align-items:center;}
+  .period-header{display:flex;justify-content:space-between;align-items:center;cursor:pointer;padding:10px 0;}
+  .period-header:hover{color:var(--accent);}
+  .chev{transition:transform .15s;color:var(--muted);}
+  .chev.open{transform:rotate(90deg);}
+  .toast{position:fixed;bottom:24px;right:24px;background:#000;border:1px solid var(--accent);color:#fff;padding:11px 18px;border-radius:8px;font-size:13.5px;box-shadow:0 4px 16px rgba(0,0,0,.5);opacity:0;transform:translateY(10px);transition:all .2s;pointer-events:none;z-index:50;}
+  .toast.show{opacity:1;transform:translateY(0);}
+  select#filterEmp{min-width:160px;}
+  textarea{width:100%;min-height:150px;resize:vertical;line-height:1.5;}
+  /* Modal */
+  .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.6);display:none;align-items:flex-start;justify-content:center;padding:40px 16px;overflow:auto;z-index:60;}
+  .modal-overlay.show{display:flex;}
+  .modal{background:var(--panel);border:1px solid var(--border);border-radius:12px;max-width:640px;width:100%;padding:24px;box-shadow:0 10px 40px rgba(0,0,0,.6);}
+  .modal h2{margin-top:0;}
+  .close-x{float:right;background:transparent;border:none;color:var(--muted);font-size:20px;cursor:pointer;}
+  .close-x:hover{color:#fff;}
+  .kv{display:flex;gap:8px;align-items:center;margin-bottom:8px;}
+  .kv label{margin:0;min-width:60px;}
+  .kv input{flex:1;}
+  code.inline{background:#000;padding:1px 6px;border-radius:4px;color:#4ade80;font-size:12.5px;}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <svg class="logo-mark" width="34" height="34" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <path d="M20 52 L42 74 L82 22" fill="none" stroke="#22c55e" stroke-width="16" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    <div>
+      <h1>Converted <span style="color:#66666c;font-weight:400;">— Payroll Tracker</span></h1>
+      <div class="tag">Employee hours &amp; pay, tracked monthly</div>
+    </div>
+  </div>
+  <div class="save-indicator" id="saveIndicator">Saved locally in this browser</div>
+</header>
+
+<nav>
+  <button data-tab="dashboard" class="active">Dashboard</button>
+  <button data-tab="employees">Employees</button>
+  <button data-tab="entry">Payroll Entry</button>
+  <button data-tab="history">History</button>
+  <button data-tab="payslips">Payslips</button>
+  <button data-tab="backup">Export &amp; Backup</button>
+  <button data-tab="settings">Settings</button>
+</nav>
+
+<main>
+
+  <!-- DASHBOARD -->
+  <section id="tab-dashboard">
+    <div class="panel">
+      <h2>Overview</h2>
+      <div class="grid cols-4" id="dashStats"></div>
+    </div>
+    <div class="panel">
+      <div class="flex-between">
+        <h2 style="margin:0;">Most recent pay period</h2>
+      </div>
+      <div id="dashRecent"></div>
+    </div>
+  </section>
+
+  <!-- EMPLOYEES -->
+  <section id="tab-employees" style="display:none;">
+    <div class="panel">
+      <h2>Add employee</h2>
+      <div class="row">
+        <div class="field">
+          <label>Name</label>
+          <input id="empName" type="text" placeholder="Jane Smith">
+        </div>
+        <div class="field">
+          <label>Email</label>
+          <input id="empEmail" type="email" placeholder="jane@example.com" style="width:200px;">
+        </div>
+        <div class="field">
+          <label>Pay type</label>
+          <select id="empType" onchange="toggleEmpRateLabel()">
+            <option value="hourly">Hourly</option>
+            <option value="salary">Salary (per pay period)</option>
+          </select>
+        </div>
+        <div class="field">
+          <label id="empRateLabel">Hourly rate (£)</label>
+          <input id="empRate" type="number" step="0.01" placeholder="25.00">
+        </div>
+        <div class="field">
+          <label>Overtime multiplier</label>
+          <input id="empOT" type="number" step="0.1" value="1.5" style="width:70px;">
+        </div>
+        <div class="field">
+          <button class="btn" onclick="addEmployee()">Add employee</button>
+        </div>
+      </div>
+    </div>
+    <div class="panel">
+      <h2>Employees</h2>
+      <table id="empTable"></table>
+    </div>
+  </section>
+
+  <!-- PAYROLL ENTRY -->
+  <section id="tab-entry" style="display:none;">
+    <div class="panel">
+      <h2>Pay period</h2>
+      <div class="row">
+        <div class="field">
+          <label>Period label</label>
+          <input id="periodLabel" type="text" placeholder="July 2026">
+        </div>
+        <div class="field">
+          <label>Start date</label>
+          <input id="periodStart" type="date">
+        </div>
+        <div class="field">
+          <label>End date</label>
+          <input id="periodEnd" type="date">
+        </div>
+        <div class="field">
+          <button class="btn secondary" onclick="startNewPeriodEntry()">New / reset entry form</button>
+        </div>
+      </div>
+      <div class="hint">Enter hours and adjustments below for each active employee, then save. Editing an existing period (from History) will load it back here.</div>
+    </div>
+
+    <div class="panel">
+      <h2>Entries</h2>
+      <table id="entryTable"></table>
+      <div id="entryEmpty" class="empty" style="display:none;">No active employees yet. Add some in the Employees tab.</div>
+      <hr class="divider">
+      <div class="flex-between">
+        <div><strong>Period total: </strong><span id="entryTotal">£0.00</span></div>
+        <div>
+          <button class="btn secondary" onclick="startNewPeriodEntry()">Clear</button>
+          <button class="btn" onclick="savePeriod()">Save pay period</button>
+        </div>
+      </div>
+      <input type="hidden" id="editingPeriodId">
+    </div>
+  </section>
+
+  <!-- HISTORY -->
+  <section id="tab-history" style="display:none;">
+    <div class="panel">
+      <div class="toolbar">
+        <h2 style="margin:0;">Pay period history</h2>
+        <div class="row" style="margin:0;">
+          <select id="filterEmp" onchange="renderHistory()"><option value="">All employees</option></select>
+        </div>
+      </div>
+      <div id="historyList"></div>
+    </div>
+  </section>
+
+  <!-- PAYSLIPS -->
+  <section id="tab-payslips" style="display:none;">
+    <div class="panel">
+      <h2>Add a payslip</h2>
+      <p class="muted">When your accountant sends back a processed payslip PDF, upload it here, link it to the employee and period, then generate the email to send it on.</p>
+      <div class="row">
+        <div class="field">
+          <label>Employee</label>
+          <select id="slipEmp" style="min-width:180px;"></select>
+        </div>
+        <div class="field">
+          <label>Pay period / label</label>
+          <input id="slipPeriod" type="text" placeholder="July 2026" list="periodOptions">
+          <datalist id="periodOptions"></datalist>
+        </div>
+        <div class="field">
+          <label>Payslip PDF</label>
+          <input id="slipFile" type="file" accept="application/pdf">
+        </div>
+        <div class="field">
+          <button class="btn" onclick="addPayslip()">Save payslip</button>
+        </div>
+      </div>
+    </div>
+    <div class="panel">
+      <h2>Saved payslips</h2>
+      <div id="payslipList"></div>
+    </div>
+  </section>
+
+  <!-- BACKUP / EXPORT -->
+  <section id="tab-backup" style="display:none;">
+    <div class="panel">
+      <h2>Branded PDF (for your accountant)</h2>
+      <p class="muted">A clean, branded payroll summary for a single period — ideal to send to your accountant to process deductions.</p>
+      <div class="row">
+        <div class="field">
+          <label>Choose period</label>
+          <select id="pdfPeriodSelect" style="min-width:220px;"></select>
+        </div>
+        <div class="field">
+          <button class="btn" onclick="exportPeriodPDFfromSelect()">Download branded PDF</button>
+        </div>
+      </div>
+    </div>
+    <div class="panel">
+      <h2>Spreadsheet export</h2>
+      <p class="muted">Download all payroll history as CSV to open in Excel or Google Sheets.</p>
+      <div class="row">
+        <button class="btn secondary" onclick="exportCSV()">Download all history as CSV</button>
+      </div>
+    </div>
+    <div class="panel">
+      <h2>Full backup</h2>
+      <p class="muted">Download a JSON backup of employees, periods and settings to move to another computer or keep safe. <span class="muted">(Uploaded payslip PDFs are stored separately in this browser and are not included in the JSON.)</span></p>
+      <div class="row">
+        <button class="btn secondary" onclick="exportJSON()">Download full backup (JSON)</button>
+      </div>
+      <hr class="divider">
+      <h3>Restore</h3>
+      <p class="muted">Restore from a JSON backup. This replaces all current employees, periods and settings.</p>
+      <input type="file" id="importFile" accept="application/json">
+      <button class="btn secondary" onclick="importJSON()">Restore from file</button>
+    </div>
+    <div class="panel">
+      <h2>Reset</h2>
+      <p class="muted">Permanently erase all data stored in this browser (employees, periods, settings and payslips).</p>
+      <button class="btn danger" onclick="resetAll()">Erase all data</button>
+    </div>
+  </section>
+
+  <!-- SETTINGS -->
+  <section id="tab-settings" style="display:none;">
+    <div class="panel">
+      <h2>Business details</h2>
+      <p class="muted">These appear on the branded PDF and in the payslip emails. All optional except company name.</p>
+      <div class="field"><label>Company name</label><input id="setName" type="text" style="width:280px;"></div>
+      <div class="field"><label>Contact email (from)</label><input id="setEmail" type="email" style="width:280px;" placeholder="payroll@converted.co"></div>
+      <div class="field"><label>Address (one line per line)</label><textarea id="setAddress" style="min-height:80px;" placeholder="1 Example Street&#10;London&#10;EC1A 1AA"></textarea></div>
+      <div class="field"><label>Company / registration no. (optional)</label><input id="setReg" type="text" style="width:280px;"></div>
+      <div class="field"><label>Payslip password (included in employee emails)</label><input id="setSlipPassword" type="text" style="width:280px;" placeholder="AMSRJP1"></div>
+      <div class="field"><label>Email sign-off name</label><input id="setSignoff" type="text" style="width:280px;" placeholder="The Converted Team"></div>
+      <button class="btn" onclick="saveSettings()">Save settings</button>
+    </div>
+  </section>
+
+</main>
+
+<!-- Email modal -->
+<div class="modal-overlay" id="emailModal">
+  <div class="modal">
+    <button class="close-x" onclick="closeEmailModal()">✕</button>
+    <h2>Send payslip email</h2>
+    <p class="muted" id="emailStep">Step 1 — the payslip PDF has been downloaded. Step 2 — open or copy the email below and attach that PDF before sending.</p>
+    <div class="kv"><label>To</label><input id="mailTo" type="text" readonly></div>
+    <div class="kv"><label>Subject</label><input id="mailSubject" type="text"></div>
+    <div class="field"><label>Body</label><textarea id="mailBody"></textarea></div>
+    <div class="row" style="margin-top:6px;">
+      <button class="btn" onclick="openInMailApp()">Open in mail app</button>
+      <button class="btn secondary" onclick="copyEmailBody()">Copy body</button>
+      <button class="btn secondary" onclick="copyEmailTo()">Copy address</button>
+      <button class="btn secondary" onclick="redownloadCurrentSlip()">Re-download payslip PDF</button>
+    </div>
+    <p class="hint">Note: email programs don't allow websites to attach files automatically (a security rule). The payslip PDF has been downloaded to your computer — just drag it into the email before sending.</p>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ---------- State ---------- */
+const STORAGE_KEY = 'convertedPayrollData_v2';
+
+function defaultState(){
+  return {
+    business: { name:'Converted', email:'', address:'', reg:'', signoff:'The Converted Team', slipPassword:'AMSRJP1' },
+    employees: [],
+    periods: [],
+    payslips: []
+  };
+}
+
+let state = loadState();
+
+function loadState(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(!raw){
+      // migrate from v1 if present
+      const old = localStorage.getItem('convertedPayrollData_v1');
+      if(old){
+        const p = JSON.parse(old);
+        const d = defaultState();
+        d.employees = (p.employees||[]).map(e=>({email:'', ...e}));
+        d.periods = p.periods||[];
+        return d;
+      }
+      return defaultState();
+    }
+    const parsed = JSON.parse(raw);
+    const d = defaultState();
+    return {
+      business: { ...d.business, ...(parsed.business||{}) },
+      employees: parsed.employees||[],
+      periods: parsed.periods||[],
+      payslips: parsed.payslips||[]
+    };
+  }catch(e){
+    console.error('Failed to load saved data', e);
+    return defaultState();
+  }
+}
+
+function saveState(){
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  flashSaved();
+}
+
+function flashSaved(){
+  document.getElementById('saveIndicator').textContent = 'Saved ' + new Date().toLocaleTimeString();
+}
+
+function uid(){ return 'id_' + Math.random().toString(36).slice(2,10) + Date.now().toString(36); }
+
+function fmt(n){
+  n = Number(n)||0;
+  return '£' + n.toLocaleString('en-GB', {minimumFractionDigits:2, maximumFractionDigits:2});
+}
+function fmtPlain(n){ n=Number(n)||0; return n.toLocaleString('en-GB',{minimumFractionDigits:2,maximumFractionDigits:2}); }
+
+function toast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 2400);
+}
+
+/* ---------- IndexedDB for payslip PDFs ---------- */
+const DB_NAME='convertedPayrollDB', STORE='payslips';
+function openDB(){
+  return new Promise((res,rej)=>{
+    const r = indexedDB.open(DB_NAME,1);
+    r.onupgradeneeded = e=>{ const db=e.target.result; if(!db.objectStoreNames.contains(STORE)) db.createObjectStore(STORE); };
+    r.onsuccess = e=>res(e.target.result);
+    r.onerror = e=>rej(e.target.error);
+  });
+}
+async function putBlob(id, blob){
+  const db=await openDB();
+  return new Promise((res,rej)=>{ const tx=db.transaction(STORE,'readwrite'); tx.objectStore(STORE).put(blob,id); tx.oncomplete=()=>res(); tx.onerror=e=>rej(e.target.error); });
+}
+async function getBlob(id){
+  const db=await openDB();
+  return new Promise((res,rej)=>{ const tx=db.transaction(STORE,'readonly'); const rq=tx.objectStore(STORE).get(id); rq.onsuccess=()=>res(rq.result); rq.onerror=e=>rej(e.target.error); });
+}
+async function delBlob(id){
+  const db=await openDB();
+  return new Promise((res,rej)=>{ const tx=db.transaction(STORE,'readwrite'); tx.objectStore(STORE).delete(id); tx.oncomplete=()=>res(); tx.onerror=e=>rej(e.target.error); });
+}
+
+/* ---------- Tabs ---------- */
+document.querySelectorAll('nav button').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('main > section').forEach(s=>s.style.display='none');
+    document.getElementById('tab-'+btn.dataset.tab).style.display='block';
+    const t = btn.dataset.tab;
+    if(t==='dashboard') renderDashboard();
+    if(t==='employees') renderEmployees();
+    if(t==='entry') renderEntryForm();
+    if(t==='history') renderHistory();
+    if(t==='payslips') renderPayslipsTab();
+    if(t==='backup') renderPdfPeriodSelect();
+    if(t==='settings') loadSettingsForm();
+  });
+});
+
+/* ---------- Settings ---------- */
+function loadSettingsForm(){
+  document.getElementById('setName').value = state.business.name||'';
+  document.getElementById('setEmail').value = state.business.email||'';
+  document.getElementById('setAddress').value = state.business.address||'';
+  document.getElementById('setReg').value = state.business.reg||'';
+  document.getElementById('setSlipPassword').value = state.business.slipPassword||'';
+  document.getElementById('setSignoff').value = state.business.signoff||'';
+}
+function saveSettings(){
+  state.business.name = document.getElementById('setName').value.trim() || 'Converted';
+  state.business.email = document.getElementById('setEmail').value.trim();
+  state.business.address = document.getElementById('setAddress').value;
+  state.business.reg = document.getElementById('setReg').value.trim();
+  state.business.slipPassword = document.getElementById('setSlipPassword').value.trim();
+  state.business.signoff = document.getElementById('setSignoff').value.trim() || (state.business.name);
+  saveState();
+  toast('Settings saved');
+}
+
+/* ---------- Employees ---------- */
+function toggleEmpRateLabel(){
+  const type = document.getElementById('empType').value;
+  document.getElementById('empRateLabel').textContent = type === 'hourly' ? 'Hourly rate (£)' : 'Salary per period (£)';
+}
+
+function addEmployee(){
+  const name = document.getElementById('empName').value.trim();
+  const email = document.getElementById('empEmail').value.trim();
+  const type = document.getElementById('empType').value;
+  const rate = parseFloat(document.getElementById('empRate').value);
+  const ot = parseFloat(document.getElementById('empOT').value) || 1.5;
+  if(!name){ toast('Enter an employee name'); return; }
+  if(isNaN(rate) || rate < 0){ toast('Enter a valid rate/salary'); return; }
+  state.employees.push({ id: uid(), name, email, type, rate, ot, active: true });
+  saveState();
+  document.getElementById('empName').value='';
+  document.getElementById('empEmail').value='';
+  document.getElementById('empRate').value='';
+  renderEmployees();
+  toast('Employee added');
+}
+
+function removeEmployee(id){
+  if(!confirm('Remove this employee? Past payroll history for them will be kept in History.')) return;
+  state.employees = state.employees.filter(e=>e.id!==id);
+  saveState();
+  renderEmployees();
+}
+
+function toggleActive(id){
+  const e = state.employees.find(e=>e.id===id);
+  if(e){ e.active = !e.active; saveState(); renderEmployees(); }
+}
+
+function editEmployeeEmail(id){
+  const e = state.employees.find(e=>e.id===id);
+  if(!e) return;
+  const v = prompt('Email address for '+e.name+':', e.email||'');
+  if(v!==null){ e.email = v.trim(); saveState(); renderEmployees(); }
+}
+
+function renderEmployees(){
+  const table = document.getElementById('empTable');
+  if(state.employees.length===0){
+    table.innerHTML = '<tr><td class="empty">No employees yet. Add your first one above.</td></tr>';
+    return;
+  }
+  let html = '<tr><th>Name</th><th>Email</th><th>Type</th><th>Rate</th><th>OT ×</th><th>Status</th><th></th></tr>';
+  state.employees.forEach(e=>{
+    html += `<tr>
+      <td>${escapeHtml(e.name)}</td>
+      <td>${e.email?escapeHtml(e.email):'<span class="muted">— <a href="#" onclick="editEmployeeEmail(\''+e.id+'\');return false;" style="color:var(--accent)">add</a></span>'}</td>
+      <td><span class="badge ${e.type==='salary'?'salary':''}">${e.type==='salary'?'Salary':'Hourly'}</span></td>
+      <td>${fmt(e.rate)}${e.type==='hourly'?'/hr':'/period'}</td>
+      <td>${e.type==='hourly' ? e.ot+'×' : '—'}</td>
+      <td>${e.active ? '<span class="badge">Active</span>' : '<span class="badge inactive">Inactive</span>'}</td>
+      <td>
+        <button class="icon-btn" title="Edit email" onclick="editEmployeeEmail('${e.id}')">✉</button>
+        <button class="icon-btn" title="Toggle active" onclick="toggleActive('${e.id}')">⏻</button>
+        <button class="icon-btn" title="Remove" onclick="removeEmployee('${e.id}')">✕</button>
+      </td>
+    </tr>`;
+  });
+  table.innerHTML = html;
+}
+
+/* ---------- Payroll Entry ---------- */
+function startNewPeriodEntry(){
+  document.getElementById('editingPeriodId').value = '';
+  document.getElementById('periodLabel').value = defaultPeriodLabel();
+  document.getElementById('periodStart').value = '';
+  document.getElementById('periodEnd').value = '';
+  renderEntryForm();
+}
+
+function defaultPeriodLabel(){
+  return new Date().toLocaleString('en-GB', {month:'long', year:'numeric'});
+}
+
+function renderEntryForm(prefillEntries){
+  const table = document.getElementById('entryTable');
+  const empty = document.getElementById('entryEmpty');
+  const active = state.employees.filter(e=>e.active);
+  if(!document.getElementById('periodLabel').value){
+    document.getElementById('periodLabel').value = defaultPeriodLabel();
+  }
+  if(active.length===0){
+    table.innerHTML='';
+    empty.style.display='block';
+    document.getElementById('entryTotal').textContent = fmt(0);
+    return;
+  }
+  empty.style.display='none';
+  const prefill = prefillEntries || {};
+  let html = '<tr><th>Employee</th><th>Regular hrs</th><th>OT hrs</th><th>Bonus</th><th>Adjustment</th><th>Note</th><th>Gross pay</th></tr>';
+  active.forEach(e=>{
+    const p = prefill[e.id] || {};
+    if(e.type === 'hourly'){
+      html += `<tr class="entry-row" data-emp="${e.id}">
+        <td>${escapeHtml(e.name)}<div class="hint">${fmt(e.rate)}/hr, OT ${e.ot}×</div></td>
+        <td><input type="number" step="0.25" min="0" class="reg-hours" value="${p.regularHours ?? ''}" oninput="recalcRow('${e.id}')"></td>
+        <td><input type="number" step="0.25" min="0" class="ot-hours" value="${p.overtimeHours ?? ''}" oninput="recalcRow('${e.id}')"></td>
+        <td><input type="number" step="0.01" class="bonus" value="${p.bonus ?? ''}" oninput="recalcRow('${e.id}')"></td>
+        <td><input type="number" step="0.01" class="adj" value="${p.adjustment ?? ''}" oninput="recalcRow('${e.id}')"></td>
+        <td><input type="text" class="note" value="${escapeHtml(p.note||'')}" style="width:120px;"></td>
+        <td class="row-total">${fmt(p.grossPay||0)}</td>
+      </tr>`;
+    } else {
+      html += `<tr class="entry-row" data-emp="${e.id}">
+        <td>${escapeHtml(e.name)}<div class="hint">Salary ${fmt(e.rate)}/period</div></td>
+        <td><input type="number" step="0.25" min="0" class="reg-hours" value="${p.regularHours ?? ''}" placeholder="ref only"></td>
+        <td><input type="number" step="0.25" min="0" class="ot-hours" value="${p.overtimeHours ?? ''}" placeholder="—" disabled></td>
+        <td><input type="number" step="0.01" class="bonus" value="${p.bonus ?? ''}" oninput="recalcRow('${e.id}')"></td>
+        <td><input type="number" step="0.01" class="adj" value="${p.adjustment ?? ''}" oninput="recalcRow('${e.id}')"></td>
+        <td><input type="text" class="note" value="${escapeHtml(p.note||'')}" style="width:120px;"></td>
+        <td class="row-total">${fmt((p.grossPay!==undefined?p.grossPay:e.rate))}</td>
+      </tr>`;
+    }
+  });
+  table.innerHTML = html;
+  recalcAll();
+}
+
+function rowValues(tr, emp){
+  const regularHours = parseFloat(tr.querySelector('.reg-hours').value) || 0;
+  const overtimeHours = emp.type==='hourly' ? (parseFloat(tr.querySelector('.ot-hours').value) || 0) : 0;
+  const bonus = parseFloat(tr.querySelector('.bonus').value) || 0;
+  const adjustment = parseFloat(tr.querySelector('.adj').value) || 0;
+  const note = tr.querySelector('.note').value;
+  let grossPay;
+  if(emp.type==='hourly'){
+    grossPay = (regularHours*emp.rate) + (overtimeHours*emp.rate*emp.ot) + bonus + adjustment;
+  } else {
+    grossPay = emp.rate + bonus + adjustment;
+  }
+  return {regularHours, overtimeHours, bonus, adjustment, note, grossPay};
+}
+
+function recalcRow(empId){
+  const emp = state.employees.find(e=>e.id===empId);
+  const tr = document.querySelector(`.entry-row[data-emp="${empId}"]`);
+  if(!emp || !tr) return;
+  tr.querySelector('.row-total').textContent = fmt(rowValues(tr, emp).grossPay);
+  recalcAll();
+}
+
+function recalcAll(){
+  let total = 0;
+  document.querySelectorAll('.entry-row').forEach(tr=>{
+    const emp = state.employees.find(e=>e.id===tr.dataset.emp);
+    if(emp) total += rowValues(tr, emp).grossPay;
+  });
+  document.getElementById('entryTotal').textContent = fmt(total);
+}
+
+function savePeriod(){
+  const label = document.getElementById('periodLabel').value.trim() || defaultPeriodLabel();
+  const start = document.getElementById('periodStart').value;
+  const end = document.getElementById('periodEnd').value;
+  const rows = document.querySelectorAll('.entry-row');
+  if(rows.length===0){ toast('No active employees to save'); return; }
+  const entries = [];
+  rows.forEach(tr=>{
+    const emp = state.employees.find(e=>e.id===tr.dataset.emp);
+    if(!emp) return;
+    entries.push({ employeeId: emp.id, employeeName: emp.name, payType: emp.type, rate: emp.rate, ot: emp.ot, ...rowValues(tr, emp) });
+  });
+  const editingId = document.getElementById('editingPeriodId').value;
+  const total = entries.reduce((s,e)=>s+e.grossPay,0);
+  if(editingId){
+    const idx = state.periods.findIndex(p=>p.id===editingId);
+    if(idx>-1) state.periods[idx] = { ...state.periods[idx], label, start, end, entries, total };
+  } else {
+    state.periods.push({ id: uid(), label, start, end, entries, total, createdAt: new Date().toISOString() });
+  }
+  saveState();
+  toast('Pay period saved');
+  startNewPeriodEntry();
+  renderDashboard();
+}
+
+/* ---------- History ---------- */
+function populateEmpFilter(){
+  const sel = document.getElementById('filterEmp');
+  const current = sel.value;
+  sel.innerHTML = '<option value="">All employees</option>' + state.employees.map(e=>`<option value="${e.id}">${escapeHtml(e.name)}</option>`).join('');
+  sel.value = current;
+}
+
+function sortedPeriods(){
+  return [...state.periods].sort((a,b)=> (b.start||'').localeCompare(a.start||'') || (b.createdAt||'').localeCompare(a.createdAt||''));
+}
+
+function renderHistory(){
+  populateEmpFilter();
+  const filterEmp = document.getElementById('filterEmp').value;
+  const list = document.getElementById('historyList');
+  if(state.periods.length===0){
+    list.innerHTML = '<div class="empty">No pay periods saved yet. Go to Payroll Entry to create one.</div>';
+    return;
+  }
+  let html = '';
+  sortedPeriods().forEach(p=>{
+    const entries = filterEmp ? p.entries.filter(e=>e.employeeId===filterEmp) : p.entries;
+    if(filterEmp && entries.length===0) return;
+    const total = entries.reduce((s,e)=>s+e.grossPay,0);
+    html += `<div class="panel" style="box-shadow:none;border:1px solid var(--border);">
+      <div class="period-header" onclick="togglePeriod('${p.id}')">
+        <div><strong>${escapeHtml(p.label)}</strong> ${p.start?`<span class="muted">(${p.start} – ${p.end||'?'})</span>`:''}</div>
+        <div><strong>${fmt(total)}</strong> <span class="chev" id="chev-${p.id}">▸</span></div>
+      </div>
+      <div id="body-${p.id}" style="display:none;">
+        <table>
+          <tr><th>Employee</th><th>Reg hrs</th><th>OT hrs</th><th>Bonus</th><th>Adj.</th><th>Note</th><th>Gross</th></tr>
+          ${entries.map(e=>`<tr>
+            <td>${escapeHtml(e.employeeName)}</td>
+            <td>${e.regularHours||0}</td>
+            <td>${e.overtimeHours||0}</td>
+            <td>${fmt(e.bonus||0)}</td>
+            <td>${fmt(e.adjustment||0)}</td>
+            <td>${escapeHtml(e.note||'')}</td>
+            <td>${fmt(e.grossPay)}</td>
+          </tr>`).join('')}
+        </table>
+        <div class="row" style="margin-top:10px;">
+          <button class="btn small" onclick="exportPeriodPDF('${p.id}')">Download branded PDF</button>
+          <button class="btn secondary small" onclick="editPeriod('${p.id}')">Edit period</button>
+          <button class="btn danger small" onclick="deletePeriod('${p.id}')">Delete period</button>
+        </div>
+      </div>
+    </div>`;
+  });
+  list.innerHTML = html || '<div class="empty">No entries match this filter.</div>';
+}
+
+function togglePeriod(id){
+  const body = document.getElementById('body-'+id);
+  const chev = document.getElementById('chev-'+id);
+  const open = body.style.display !== 'none';
+  body.style.display = open ? 'none' : 'block';
+  chev.classList.toggle('open', !open);
+}
+
+function editPeriod(id){
+  const p = state.periods.find(p=>p.id===id);
+  if(!p) return;
+  document.querySelector('nav button[data-tab="entry"]').click();
+  document.getElementById('editingPeriodId').value = p.id;
+  document.getElementById('periodLabel').value = p.label;
+  document.getElementById('periodStart').value = p.start||'';
+  document.getElementById('periodEnd').value = p.end||'';
+  const prefill = {};
+  p.entries.forEach(e=> prefill[e.employeeId] = e);
+  renderEntryForm(prefill);
+  toast('Editing "'+p.label+'" — make changes and Save');
+}
+
+function deletePeriod(id){
+  if(!confirm('Delete this pay period permanently?')) return;
+  state.periods = state.periods.filter(p=>p.id!==id);
+  saveState();
+  renderHistory();
+  renderDashboard();
+}
+
+/* ---------- Dashboard ---------- */
+function renderDashboard(){
+  const activeCount = state.employees.filter(e=>e.active).length;
+  const totalCount = state.employees.length;
+  const lastPeriod = sortedPeriods()[0];
+  const year = new Date().getFullYear().toString();
+  const ytd = state.periods.filter(p=> (p.start||p.createdAt||'').startsWith(year)).reduce((s,p)=>s+p.total,0);
+  const allTime = state.periods.reduce((s,p)=>s+p.total,0);
+
+  document.getElementById('dashStats').innerHTML = `
+    <div class="stat"><div class="num">${activeCount}/${totalCount}</div><div class="label">Active employees</div></div>
+    <div class="stat"><div class="num">${state.periods.length}</div><div class="label">Pay periods logged</div></div>
+    <div class="stat"><div class="num">${fmt(ytd)}</div><div class="label">Payroll this year (${year})</div></div>
+    <div class="stat"><div class="num">${fmt(allTime)}</div><div class="label">Payroll all-time</div></div>
+  `;
+
+  const recent = document.getElementById('dashRecent');
+  if(!lastPeriod){ recent.innerHTML = '<div class="empty">No pay periods saved yet.</div>'; return; }
+  recent.innerHTML = `
+    <div class="flex-between" style="margin-bottom:10px;">
+      <div><strong>${escapeHtml(lastPeriod.label)}</strong> ${lastPeriod.start?`<span class="muted">(${lastPeriod.start} – ${lastPeriod.end||'?'})</span>`:''}</div>
+      <div><strong>${fmt(lastPeriod.total)}</strong> total</div>
+    </div>
+    <table>
+      <tr><th>Employee</th><th>Gross pay</th></tr>
+      ${lastPeriod.entries.map(e=>`<tr><td>${escapeHtml(e.employeeName)}</td><td>${fmt(e.grossPay)}</td></tr>`).join('')}
+    </table>
+    <div style="margin-top:12px;"><button class="btn small" onclick="exportPeriodPDF('${lastPeriod.id}')">Download branded PDF</button></div>
+  `;
+}
+
+/* ---------- Branded PDF ---------- */
+function drawLogo(doc, x, y, size){
+  // black rounded square with green check
+  doc.setFillColor(0,0,0);
+  doc.roundedRect(x, y, size, size, size*0.2, size*0.2, 'F');
+  doc.setDrawColor(34,197,94);
+  doc.setLineWidth(size*0.14);
+  doc.setLineCap('round');
+  doc.setLineJoin('round');
+  doc.lines([[size*0.22, size*0.22],[size*0.40,-size*0.52]], x+size*0.20, y+size*0.52);
+}
+
+function entryRate(e){
+  if(typeof e.rate === 'number') return e.rate;
+  const emp = state.employees.find(x=>x.id===e.employeeId);
+  return emp ? emp.rate : null;
+}
+function rateLabel(e){
+  const r = entryRate(e);
+  if(r===null || r===undefined) return '—';
+  return '£' + fmtPlain(r) + (e.payType==='salary' ? '/period' : '/hr');
+}
+
+function exportPeriodPDF(periodId){
+  const p = state.periods.find(p=>p.id===periodId);
+  if(!p){ toast('Period not found'); return; }
+  if(!window.jspdf || !window.jspdf.jsPDF){ toast('PDF library still loading — try again in a moment'); return; }
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ unit:'pt', format:'a4' });
+  const pageW = doc.internal.pageSize.getWidth();
+  const margin = 48;
+  let y = 48;
+
+  // Header band
+  drawLogo(doc, margin, y, 34);
+  doc.setTextColor(17,17,17);
+  doc.setFont('helvetica','bold'); doc.setFontSize(18);
+  doc.text(state.business.name || 'Converted', margin+46, y+15);
+  doc.setFont('helvetica','normal'); doc.setFontSize(10); doc.setTextColor(120,120,120);
+  doc.text('Payroll summary', margin+46, y+29);
+
+  // Business details (right aligned)
+  const bizLines = [];
+  if(state.business.address) state.business.address.split('\n').forEach(l=>{ if(l.trim()) bizLines.push(l.trim()); });
+  if(state.business.reg) bizLines.push('Reg no: ' + state.business.reg);
+  if(state.business.email) bizLines.push(state.business.email);
+  doc.setFontSize(9); doc.setTextColor(120,120,120);
+  bizLines.forEach((l,i)=> doc.text(l, pageW - margin, y + 4 + i*12, {align:'right'}));
+
+  y += 54;
+  doc.setDrawColor(34,197,94); doc.setLineWidth(2);
+  doc.line(margin, y, pageW - margin, y);
+  y += 24;
+
+  // Period title
+  doc.setTextColor(17,17,17); doc.setFont('helvetica','bold'); doc.setFontSize(14);
+  doc.text('Pay period: ' + (p.label||''), margin, y);
+  y += 16;
+  doc.setFont('helvetica','normal'); doc.setFontSize(10); doc.setTextColor(90,90,90);
+  const dateStr = (p.start? (p.start + '  to  ' + (p.end||'?')) : '');
+  if(dateStr){ doc.text(dateStr, margin, y); }
+  doc.text('Generated ' + new Date().toLocaleDateString('en-GB'), pageW - margin, y, {align:'right'});
+  y += 22;
+
+  // Table header
+  const cols = [
+    {t:'Employee', x:margin, w:104, align:'left'},
+    {t:'Type', x:margin+104, w:44, align:'left'},
+    {t:'Rate', x:margin+148, w:78, align:'left'},
+    {t:'Reg hrs', x:margin+226, w:42, align:'right'},
+    {t:'OT hrs', x:margin+268, w:38, align:'right'},
+    {t:'Bonus £', x:margin+306, w:50, align:'right'},
+    {t:'Adj £', x:margin+356, w:46, align:'right'},
+    {t:'Gross £', x:margin+402, w:97, align:'right'}
+  ];
+  function cellX(c){ return c.align==='right' ? c.x + c.w : c.x; }
+
+  doc.setFillColor(0,0,0);
+  doc.rect(margin, y-12, pageW - margin*2, 20, 'F');
+  doc.setTextColor(255,255,255); doc.setFont('helvetica','bold'); doc.setFontSize(9);
+  cols.forEach(c=> doc.text(c.t, cellX(c), y+2, {align:c.align}));
+  y += 16;
+
+  doc.setFont('helvetica','normal'); doc.setTextColor(30,30,30); doc.setFontSize(9.5);
+  let shade = false;
+  p.entries.forEach(e=>{
+    if(y > 760){ doc.addPage(); y = 60; }
+    if(shade){ doc.setFillColor(244,247,245); doc.rect(margin, y-11, pageW-margin*2, 18, 'F'); }
+    shade = !shade;
+    doc.setTextColor(30,30,30);
+    doc.text(String(e.employeeName||''), cols[0].x, y+2);
+    doc.text(e.payType==='salary'?'Salary':'Hourly', cols[1].x, y+2);
+    doc.text(rateLabel(e), cols[2].x, y+2);
+    doc.text(String(e.payType==='salary' ? (e.regularHours||'—') : (e.regularHours||0)), cellX(cols[3]), y+2, {align:'right'});
+    doc.text(String(e.payType==='salary' ? '—' : (e.overtimeHours||0)), cellX(cols[4]), y+2, {align:'right'});
+    doc.text(fmtPlain(e.bonus||0), cellX(cols[5]), y+2, {align:'right'});
+    doc.text(fmtPlain(e.adjustment||0), cellX(cols[6]), y+2, {align:'right'});
+    doc.setFont('helvetica','bold');
+    doc.text(fmtPlain(e.grossPay||0), cellX(cols[7]), y+2, {align:'right'});
+    doc.setFont('helvetica','normal');
+    y += 18;
+  });
+
+  // Total row
+  y += 4;
+  doc.setDrawColor(200,200,200); doc.setLineWidth(0.6); doc.line(margin, y-10, pageW-margin, y-10);
+  doc.setFont('helvetica','bold'); doc.setFontSize(11); doc.setTextColor(17,17,17);
+  doc.text('Total gross pay', cols[5].x, y+4);
+  doc.setTextColor(22,163,74);
+  doc.text('£' + fmtPlain(p.total||0), cellX(cols[7]), y+4, {align:'right'});
+  y += 30;
+
+  // Note for accountant
+  doc.setFont('helvetica','italic'); doc.setFontSize(9); doc.setTextColor(120,120,120);
+  const note = 'Figures shown are gross pay only. Please process tax, NI and any other deductions and return a finalised payslip for each employee.';
+  doc.text(doc.splitTextToSize(note, pageW - margin*2), margin, y);
+
+  // Footer
+  doc.setDrawColor(230,230,230); doc.setLineWidth(0.5);
+  doc.line(margin, 812, pageW-margin, 812);
+  doc.setFont('helvetica','normal'); doc.setFontSize(8); doc.setTextColor(150,150,150);
+  doc.text((state.business.name||'Converted') + ' — generated by Converted Payroll Tracker', margin, 824);
+
+  const safe = (p.label||'period').replace(/[^a-z0-9]+/gi,'-').toLowerCase();
+  doc.save(`converted-payroll-${safe}.pdf`);
+  toast('Branded PDF downloaded');
+}
+
+function renderPdfPeriodSelect(){
+  const sel = document.getElementById('pdfPeriodSelect');
+  if(state.periods.length===0){ sel.innerHTML = '<option value="">No periods yet</option>'; return; }
+  sel.innerHTML = sortedPeriods().map(p=>`<option value="${p.id}">${escapeHtml(p.label)}${p.start?' ('+p.start+')':''} — ${fmt(p.total)}</option>`).join('');
+}
+function exportPeriodPDFfromSelect(){
+  const id = document.getElementById('pdfPeriodSelect').value;
+  if(!id){ toast('No period to export'); return; }
+  exportPeriodPDF(id);
+}
+
+/* ---------- Payslips ---------- */
+function renderPayslipsTab(){
+  // employee dropdown
+  const empSel = document.getElementById('slipEmp');
+  empSel.innerHTML = state.employees.length
+    ? state.employees.map(e=>`<option value="${e.id}">${escapeHtml(e.name)}</option>`).join('')
+    : '<option value="">Add an employee first</option>';
+  // period datalist
+  const dl = document.getElementById('periodOptions');
+  dl.innerHTML = [...new Set(state.periods.map(p=>p.label))].map(l=>`<option value="${escapeHtml(l)}">`).join('');
+  renderPayslipList();
+}
+
+function addPayslip(){
+  const empId = document.getElementById('slipEmp').value;
+  const period = document.getElementById('slipPeriod').value.trim();
+  const fileInput = document.getElementById('slipFile');
+  const emp = state.employees.find(e=>e.id===empId);
+  if(!emp){ toast('Choose an employee'); return; }
+  if(!period){ toast('Enter a pay period / label'); return; }
+  if(!fileInput.files.length){ toast('Choose a payslip PDF'); return; }
+  const file = fileInput.files[0];
+  const id = uid();
+  putBlob(id, file).then(()=>{
+    state.payslips.push({ id, employeeId: empId, employeeName: emp.name, period, filename: file.name, uploadedAt: new Date().toISOString() });
+    saveState();
+    fileInput.value='';
+    document.getElementById('slipPeriod').value='';
+    renderPayslipList();
+    toast('Payslip saved');
+  }).catch(err=>{ console.error(err); toast('Could not save file'); });
+}
+
+function renderPayslipList(){
+  const list = document.getElementById('payslipList');
+  if(!state.payslips || state.payslips.length===0){
+    list.innerHTML = '<div class="empty">No payslips uploaded yet.</div>';
+    return;
+  }
+  const slips = [...state.payslips].sort((a,b)=> (b.uploadedAt||'').localeCompare(a.uploadedAt||''));
+  list.innerHTML = `<table>
+    <tr><th>Employee</th><th>Period</th><th>File</th><th>Uploaded</th><th>Actions</th></tr>
+    ${slips.map(s=>{
+      const emp = state.employees.find(e=>e.id===s.employeeId);
+      const hasEmail = emp && emp.email;
+      return `<tr>
+        <td>${escapeHtml(s.employeeName)}${hasEmail?'':' <span class="badge inactive">no email</span>'}</td>
+        <td>${escapeHtml(s.period)}</td>
+        <td>${escapeHtml(s.filename)}</td>
+        <td class="muted">${new Date(s.uploadedAt).toLocaleDateString('en-GB')}</td>
+        <td>
+          <button class="btn small" onclick="emailPayslip('${s.id}')">Email to employee</button>
+          <button class="btn secondary small" onclick="viewPayslip('${s.id}')">View</button>
+          <button class="btn secondary small" onclick="downloadPayslip('${s.id}')">Download</button>
+          <button class="icon-btn" title="Delete" onclick="deletePayslip('${s.id}')">✕</button>
+        </td>
+      </tr>`;
+    }).join('')}
+  </table>`;
+}
+
+async function viewPayslip(id){
+  const blob = await getBlob(id);
+  if(!blob){ toast('File not found'); return; }
+  const url = URL.createObjectURL(blob);
+  window.open(url, '_blank');
+  setTimeout(()=>URL.revokeObjectURL(url), 60000);
+}
+
+async function downloadPayslip(id){
+  const blob = await getBlob(id);
+  const slip = state.payslips.find(s=>s.id===id);
+  if(!blob || !slip){ toast('File not found'); return; }
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = slip.filename || 'payslip.pdf';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function deletePayslip(id){
+  if(!confirm('Delete this payslip? The PDF will be removed from this browser.')) return;
+  state.payslips = state.payslips.filter(s=>s.id!==id);
+  saveState();
+  delBlob(id).catch(()=>{});
+  renderPayslipList();
+}
+
+/* ----- Payslip email flow ----- */
+let currentSlipId = null;
+
+async function emailPayslip(id){
+  const slip = state.payslips.find(s=>s.id===id);
+  if(!slip){ toast('Payslip not found'); return; }
+  const emp = state.employees.find(e=>e.id===slip.employeeId);
+  currentSlipId = id;
+
+  // download the PDF so it's ready to attach
+  await downloadPayslip(id);
+
+  const firstName = (slip.employeeName||'').split(' ')[0] || 'there';
+  const signoff = state.business.signoff || state.business.name || 'Converted';
+  const password = state.business.slipPassword || '';
+  const to = (emp && emp.email) ? emp.email : '';
+  const subject = `Your payslip — ${slip.period}`;
+  const passwordBlock = password
+    ? `\nThe payslip is password protected. Please use the following password to open it:\n\nPassword: ${password}\n`
+    : '';
+  const body =
+`Hi ${firstName},
+
+Please find attached your payslip for ${slip.period}.
+${passwordBlock}
+If you have any questions about it, just let me know.
+
+Kind regards,
+${signoff}`;
+
+  document.getElementById('mailTo').value = to;
+  document.getElementById('mailSubject').value = subject;
+  document.getElementById('mailBody').value = body;
+  document.getElementById('emailStep').innerHTML = to
+    ? 'The payslip PDF has just been downloaded. Open it in your mail app (or copy the text), then drag in the downloaded PDF before sending.'
+    : '<strong style="color:#f59e0b">This employee has no email saved</strong> — add one on the Employees tab, or paste an address into “To”. The payslip PDF has been downloaded ready to attach.';
+  if(!to){ document.getElementById('mailTo').removeAttribute('readonly'); }
+  else { document.getElementById('mailTo').setAttribute('readonly','readonly'); }
+
+  document.getElementById('emailModal').classList.add('show');
+}
+
+function openInMailApp(){
+  const to = encodeURIComponent(document.getElementById('mailTo').value);
+  const subject = encodeURIComponent(document.getElementById('mailSubject').value);
+  const body = encodeURIComponent(document.getElementById('mailBody').value);
+  window.location.href = `mailto:${to}?subject=${subject}&body=${body}`;
+}
+
+function copyEmailBody(){
+  copyText(document.getElementById('mailBody').value, 'Email body copied');
+}
+function copyEmailTo(){
+  copyText(document.getElementById('mailTo').value, 'Address copied');
+}
+function copyText(text, msg){
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).then(()=>toast(msg)).catch(()=>fallbackCopy(text,msg));
+  } else fallbackCopy(text,msg);
+}
+function fallbackCopy(text,msg){
+  const ta=document.createElement('textarea'); ta.value=text; document.body.appendChild(ta); ta.select();
+  try{ document.execCommand('copy'); toast(msg); }catch(e){ toast('Copy failed'); }
+  document.body.removeChild(ta);
+}
+function redownloadCurrentSlip(){ if(currentSlipId) downloadPayslip(currentSlipId); }
+function closeEmailModal(){ document.getElementById('emailModal').classList.remove('show'); }
+document.getElementById('emailModal').addEventListener('click', e=>{ if(e.target.id==='emailModal') closeEmailModal(); });
+
+/* ---------- Export / Import ---------- */
+function downloadBlob(content, filename, type){
+  const blob = new Blob([content], {type});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function csvEscape(v){
+  const s = String(v ?? '');
+  if(/[",\n]/.test(s)) return '"' + s.replace(/"/g,'""') + '"';
+  return s;
+}
+
+function exportCSV(){
+  if(state.periods.length===0){ toast('No history to export yet'); return; }
+  const rows = [['Period','Start','End','Employee','Email','Pay Type','Regular Hours','Overtime Hours','Bonus (GBP)','Adjustment (GBP)','Note','Gross Pay (GBP)']];
+  state.periods.forEach(p=>{
+    p.entries.forEach(e=>{
+      const emp = state.employees.find(x=>x.id===e.employeeId);
+      rows.push([p.label, p.start||'', p.end||'', e.employeeName, (emp&&emp.email)||'', e.payType, e.regularHours||0, e.overtimeHours||0, (e.bonus||0).toFixed(2), (e.adjustment||0).toFixed(2), e.note||'', e.grossPay.toFixed(2)]);
+    });
+  });
+  const csv = rows.map(r=>r.map(csvEscape).join(',')).join('\n');
+  downloadBlob(csv, `converted-payroll-history-${todayStamp()}.csv`, 'text/csv');
+  toast('CSV downloaded');
+}
+
+function exportJSON(){
+  downloadBlob(JSON.stringify(state, null, 2), `converted-payroll-backup-${todayStamp()}.json`, 'application/json');
+  toast('Backup downloaded');
+}
+
+function importJSON(){
+  const input = document.getElementById('importFile');
+  if(!input.files.length){ toast('Choose a backup file first'); return; }
+  if(!confirm('This will replace all current data with the backup file. Continue?')) return;
+  const reader = new FileReader();
+  reader.onload = (e)=>{
+    try{
+      const parsed = JSON.parse(e.target.result);
+      if(!parsed.employees || !parsed.periods) throw new Error('bad format');
+      const d = defaultState();
+      state = {
+        business: { ...d.business, ...(parsed.business||{}) },
+        employees: parsed.employees||[],
+        periods: parsed.periods||[],
+        payslips: parsed.payslips||[]
+      };
+      saveState();
+      renderAll();
+      toast('Backup restored');
+    }catch(err){
+      alert('Could not read this file. Make sure it is a Converted Payroll backup JSON file.');
+    }
+  };
+  reader.readAsText(input.files[0]);
+}
+
+function resetAll(){
+  if(!confirm('This will permanently erase ALL data in this browser. This cannot be undone. Continue?')) return;
+  if(!confirm('Are you absolutely sure? Consider downloading a backup first.')) return;
+  // wipe payslip blobs
+  (state.payslips||[]).forEach(s=> delBlob(s.id).catch(()=>{}));
+  state = defaultState();
+  saveState();
+  renderAll();
+  toast('All data erased');
+}
+
+function todayStamp(){ return new Date().toISOString().slice(0,10); }
+
+/* ---------- Utils ---------- */
+function escapeHtml(str){
+  return String(str ?? '').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function renderAll(){
+  renderDashboard();
+  renderEmployees();
+  startNewPeriodEntry();
+  renderHistory();
+  renderPayslipsTab();
+  renderPdfPeriodSelect();
+  loadSettingsForm();
+}
+
+/* ---------- Init ---------- */
+toggleEmpRateLabel();
+renderAll();
+</script>
+</body>
+</html>
